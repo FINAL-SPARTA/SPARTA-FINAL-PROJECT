@@ -28,21 +28,21 @@ public abstract class Basic {
     protected LocalDateTime createdAt;
 
     @CreatedBy
-    protected UUID createdBy;
+    protected Long createdBy;
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
 
     @LastModifiedBy
-    protected UUID updatedBy;
+    protected Long updatedBy;
 
     protected LocalDateTime deletedAt;
 
-    protected UUID deletedBy;
+    protected Long deletedBy;
 
     protected Boolean isDeleted;
 
-    public void softDelete(UUID deletedBy) {
+    public void softDelete(Long deletedBy) {
         this.isDeleted = true;
         this.deletedBy = deletedBy;
         this.deletedAt = LocalDateTime.now();

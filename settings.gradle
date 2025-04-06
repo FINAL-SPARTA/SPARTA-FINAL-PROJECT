@@ -2,7 +2,7 @@ rootProject.name = 'fix-ticketing'
 
 include ('server')
 include ('gateway-service')
-include ('common')
+include ('common-service')
 include ('user-service')
 include ('order-service')
 include ('event-service')

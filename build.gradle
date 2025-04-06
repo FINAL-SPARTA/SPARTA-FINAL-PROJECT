@@ -56,43 +56,43 @@ configurations {
     }
 }
 
-project(':common') { // common은 bootJar로 패키징 할 필요 없음
+project(':common-service') { // common은 bootJar로 패키징 할 필요 없음
     bootJar { enabled = false }
     jar { enabled = true }
 }
 
 project(':alarm-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
 
 project(':event-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
 
 project(':game-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
 
 project(':order-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
 
 project(':stadium-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
 
 project(':user-service') {
     dependencies {
-        implementation project(':common')
+        implementation project(':common-service')
     }
 }
