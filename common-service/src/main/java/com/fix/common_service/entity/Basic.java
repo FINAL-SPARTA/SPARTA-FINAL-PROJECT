@@ -1,12 +1,9 @@
 package com.fix.common_service.entity;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import lombok.Getter;
 import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,9 +11,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
-import lombok.Getter;
+import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
