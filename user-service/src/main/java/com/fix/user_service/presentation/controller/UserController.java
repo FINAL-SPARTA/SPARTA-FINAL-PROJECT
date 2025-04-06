@@ -29,7 +29,7 @@ public class UserController {
     private final UserService userService;
 
     // 회원가입 (POST /users)
-    @PostMapping
+    @PostMapping("/sign-up")
     public ResponseEntity<UserDetailResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto requestDto,
                                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
