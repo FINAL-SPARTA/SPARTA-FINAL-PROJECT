@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+bootJar {enabled = false}
+jar {enabled = false}
+
+
+subprojects {
+
+    repositories {
+        mavenCentral()
+    }
+
+    // 모든 하위 모듈에 적용할 설정
+    group = 'com.i4u'
+    version = '0.0.1-SNAPSHOT'
+
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    // 모든 하위 모듈에 필요한 의존성 목록
+    dependencies {
+        // Web
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+        // Test
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+project(':common') { // common은 bootJar로 패키징 할 필요 없음
+    bootJar { enabled = false }
+    jar { enabled = true }
+}
+project(':user-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+project(':auth-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+project(':order-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+project(':event-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+project(':game-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+project(':stadium-service') {
+    dependencies {
+        implementation project(':common')
+    }
+}

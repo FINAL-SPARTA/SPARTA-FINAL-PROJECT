@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/client/alarm-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/auth-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/event-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/game-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/gateway-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/order-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/stadium-service" />
+    <file type="web" url="file://$PROJECT_DIR$/client/user-service" />
+    <file type="web" url="file://$PROJECT_DIR$/common/common-service" />
+    <file type="web" url="file://$PROJECT_DIR$/server/server" />
+  </component>
+  <component name="ProjectRootManager">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

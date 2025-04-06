@@ -1,0 +1,11 @@
+rootProject.name = 'fix-ticketing'
+
+include 'server'
+include 'gateway-service'
+include 'common-service'
+include 'user-service'
+include 'auth-service'
+include 'order-service'
+include 'event-service'
+include 'game-service'
+include 'stadium-service'
