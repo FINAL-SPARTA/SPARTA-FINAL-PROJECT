@@ -20,7 +20,7 @@ import lombok.Getter;
 
 @Getter
 @MappedSuperclass
-@Where(clause = "is_deleted = false")
+@Where(clause = "is_deleted = false")      // 조회시, 삭제된 데이터 자동 필터링
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Basic {
 
