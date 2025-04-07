@@ -1,5 +1,6 @@
 package com.fix.event_service.domain.model;
 
+import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "p_event_entry")
-public class EventEntry {
+public class EventEntry extends Basic {
     @Id
     private UUID entryId;
 
