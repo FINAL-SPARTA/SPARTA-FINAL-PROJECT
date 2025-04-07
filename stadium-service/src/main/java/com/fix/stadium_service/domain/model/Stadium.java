@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ import java.util.UUID;
 public class Stadium extends Basic {
 
     @Id
+    @GeneratedValue(generator = "UUID")
+    //@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "stadium_id", updatable = false, nullable = false)
     private UUID stadiumId;
 
 
@@ -29,7 +33,6 @@ public class Stadium extends Basic {
 
 
     @OneToMany(mappedBy = "stadium", cascade = CascadeType.PERSIST,orphanRemoval = true)
-    @JoinColumn(name ="stadium_id")
     private List<Seat> seats = new ArrayList<>();
 
     public void addSeat(Seat seat){
@@ -40,10 +43,10 @@ public class Stadium extends Basic {
 
     @Builder
     public Stadium(StadiumName stadiumName, Integer quantity) {
-      this.stadiumId = UUID.randomUUID();
       this.stadiumName = stadiumName;
       this.quantity = quantity;
     }
+
 
     public static Stadium createStadium(StadiumName stadiumName , Integer quantity) {
         return Stadium.builder()
