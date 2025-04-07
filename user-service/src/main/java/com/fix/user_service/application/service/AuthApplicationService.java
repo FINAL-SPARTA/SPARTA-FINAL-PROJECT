@@ -3,9 +3,10 @@ package com.fix.user_service.application.service;
 import com.fix.common_service.entity.UserRole;
 import com.fix.user_service.application.dtos.request.CreateTokenDTO;
 import com.fix.user_service.application.dtos.request.SignInRequestDTO;
+import com.fix.user_service.application.dtos.response.SignInResponseDTO;
 import com.fix.user_service.domain.User;
 import com.fix.user_service.domain.repository.UserRepository;
-import com.fix.user_service.infrastructure.security.JwtUtils;
+import com.fix.user_service.infrastructure.security.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthApplicationService {
 
-    private final JwtUtils jwtUtils;
+    private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlackListService tokenBlackListService;
@@ -31,7 +32,7 @@ public class AuthApplicationService {
      * @return : 생성한 토큰 반환
      */
     public String createAccessToken(CreateTokenDTO request) {
-        return jwtUtils.createAccessToken(request.getUserId(), request.getUsername(), request.getRole());
+        return jwtTokenProvider.createAccessToken(request.getUserId(), request.getUsername(), request.getRole());
     }
 
     /**
@@ -40,12 +41,19 @@ public class AuthApplicationService {
      * @return : 검증 결과
      */
     public HttpHeaders validateToken(String token) {
-        if (token == null || !token.startsWith("Bearer ") || !tokenBlackListService.isTokenBlackListed(token)) {
-            throw new RuntimeException("Invalid token");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid token format");
         }
+
         token = token.substring(7);
+
+        // 블랙리스트에 있으면 차단
+        if (tokenBlackListService.isTokenBlackListed(token)) {
+            throw new RuntimeException("Token is blacklisted");
+        }
+
         try {
-            Claims claims = jwtUtils.getClaims(token);
+            Claims claims = jwtTokenProvider.validateTokenAndGetClaims(token);
             String userId = claims.get("userId", String.class);
             String username = claims.get("username", String.class);
             String roleString = claims.get("role", String.class);
@@ -53,10 +61,9 @@ public class AuthApplicationService {
             UserRole role = UserRole.valueOf(roleString);
 
             HttpHeaders headers = new HttpHeaders();
-            // 검증된 정보를 응답 헤더에 추가
             headers.add("userId", userId);
             headers.add("username", username);
-            headers.add("role", role.toString());
+            headers.add("role", role.name());
 
             return headers;
 
@@ -65,25 +72,43 @@ public class AuthApplicationService {
         }
     }
 
+
     /**
      * 로그인
      * @param signInRequest : 로그인 정보
      * @return : 로그인 결과
      */
-    public String signIn(SignInRequestDTO signInRequest) {
+    public SignInResponseDTO signIn(SignInRequestDTO signInRequest) {
         try {
             User user = userRepository.findByUsername(signInRequest.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-            if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())){
+            if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
                 throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
             }
-            return createAccessToken(new CreateTokenDTO(user.getUserId(), user.getUsername(), user.getRoleName()));
-        }
-        catch (Exception e) {
+
+            String token = createAccessToken(new CreateTokenDTO(
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getRoleName()
+            ));
+
+            log.info("✅ 로그인 성공: username={}, role={}, token={}",
+                    user.getUsername(), user.getRoleName(), token);
+
+            return SignInResponseDTO.builder()
+                    .token(token)
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .role(user.getRoleName().name())
+                    .build();
+
+        } catch (Exception e) {
+            log.error("❌ 로그인 실패: {}", e.getMessage());
             throw e;
         }
     }
+
 
     /**
      * 로그아웃
@@ -92,12 +117,10 @@ public class AuthApplicationService {
     public void logout(String token) {
         token = token.substring(7);
 
-        // 남은 만료 시간 계산
-        Claims claims = jwtUtils.getClaims(token);
+        Claims claims = jwtTokenProvider.validateTokenAndGetClaims(token);
         Date expiration = claims.getExpiration();
         long now = System.currentTimeMillis();
-        long exp = expiration.getTime();
-        long remain = exp - now;
+        long remain = expiration.getTime() - now;
 
         tokenBlackListService.addTokenToBlackList(token, remain);
     }
