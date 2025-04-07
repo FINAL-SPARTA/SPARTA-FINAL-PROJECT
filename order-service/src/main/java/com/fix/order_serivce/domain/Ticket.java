@@ -1,5 +1,5 @@
 package com.fix.order_serivce.domain;
-
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
