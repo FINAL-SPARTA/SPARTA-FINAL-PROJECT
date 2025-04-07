@@ -41,18 +41,26 @@ public class GameController {
 
 	private final GameService gameService;
 
+	/**
+	 * 경기 생성
+	 * @param request : 생성할 경기 내용
+	 * @return : 생성한 경기
+	 */
 	@ValidateUser(roles = {"MASTER", "MANAGER"})
 	@PostMapping
 	public ResponseEntity<CommonResponse<GameCreateResponse>> createGame(
-		@RequestBody GameCreateRequest request,
-		@RequestHeader("x-user-role") String role) {
-		log.info("Game 측에서 받은 role : {} ", role);
+		@RequestBody GameCreateRequest request) {
 		GameCreateResponse response = gameService.createGame(request);
 		return ResponseEntity.ok(CommonResponse.success(
 			response, "경기 생성 성공"
 		));
 	}
 
+	/**
+	 * 경기 단건 조회
+	 * @param gameId : 단건 조회할 경기 ID
+	 * @return : 조회한 경기
+	 */
 	@GetMapping("/{gameId}")
 	public ResponseEntity<CommonResponse<GameGetOneResponse>> getOneGame(@PathVariable UUID gameId) {
 		GameGetOneResponse response = gameService.getOneGame(gameId);
@@ -61,6 +69,12 @@ public class GameController {
 		));
 	}
 
+	/**
+	 * 경기 전체 조회/검색
+	 * @param pageable : pagination을 위한 정보
+	 * @param request : 검색 내용
+	 * @return : 전체 조회/검색한 경기
+	 */
 	@GetMapping
 	public ResponseEntity<CommonResponse<PagedModel<GameListResponse>>> getAllGames(
 		Pageable pageable,
@@ -72,6 +86,12 @@ public class GameController {
 		));
 	}
 
+	/**
+	 * 경기 수정
+	 * @param gameId : 수정할 경기 ID
+	 * @param request : 수정할 경기 내용
+	 * @return : 수정한 경기
+	 */
 	@ValidateUser(roles = {"MASTER", "MANAGER"})
 	@PutMapping("/{gameId}")
 	public ResponseEntity<CommonResponse<GameUpdateResponse>> updateGame(
@@ -84,6 +104,12 @@ public class GameController {
 		));
 	}
 
+	/**
+	 * 경기 상태 수정
+	 * @param gameId : 상태를 수정할 경기 ID
+	 * @param request : 수정할 상태 내용
+	 * @return : 상태를 수정한 경기
+	 */
 	@ValidateUser(roles = {"MASTER", "MANAGER"})
 	@PatchMapping("/{gameId}/status")
 	public ResponseEntity<CommonResponse<GameStatusUpdateResponse>> updateGameStatus(
@@ -96,6 +122,12 @@ public class GameController {
 		));
 	}
 
+	/**
+	 * 경기 삭제
+	 * @param gameId : 삭제할 경기 ID
+	 * @param userId : 삭제한 사용자 ID
+	 * @return : 상태 반환
+	 */
 	@ValidateUser(roles = {"MASTER", "MANAGER"})
 	@DeleteMapping("/{gameId}")
 	public ResponseEntity<CommonResponse> deleteGame(
