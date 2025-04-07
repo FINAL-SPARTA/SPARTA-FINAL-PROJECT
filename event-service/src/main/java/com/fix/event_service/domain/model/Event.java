@@ -31,8 +31,8 @@ public class Event extends Basic {
     @Enumerated(EnumType.STRING)
     private EventStatus status;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Reward> rewards = new ArrayList<>();
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Reward reward;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EventEntry> entries = new ArrayList<>();
@@ -74,10 +74,17 @@ public class Event extends Basic {
 
     public void addEntry(EventEntry entry) {
         this.entries.add(entry);
+        entry.setEvent(this);
     }
 
     public void addReward(Reward reward) {
-        this.rewards.add(reward);
+        this.reward = reward;
         reward.setEvent(this);
+    }
+
+    public boolean isEventOpenForApplication() {
+        LocalDateTime now = LocalDateTime.now();
+        return this.status == EventStatus.ONGOING
+            && now.isAfter(eventPeriod.getEventStartAt()) && now.isBefore(eventPeriod.getEventEndAt());
     }
 }

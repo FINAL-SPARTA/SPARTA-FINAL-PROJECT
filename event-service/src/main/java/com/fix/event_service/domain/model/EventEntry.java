@@ -1,6 +1,7 @@
 package com.fix.event_service.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,11 +23,23 @@ public class EventEntry {
 
     private Boolean isWinner;
 
+    @Builder
     public EventEntry(Event event, Long userId) {
         this.entryId = UUID.randomUUID();
         this.event = event;
         this.userId = userId;
         this.isWinner = false;
+    }
+
+    public static EventEntry createEventEntry(Event event, Long userId) {
+        return EventEntry.builder()
+                .event(event)
+                .userId(userId)
+                .build();
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     public void markAsWinner() {

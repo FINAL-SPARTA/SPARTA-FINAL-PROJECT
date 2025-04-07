@@ -1,6 +1,7 @@
 package com.fix.event_service.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,15 +20,24 @@ public class Reward {
     private Integer quantity;
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
+    @Builder
     public Reward(String rewardName, Integer quantity, String description) {
         this.rewardId = UUID.randomUUID();
         this.rewardName = rewardName;
         this.quantity = quantity;
         this.description = description;
+    }
+
+    public static Reward createReward(String rewardName, Integer quantity, String description) {
+        return Reward.builder()
+                .rewardName(rewardName)
+                .quantity(quantity)
+                .description(description)
+                .build();
     }
 
     public void setEvent(Event event) {
@@ -40,6 +50,4 @@ public class Reward {
         }
         this.quantity -= amount;
     }
-
-
 }
