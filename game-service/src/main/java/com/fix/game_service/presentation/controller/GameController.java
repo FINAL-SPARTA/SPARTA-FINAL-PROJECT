@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -92,6 +93,16 @@ public class GameController {
 		GameStatusUpdateResponse response = gameService.updateGameStatus(gameId, request);
 		return ResponseEntity.ok(CommonResponse.success(
 			response, "경기 상태 수정 성공"
+		));
+	}
+
+	@ValidateUser(roles = {"MASTER", "MANAGER"})
+	@DeleteMapping("/{gameId}")
+	public ResponseEntity<CommonResponse> deleteGame(
+		@PathVariable UUID gameId, @RequestHeader("x-user-id") Long userId) {
+		gameService.deleteGame(gameId, userId);
+		return ResponseEntity.ok(CommonResponse.success(
+			null, "경기 삭제 성공"
 		));
 	}
 

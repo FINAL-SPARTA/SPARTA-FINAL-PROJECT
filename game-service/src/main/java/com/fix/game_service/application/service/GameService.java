@@ -97,6 +97,17 @@ public class GameService {
 		return GameStatusUpdateResponse.fromGame(game);
 	}
 
+	/**
+	 * 경기 삭제
+	 * @param gameId : 삭제할 경기 ID
+	 * @param userId : 삭제한 사용자의 ID
+	 */
+	@Transactional
+	public void deleteGame(UUID gameId, Long userId) {
+		Game game = findGame(gameId);
+		game.softDelete(userId);
+	}
+
 	private Game findGame(UUID gameId) {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
