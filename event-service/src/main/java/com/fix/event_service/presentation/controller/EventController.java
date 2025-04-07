@@ -5,6 +5,7 @@ import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
 import com.fix.event_service.application.service.EventApplicationService;
+import com.fix.event_service.domain.model.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +57,17 @@ public class EventController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponseDto<EventEntryResponseDto> responseDto = eventApplicationService.getEventEntries(eventId, page, size);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 응모 기록(목록) 조회 성공"));
+    }
+
+    // ✅ 이벤트 검색 API
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<PageResponseDto<EventResponseDto>>> searchEvents(
+            @RequestParam("status") EventStatus status,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResponseDto<EventResponseDto> responseDto = eventApplicationService.searchEvents(status, keyword, page, size);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 검색 성공"));
     }
 
     // ✅ 이벤트 정보 수정 API

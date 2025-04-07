@@ -5,6 +5,7 @@ import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
+import com.fix.event_service.domain.model.EventStatus;
 import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
 import com.fix.event_service.domain.service.EventDomainService;
@@ -77,6 +78,12 @@ public class EventApplicationService {
     @Transactional(readOnly = true)
     public PageResponseDto<EventResponseDto> getEvents(int page, int size) {
         Page<EventResponseDto> mappedPage = eventRepository.findAll(page, size).map(EventResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
+    }
+
+    public PageResponseDto<EventResponseDto> searchEvents(EventStatus status, String keyword, int page, int size) {
+        Page<EventResponseDto> mappedPage = eventRepository.searchEvents(status, keyword, page, size)
+                .map(EventResponseDto::new);
         return new PageResponseDto<>(mappedPage);
     }
 
