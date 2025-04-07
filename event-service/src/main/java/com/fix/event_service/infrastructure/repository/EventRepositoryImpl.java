@@ -5,10 +5,12 @@ import com.fix.event_service.domain.repository.EventRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class EventRepositoryImpl implements EventRepository {
 
     @PersistenceContext
