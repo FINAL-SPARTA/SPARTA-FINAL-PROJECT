@@ -2,6 +2,7 @@ package com.fix.order_serivce.application;
 
 import com.fix.common_service.exception.CustomException;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
+import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
 import com.fix.order_serivce.application.dtos.response.OrderResponse;
@@ -9,6 +10,7 @@ import com.fix.order_serivce.application.dtos.response.TicketInfo;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
 import com.fix.order_serivce.domain.Ticket;
+import com.fix.order_serivce.domain.repository.OrderQueryRepository;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final TicketRepository ticketRepository;
-
+    private final OrderQueryRepository orderQueryRepository;
     /**
      * 주문 생성 메서드
      * 사용자의 주문 요청을 받아 Order 및 관련 Ticket 데이터를 생성하고 저장합니다.
@@ -69,7 +71,7 @@ public class OrderService {
         // 5. 생성된 주문 ID 반환
         return order.getOrderId();
     }
-
+//    단건 조회
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
@@ -92,6 +94,7 @@ public class OrderService {
                 .tickets(tickets)
                 .build();
     }
+//    전체 조회(페이징)
     @Transactional(readOnly = true)
     public Page<OrderResponse> getOrders(Pageable pageable) {
         return orderRepository.findAll(pageable)
@@ -105,7 +108,13 @@ public class OrderService {
                         .build());
     }
 
+//    검색(Query DSL)
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> searchOrders(OrderSearchCondition condition, Pageable pageable) {
+        return orderQueryRepository.search(condition, pageable);
+    }
 
+//    주문 수정
     @Transactional
     public void updateOrder(UUID orderId, OrderUpdateRequest request) {
         Order order = orderRepository.findById(orderId)
@@ -114,6 +123,7 @@ public class OrderService {
         order.update(request.getPeopleCount(), request.getOrderStatus());
     }
 
+//    주문 삭제 (soft delete)
     @Transactional
     public void deleteOrder(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)

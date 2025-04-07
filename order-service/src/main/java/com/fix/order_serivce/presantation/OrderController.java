@@ -3,6 +3,7 @@ package com.fix.order_serivce.presantation;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.order_serivce.application.OrderService;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
+import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
 import com.fix.order_serivce.application.dtos.response.OrderResponse;
@@ -59,6 +60,16 @@ public class OrderController {
     public ResponseEntity<CommonResponse<Page<OrderResponse>>> getOrders(Pageable pageable) {
         Page<OrderResponse> orders = orderService.getOrders(pageable);
         return ResponseEntity.ok(CommonResponse.success(orders, "주문 전체 조회 성공"));
+    }
+
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<Page<OrderResponse>>> searchOrders(
+            @ModelAttribute OrderSearchCondition condition,
+            Pageable pageable
+    ) {
+        Page<OrderResponse> result = orderService.searchOrders(condition, pageable);
+        return ResponseEntity.ok(CommonResponse.success(result, "주문 검색 결과"));
     }
 
     // 주문 수정
