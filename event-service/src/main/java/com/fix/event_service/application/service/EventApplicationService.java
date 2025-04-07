@@ -2,14 +2,22 @@ package com.fix.event_service.application.service;
 
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.response.EventDetailResponseDto;
+import com.fix.event_service.application.dtos.response.EventEntryResponseDto;
+import com.fix.event_service.application.dtos.response.EventResponseDto;
+import com.fix.event_service.application.dtos.response.PageResponseDto;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
 import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -57,5 +65,34 @@ public class EventApplicationService {
         EventEntry entry = EventEntry.createEventEntry(event, userId);
 
         event.addEntry(entry);
+    }
+
+    @Transactional(readOnly = true)
+    public EventDetailResponseDto getEvent(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+
+        return new EventDetailResponseDto(event);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponseDto<EventResponseDto> getEvents(int page, int size) {
+        Page<EventResponseDto> mappedPage = eventRepository.findAll(page, size).map(EventResponseDto::new);
+        return new PageResponseDto<>(mappedPage);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponseDto<EventEntryResponseDto> getEventEntries(UUID eventId, int page, int size) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<EventEntryResponseDto> entryDtoList = event.getEntries().stream()
+            .map(EventEntryResponseDto::new)
+            .toList();
+
+        Page<EventEntryResponseDto> mappedPage = new PageImpl<>(entryDtoList, pageable, entryDtoList.size());
+
+        return new PageResponseDto<>(mappedPage);
     }
 }
