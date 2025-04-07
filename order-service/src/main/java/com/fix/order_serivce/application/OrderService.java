@@ -13,6 +13,8 @@ import com.fix.order_serivce.domain.Ticket;
 import com.fix.order_serivce.domain.repository.OrderQueryRepository;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.domain.repository.TicketRepository;
+import com.fix.order_serivce.application.exception.OrderException;
+import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -75,7 +77,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
 
         List<TicketInfo> tickets = ticketRepository.findAllByOrderId(orderId).stream()
                 .map(ticket -> TicketInfo.builder()
@@ -118,8 +120,7 @@ public class OrderService {
     @Transactional
     public void updateOrder(UUID orderId, OrderUpdateRequest request) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
-
+                .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
         order.update(request.getPeopleCount(), request.getOrderStatus());
     }
 
@@ -127,8 +128,7 @@ public class OrderService {
     @Transactional
     public void deleteOrder(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
-
+                .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
         order.softDelete(userId);
     }
 }
