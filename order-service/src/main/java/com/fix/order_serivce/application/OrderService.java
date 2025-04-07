@@ -1,12 +1,16 @@
 package com.fix.order_serivce.application;
 
+import com.fix.common_service.exception.CustomException;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
+import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
+import com.fix.order_serivce.application.dtos.response.TicketInfo;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
 import com.fix.order_serivce.domain.Ticket;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,5 +64,28 @@ public class OrderService {
 
         // 5. 생성된 주문 ID 반환
         return order.getOrderId();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        List<TicketInfo> tickets = ticketRepository.findAllByOrderId(orderId).stream()
+                .map(ticket -> TicketInfo.builder()
+                        .ticketId(ticket.getTicketId())
+                        .seatId(ticket.getSeatId())
+                        .price(ticket.getPrice())
+                        .build())
+                .toList();
+
+        return OrderDetailResponse.builder()
+                .orderId(order.getOrderId())
+                .userId(order.getUserId())
+                .gameId(order.getGameId())
+                .peopleCount(order.getPeopleCount())
+                .totalCount(order.getTotalCount())
+                .tickets(tickets)
+                .build();
     }
 }
