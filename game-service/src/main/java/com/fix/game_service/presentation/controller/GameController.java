@@ -55,4 +55,15 @@ public class GameController {
 		));
 	}
 
+	@GetMapping
+	public ResponseEntity<CommonResponse<PagedModel<GameListResponse>>> getAllGames(
+		Pageable pageable,
+		@ModelAttribute GameSearchRequest request
+	) {
+		PagedModel<GameListResponse> response = gameService.getAllGames(pageable, request);
+		return ResponseEntity.ok(CommonResponse.success(
+			response, "경기 다건 조회/검색 성공"
+		));
+	}
+
 }

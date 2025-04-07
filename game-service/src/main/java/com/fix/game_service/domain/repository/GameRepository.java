@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.fix.game_service.domain.Game;
 
-public interface GameRepository extends JpaRepository<Game, UUID> {
+public interface GameRepository extends JpaRepository<Game, UUID>, GameRepositoryCustom {
 }

@@ -48,6 +48,17 @@ public class GameService {
 		return GameGetOneResponse.fromGame(game);
 	}
 
+	/**
+	 * 경기 검색/다건 조회
+	 * @param pageable : pagination 적용
+	 * @param request : 검색어
+	 * @return : 반환 타입
+	 */
+	public PagedModel<GameListResponse> getAllGames(Pageable pageable, GameSearchRequest request) {
+		PagedModel<GameListResponse> gamePage = gameRepository.searchGame(pageable, request);
+		return gamePage;
+	}
+
 	private Game findGame(UUID gameId) {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
