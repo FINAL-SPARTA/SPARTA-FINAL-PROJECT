@@ -1,9 +1,17 @@
 package com.fix.game_service.application.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
+import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.response.GameCreateResponse;
+import com.fix.game_service.application.dtos.response.GameGetOneResponse;
+import com.fix.game_service.application.dtos.response.GameListResponse;
+import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.Game;
 import com.fix.game_service.domain.repository.GameRepository;
 
@@ -30,5 +38,19 @@ public class GameService {
 		return GameCreateResponse.fromGame(savedGame);
 	}
 
-}
+	/**
+	 * 경기 단건 조회
+	 * @param gameId : 조회할 경기의 ID
+	 * @return : 조회한 경기 정보
+	 */
+	public GameGetOneResponse getOneGame(UUID gameId) {
+		Game game = findGame(gameId);
+		return GameGetOneResponse.fromGame(game);
+	}
 
+	private Game findGame(UUID gameId) {
+		return gameRepository.findById(gameId)
+			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
+	}
+
+}
