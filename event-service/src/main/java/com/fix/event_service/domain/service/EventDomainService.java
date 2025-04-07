@@ -2,6 +2,7 @@ package com.fix.event_service.domain.service;
 
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
+import com.fix.event_service.domain.model.Reward;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,12 @@ public class EventDomainService {
         List<EventEntry> winners = shuffled.subList(0, maxWinners);
         for (EventEntry w : winners) {
             w.markAsWinner();
+        }
+
+        // 당첨자 수만큼 경품 재고 차감
+        Reward reward = event.getReward();
+        if (reward != null && !winners.isEmpty()) {
+            reward.decreaseQuantity(winners.size());
         }
         return winners;
     }

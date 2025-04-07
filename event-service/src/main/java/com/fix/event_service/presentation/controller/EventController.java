@@ -2,10 +2,8 @@ package com.fix.event_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
-import com.fix.event_service.application.dtos.response.EventDetailResponseDto;
-import com.fix.event_service.application.dtos.response.EventEntryResponseDto;
-import com.fix.event_service.application.dtos.response.EventResponseDto;
-import com.fix.event_service.application.dtos.response.PageResponseDto;
+import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
+import com.fix.event_service.application.dtos.response.*;
 import com.fix.event_service.application.service.EventApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +39,7 @@ public class EventController {
         return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 상세 조회 성공"));
     }
 
-    // ✅ 이벤트 목록 조회
+    // ✅ 이벤트 목록 조회 API
     @GetMapping("")
     public ResponseEntity<CommonResponse<PageResponseDto<EventResponseDto>>> getEvents(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -50,7 +48,7 @@ public class EventController {
         return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 목록(페이지) 조회 성공"));
     }
 
-    // ✅ 특정 이벤트 응모 기록(목록) 조회
+    // ✅ 특정 이벤트 응모 기록(목록) 조회 API
     @GetMapping("/{eventId}/entries")
     public ResponseEntity<CommonResponse<PageResponseDto<EventEntryResponseDto>>> getEventEntries(
             @PathVariable("eventId") UUID eventId,
@@ -58,5 +56,28 @@ public class EventController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponseDto<EventEntryResponseDto> responseDto = eventApplicationService.getEventEntries(eventId, page, size);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 응모 기록(목록) 조회 성공"));
+    }
+
+    // ✅ 이벤트 정보 수정 API
+    @PutMapping("/{eventId}")
+    public ResponseEntity<CommonResponse<EventDetailResponseDto>> updateEvent(
+            @PathVariable("eventId") UUID eventId,
+            @RequestBody EventUpdateRequestDto requestDto) {
+        EventDetailResponseDto responseDto = eventApplicationService.updateEvent(eventId, requestDto);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 정보 수정 성공"));
+    }
+
+    // ✅ 당첨자 선정 API
+    @PatchMapping("/{eventId}/announce-winners")
+    public ResponseEntity<CommonResponse<WinnerListResponseDto>> announceWinners(@PathVariable("eventId") UUID eventId) {
+        WinnerListResponseDto responseDto = eventApplicationService.announceWinners(eventId);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "당첨자 선정 성공"));
+    }
+
+    // ✅ 이벤트 논리적 삭제 API
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<CommonResponse<Void>> deleteEvent(@PathVariable("eventId") UUID eventId) {
+        eventApplicationService.deleteEvent(eventId);
+        return ResponseEntity.ok(CommonResponse.success(null, "이벤트 삭제 성공"));
     }
 }

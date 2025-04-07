@@ -57,11 +57,25 @@ public class Event extends Basic {
                 .build();
     }
 
-    public void updateEvent(String eventName, String description, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxWinners) {
+    public void updateEvent(
+        String eventName, String description, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxWinners, Reward reward) {
         this.eventName = eventName;
         this.description = description;
         this.eventPeriod = new EventPeriod(eventStartAt, eventEndAt);
         this.maxWinners = maxWinners;
+        this.reward = reward;
+    }
+
+    public void checkUpdatable() {
+        if (this.status != EventStatus.PLANNED) {
+            throw new IllegalStateException("진행중이거나 종료된 이벤트는 수정할 수 없습니다.");
+        }
+    }
+
+    public void checkDeletable() {
+        if (this.status == EventStatus.ONGOING) {
+            throw new IllegalStateException("응모가 진행중인 이벤트는 삭제할 수 없습니다.");
+        }
     }
 
     public void startEvent() {
@@ -82,9 +96,29 @@ public class Event extends Basic {
         reward.setEvent(this);
     }
 
-    public boolean isEventOpenForApplication() {
+    public void isEventOpenForApplication() {
         LocalDateTime now = LocalDateTime.now();
-        return this.status == EventStatus.ONGOING
-            && now.isAfter(eventPeriod.getEventStartAt()) && now.isBefore(eventPeriod.getEventEndAt());
+        boolean isOngoing = this.status == EventStatus.ONGOING;
+        boolean isAfterStart = now.isAfter(eventPeriod.getEventStartAt());
+        boolean isBeforeEnd = now.isBefore(eventPeriod.getEventEndAt());
+
+        if (!isOngoing || !isAfterStart || !isBeforeEnd) {
+            throw new IllegalStateException("이벤트 응모 기간이 아닙니다.");
+        }
+    }
+
+    @Override
+    public void softDelete(Long userId) {
+        super.softDelete(userId);
+
+        if (this.entries != null) {
+            for (EventEntry entry : this.entries) {
+                entry.softDelete(userId);
+            }
+        }
+
+        if (this.reward != null) {
+            this.reward.softDelete(userId);
+        }
     }
 }

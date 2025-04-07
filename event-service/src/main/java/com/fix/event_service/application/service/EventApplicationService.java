@@ -1,14 +1,13 @@
 package com.fix.event_service.application.service;
 
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
-import com.fix.event_service.application.dtos.response.EventDetailResponseDto;
-import com.fix.event_service.application.dtos.response.EventEntryResponseDto;
-import com.fix.event_service.application.dtos.response.EventResponseDto;
-import com.fix.event_service.application.dtos.response.PageResponseDto;
+import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
+import com.fix.event_service.application.dtos.response.*;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
 import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
+import com.fix.event_service.domain.service.EventDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,12 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EventApplicationService {
 
     private final EventRepository eventRepository;
+    private final EventDomainService eventDomainService;
 
     @Transactional
     public EventDetailResponseDto createEvent(EventCreateRequestDto requestDto) {
@@ -58,9 +59,7 @@ public class EventApplicationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
 
-        if (!event.isEventOpenForApplication()) {
-            throw new IllegalStateException("이벤트 응모 기간이 아닙니다.");
-        }
+        event.isEventOpenForApplication();
 
         EventEntry entry = EventEntry.createEventEntry(event, userId);
 
@@ -94,5 +93,63 @@ public class EventApplicationService {
         Page<EventEntryResponseDto> mappedPage = new PageImpl<>(entryDtoList, pageable, entryDtoList.size());
 
         return new PageResponseDto<>(mappedPage);
+    }
+
+    @Transactional
+    public EventDetailResponseDto updateEvent(UUID eventId, EventUpdateRequestDto requestDto) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+
+        event.checkUpdatable();
+
+        Reward newReward = Reward.createReward(
+                requestDto.getReward().getRewardName(),
+                requestDto.getReward().getQuantity(),
+                requestDto.getReward().getDescription()
+        );
+
+        event.updateEvent(
+                requestDto.getEventName(),
+                requestDto.getDescription(),
+                requestDto.getEventStartAt(),
+                requestDto.getEventEndAt(),
+                requestDto.getMaxWinners(),
+                newReward
+        );
+
+        return new EventDetailResponseDto(event);
+    }
+
+    @Transactional
+    public WinnerListResponseDto announceWinners(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+
+        List<EventEntry> allEntries = event.getEntries();
+
+        List<EventEntry> winners = eventDomainService.selectRandomWinners(event, allEntries);
+
+        List<Long> winnerUserIds = winners.stream()
+            .map(EventEntry::getUserId)
+            .collect(Collectors.toList());
+
+        int remaining = event.getReward().getQuantity();
+
+        return new WinnerListResponseDto(
+            event.getEventId(),
+            winnerUserIds,
+            winners.size(),
+            remaining
+        );
+    }
+
+    @Transactional
+    public void deleteEvent(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+
+        event.checkDeletable();
+
+        event.softDelete(1L); // TODO : 유저 Id 넣기
     }
 }
