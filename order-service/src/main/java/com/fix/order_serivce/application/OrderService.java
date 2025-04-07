@@ -4,6 +4,7 @@ import com.fix.common_service.exception.CustomException;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
 import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
+import com.fix.order_serivce.application.dtos.response.OrderResponse;
 import com.fix.order_serivce.application.dtos.response.TicketInfo;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
@@ -11,6 +12,8 @@ import com.fix.order_serivce.domain.Ticket;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,6 +92,19 @@ public class OrderService {
                 .tickets(tickets)
                 .build();
     }
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+                .map(order -> OrderResponse.builder()
+                        .orderId(order.getOrderId())
+                        .userId(order.getUserId())
+                        .gameId(order.getGameId())
+                        .peopleCount(order.getPeopleCount())
+                        .totalCount(order.getTotalCount())
+                        .ticketIds(null) // 필요시 간단 목록용 필드로
+                        .build());
+    }
+
 
     @Transactional
     public void updateOrder(UUID orderId, OrderUpdateRequest request) {
