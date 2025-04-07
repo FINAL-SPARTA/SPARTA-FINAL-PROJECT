@@ -57,4 +57,9 @@ public class Order extends Basic {
     public void cancel() {
         this.orderStatus = OrderStatus.CANCELLED;
     }
+
+    public void update(int peopleCount, OrderStatus orderStatus) {
+        this.peopleCount = peopleCount;
+        this.orderStatus = orderStatus;
+    }
 }

@@ -2,6 +2,7 @@ package com.fix.order_serivce.application;
 
 import com.fix.common_service.exception.CustomException;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
+import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
 import com.fix.order_serivce.application.dtos.response.TicketInfo;
 import com.fix.order_serivce.domain.Order;
@@ -87,5 +88,13 @@ public class OrderService {
                 .totalCount(order.getTotalCount())
                 .tickets(tickets)
                 .build();
+    }
+
+    @Transactional
+    public void updateOrder(UUID orderId, OrderUpdateRequest request) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        order.update(request.getPeopleCount(), request.getOrderStatus());
     }
 }
