@@ -58,4 +58,13 @@ public class OrderController {
         orderService.updateOrder(orderId, request);
         return ResponseEntity.ok(CommonResponse.success(null, "주문 정보가 수정되었습니다."));
     }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<CommonResponse<Void>> deleteOrder(
+            @PathVariable UUID orderId,
+            @RequestHeader("X-User-Id") Long userId // softDelete에 필요
+    ) {
+        orderService.deleteOrder(orderId, userId);
+        return ResponseEntity.ok(CommonResponse.success(null, "주문이 취소되었습니다."));
+    }
 }

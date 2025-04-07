@@ -97,4 +97,12 @@ public class OrderService {
 
         order.update(request.getPeopleCount(), request.getOrderStatus());
     }
+
+    @Transactional
+    public void deleteOrder(UUID orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("ORDER_NOT_FOUND", "주문 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        order.softDelete(userId);
+    }
 }
