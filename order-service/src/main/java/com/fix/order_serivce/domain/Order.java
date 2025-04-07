@@ -1,15 +1,17 @@
 package com.fix.order_serivce.domain;
 
+import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
 
+
 @Entity
 @Table(name = "p_order")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order {
+public class Order extends Basic {
 
     @Id
     @Column(name = "order_id", nullable = false, updatable = false)

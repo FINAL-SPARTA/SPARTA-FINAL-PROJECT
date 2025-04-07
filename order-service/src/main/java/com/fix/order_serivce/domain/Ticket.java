@@ -1,14 +1,15 @@
 package com.fix.order_serivce.domain;
+
+import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.UUID;
 
 @Entity
 @Table(name = "p_ticket")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Ticket {
+public class Ticket extends Basic {
 
     @Id
     @Column(name = "ticket_id", nullable = false, updatable = false)
