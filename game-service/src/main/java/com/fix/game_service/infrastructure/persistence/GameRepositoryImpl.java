@@ -3,6 +3,7 @@ package com.fix.game_service.infrastructure.persistence;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -80,11 +81,15 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 
 	/* 검색 조건 */
 	private BooleanExpression confirmGameTeam1(Team gameTeam1) {
-		return gameTeam1 != null ? QGame.game.gameTeam1.eq(gameTeam1) : null;
+		return gameTeam1 != null
+			? QGame.game.gameTeam1.eq(gameTeam1).or(QGame.game.gameTeam2.eq(gameTeam1))
+			: null;
 	}
 
 	private BooleanExpression confirmGameTeam2(Team gameTeam2) {
-		return gameTeam2 != null ? QGame.game.gameTeam2.eq(gameTeam2) : null;
+		return gameTeam2 != null
+			? QGame.game.gameTeam2.eq(gameTeam2).or(QGame.game.gameTeam1.eq(gameTeam2))
+			: null;
 	}
 
 	private BooleanExpression confirmGameDate(LocalDateTime gameDate) {
