@@ -31,11 +31,7 @@ public class StadiumService {
                     seatDto.getNumber(),
                     seatDto.getSection()
             );
-            System.out.println("##########");
-            System.out.println(seat.getSection());
             stadium.addSeat(seat);
-            System.out.println("####$$####");
-            System.out.println(stadium.getSeats().stream().iterator().next().getSection());
         }
         stadiumRepository.save(stadium);
         return new StadiumResponseDto(stadium);

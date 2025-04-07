@@ -7,10 +7,9 @@ import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,11 +18,19 @@ public class StadiumController {
 
     private final StadiumService stadiumService;
 
-
+    // 경기장 생성
     @PostMapping()
     public ResponseEntity<CommonResponse<StadiumResponseDto>> createStadium(@RequestBody StadiumCreateRequest requestDto){
         StadiumResponseDto responseDto = stadiumService.createStadium(requestDto);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "경기장 생성 성공"));
     }
+
+    //경기장 단건 조회
+//    @GetMapping("/{stadiumId}")
+//    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadium(@PathVariable("stadiumId") UUID stadiumId){
+//
+//    }
+
+
 
 }
