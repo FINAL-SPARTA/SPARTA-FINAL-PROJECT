@@ -5,12 +5,17 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
+import com.fix.game_service.application.dtos.request.GameStatusUpdateRequest;
+import com.fix.game_service.application.dtos.request.GameUpdateRequest;
 import com.fix.game_service.application.dtos.response.GameCreateResponse;
 import com.fix.game_service.application.dtos.response.GameGetOneResponse;
 import com.fix.game_service.application.dtos.response.GameListResponse;
+import com.fix.game_service.application.dtos.response.GameStatusUpdateResponse;
+import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.Game;
 import com.fix.game_service.domain.repository.GameRepository;
@@ -57,6 +62,39 @@ public class GameService {
 	public PagedModel<GameListResponse> getAllGames(Pageable pageable, GameSearchRequest request) {
 		PagedModel<GameListResponse> gamePage = gameRepository.searchGame(pageable, request);
 		return gamePage;
+	}
+
+	/**
+	 * 경기 수정
+	 * @param gameId : 수정할 경기 ID
+	 * @param request : 수정할 경기 내용
+	 * @return : 반환
+	 */
+	@Transactional
+	public GameUpdateResponse updateGame(UUID gameId, GameUpdateRequest request) {
+		Game game = findGame(gameId);
+		// TODO : stadiumId != null 이라면 Stadium 쪽으로 검증 요청 필요
+
+		Game updateGameInfo = request.toGame();
+		game.updateGame(updateGameInfo);
+
+		return GameUpdateResponse.fromGame(game);
+	}
+
+	/**
+	 * 경기 상태 수정
+	 * @param gameId : 상태를 수정할 경기 ID
+	 * @param request : 수정할 경기 상태 내용
+	 * @return : 반환
+	 */
+	@Transactional
+	public GameStatusUpdateResponse updateGameStatus(UUID gameId, GameStatusUpdateRequest request) {
+		Game game = findGame(gameId);
+
+		Game updateGameStatusInfo = request.toGame();
+		game.updateGameStatus(updateGameStatusInfo);
+
+		return GameStatusUpdateResponse.fromGame(game);
 	}
 
 	private Game findGame(UUID gameId) {

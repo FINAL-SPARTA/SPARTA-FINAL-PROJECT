@@ -1,6 +1,7 @@
 package com.fix.game_service.domain;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.fix.common_service.entity.Basic;
@@ -63,4 +64,26 @@ public class Game extends Basic {
 	@Column
 	private Long remainingSeats;        // 남은 좌석
 
+	/**
+	 * 경기 내용 수정
+	 * @param updateGameInfo : 수정할 경기 내용
+	 */
+	public void updateGame(Game updateGameInfo) {
+		Optional.ofNullable(updateGameInfo.getGameName()).ifPresent(gameName -> this.gameName = gameName);
+		Optional.ofNullable(updateGameInfo.getGameTeam1()).ifPresent(gameTeam1 -> this.gameTeam1 = gameTeam1);
+		Optional.ofNullable(updateGameInfo.getGameTeam2()).ifPresent(gameTeam2 -> this.gameTeam2 = gameTeam2);
+		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
+		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
+		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
+		Optional.ofNullable(updateGameInfo.getOpenDate()).ifPresent(openDate -> this.openDate = openDate);
+		Optional.ofNullable(updateGameInfo.getCloseDate()).ifPresent(closeDate -> this.closeDate = closeDate);
+	}
+
+	/**
+	 * 경기 상태 수정
+	 * @param updateGameStatusInfo : 수정할 경기 상태 내용
+	 */
+	public void updateGameStatus(Game updateGameStatusInfo) {
+		Optional.ofNullable(updateGameStatusInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
+	}
 }
