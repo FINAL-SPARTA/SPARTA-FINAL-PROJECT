@@ -1,6 +1,7 @@
 package com.fix.event_service.domain.model;
 
 import com.fix.common_service.entity.Basic;
+import com.fix.event_service.application.exception.EventException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,13 +69,13 @@ public class Event extends Basic {
 
     public void checkUpdatable() {
         if (this.status != EventStatus.PLANNED) {
-            throw new IllegalStateException("진행중이거나 종료된 이벤트는 수정할 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_CANNOT_UPDATE);
         }
     }
 
     public void checkDeletable() {
         if (this.status == EventStatus.ONGOING) {
-            throw new IllegalStateException("응모가 진행중인 이벤트는 삭제할 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_CANNOT_DELETE);
         }
     }
 
@@ -103,7 +104,7 @@ public class Event extends Basic {
         boolean isBeforeEnd = now.isBefore(eventPeriod.getEventEndAt());
 
         if (!isOngoing || !isAfterStart || !isBeforeEnd) {
-            throw new IllegalStateException("이벤트 응모 기간이 아닙니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_NOT_OPEN_FOR_APPLY);
         }
     }
 

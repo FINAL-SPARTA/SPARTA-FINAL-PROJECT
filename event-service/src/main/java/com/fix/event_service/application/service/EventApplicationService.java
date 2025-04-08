@@ -3,6 +3,7 @@ package com.fix.event_service.application.service;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
+import com.fix.event_service.application.exception.EventException;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
 import com.fix.event_service.domain.model.EventStatus;
@@ -156,6 +157,6 @@ public class EventApplicationService {
 
     private Event findEventById(UUID eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EventException(EventException.EventErrorType.EVENT_NOT_FOUND));
     }
 }
