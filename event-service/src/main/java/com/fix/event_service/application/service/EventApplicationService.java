@@ -36,7 +36,8 @@ public class EventApplicationService {
                 requestDto.getDescription(),
                 requestDto.getEventStartAt(),
                 requestDto.getEventEndAt(),
-                requestDto.getMaxWinners()
+                requestDto.getMaxWinners(),
+                requestDto.getRequiredPoints()
         );
 
         Reward reward = Reward.createReward(
@@ -114,6 +115,7 @@ public class EventApplicationService {
                 requestDto.getEventStartAt(),
                 requestDto.getEventEndAt(),
                 requestDto.getMaxWinners(),
+                requestDto.getRequiredPoints(),
                 newReward
         );
 
