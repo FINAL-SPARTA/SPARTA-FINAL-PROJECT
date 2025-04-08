@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class StadiumService {
@@ -35,7 +37,28 @@ public class StadiumService {
         }
         stadiumRepository.save(stadium);
         return new StadiumResponseDto(stadium);
+    }
 
 
+    @Transactional(readOnly = true)
+    public StadiumResponseDto getStadium(UUID stadiumId){
+        Stadium stadium = findStadium(stadiumId);
+        return new StadiumResponseDto(stadium);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    private Stadium findStadium(UUID stadiumId) {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new IllegalArgumentException("경기장을 찾을 수 없습니다."));
+        return stadium;
     }
 }
