@@ -2,11 +2,9 @@ package com.fix.stadium_service.domain.model;
 
 import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import java.util.UUID;
@@ -21,7 +19,6 @@ public class Seat extends Basic {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    //@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "seat_id", updatable = false, nullable = false)
     private UUID seatId;
 
