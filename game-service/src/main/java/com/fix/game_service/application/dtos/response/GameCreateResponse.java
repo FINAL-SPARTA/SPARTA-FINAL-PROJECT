@@ -23,7 +23,8 @@ public class GameCreateResponse {
 	private Team homeTeam;
 	private Team awayTeam;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
+	private String stadiumName;
 	private GameStatus gameStatus;
 	private LocalDateTime openDate;
 	private LocalDateTime closeDate;
@@ -36,6 +37,7 @@ public class GameCreateResponse {
 			.awayTeam(game.getAwayTeam())
 			.gameDate(game.getGameDate())
 			.stadiumId(game.getStadiumId())
+			.stadiumName(game.getStadiumName())
 			.gameStatus(game.getGameStatus())
 			.openDate(game.getOpenDate())
 			.closeDate(game.getCloseDate())

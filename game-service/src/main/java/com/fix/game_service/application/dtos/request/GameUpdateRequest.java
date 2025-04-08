@@ -36,11 +36,24 @@ public class GameUpdateRequest {
 			.homeTeam(this.homeTeam)
 			.awayTeam(this.awayTeam)
 			.gameDate(this.gameDate)
-			.stadiumId(this.stadiumId)
 			.gameStatus(this.gameStatus)
 			.openDate(this.openDate)
 			.closeDate(this.closeDate)
 			.build();
 	}
 
+	public Game toGameWithStadium(Long stadiumId, String stadiumName, Integer seatQuantity) {
+		return Game.builder()
+			.gameName(this.gameName)
+			.homeTeam(this.homeTeam)
+			.awayTeam(this.awayTeam)
+			.gameDate(this.gameDate)
+			.stadiumId(stadiumId)
+			.stadiumName(stadiumName)
+			.totalSeats(seatQuantity)
+			.gameStatus(this.gameStatus)
+			.openDate(this.openDate)
+			.closeDate(this.closeDate)
+			.build();
+	}
 }

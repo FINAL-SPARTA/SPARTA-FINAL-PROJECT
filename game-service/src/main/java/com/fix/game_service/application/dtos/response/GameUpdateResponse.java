@@ -23,7 +23,7 @@ public class GameUpdateResponse {
 	private Team homeTeam;
 	private Team awayTeam;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
 	private GameStatus gameStatus;
 	private LocalDateTime openDate;
 	private LocalDateTime closeDate;

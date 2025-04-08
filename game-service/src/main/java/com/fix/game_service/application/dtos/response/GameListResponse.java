@@ -21,7 +21,7 @@ public class GameListResponse {
 	private Team homeTeam;
 	private Team awayTeam;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
 
 	public static GameListResponse fromGame(Game game) {
 		return GameListResponse.builder()
