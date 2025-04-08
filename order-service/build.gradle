@@ -1,9 +1,46 @@
 ext {
 	set('springCloudVersion', "2024.0.0")
+	set('querydslVersion', "5.0.0")
 }
 
 dependencies {
+	// ✅ common 모듈
+	implementation project(':common-service')
+
+	// ✅ JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// ✅ QueryDSL
+	implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
+	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	// ✅ Web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// ✅ Eureka Client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	// ✅ Open Feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// ✅ Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// ✅ Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// ✅ H2
+	runtimeOnly 'com.h2database:h2'
+
+//	// ✅ PostgreSQL
+//	runtimeOnly 'org.postgresql:postgresql'
+
+	// ✅ JSON
+	implementation 'org.json:json:20230227'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -12,4 +49,15 @@ dependencyManagement {
 	imports {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
+}
+def querydslDir = "src/main/generated"
+
+sourceSets {
+	main.java.srcDirs += querydslDir
+}
+
+
+
+clean {
+	delete file(querydslDir)
 }
