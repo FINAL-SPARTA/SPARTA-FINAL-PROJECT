@@ -56,6 +56,12 @@ public class StadiumService {
         return new PageResponseDto(stadiums, page, size, totalCount);
     }
 
+    @Transactional
+    public void deleteStadium(UUID stadiumId){
+        Stadium stadium = findStadium(stadiumId);
+        stadium.softDelete(1L); // userID
+    }
+
 
 
 

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ public class Stadium extends Basic {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    //@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "stadium_id", updatable = false, nullable = false)
     private UUID stadiumId;
 
@@ -53,6 +51,19 @@ public class Stadium extends Basic {
                 .stadiumName(stadiumName)
                 .quantity(quantity)
                 .build();
+    }
+
+    @Override
+    public void softDelete(Long userId){
+        super.softDelete(userId);
+
+        if(this.seats !=null && !this.seats.isEmpty()){
+            for(Seat seat: this.seats){
+                seat.softDelete(userId);
+            }
+
+        }
+
     }
 
 
