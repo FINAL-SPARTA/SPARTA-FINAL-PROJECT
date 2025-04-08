@@ -88,6 +88,14 @@ public class UserService {
         user.softDelete(0L); // TODO: 인증 적용 후 실제 로그인 유저 ID로 교체
     }
 
+    // ✅ POST (포인트 차감)
+    @Transactional
+    public void deductPoints(Long userId, Integer requiredPoints) {
+        User user = findUserById(userId);
+
+        user.deductPoints(requiredPoints);
+    }
+
     // 🔧 중복 검사
     private void validateDuplicateUser(String username, String email) {
         if (userRepository.existsByUsername(username)) {
