@@ -84,6 +84,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         User user = findUserById(userId);
+        user.softDelete(userId);
         user.softDelete(0L); // TODO: 인증 적용 후 실제 로그인 유저 ID로 교체
     }
 

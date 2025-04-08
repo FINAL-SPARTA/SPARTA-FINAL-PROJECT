@@ -12,6 +12,7 @@ import com.fix.user_service.application.exception.UserException;
 import com.fix.user_service.application.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -83,37 +85,52 @@ public class UserController {
     // 사용자 정보 업데이트 (PUT /users/{adminUserId}/{userId})
     @PutMapping("/{userId}")
     public ResponseEntity<CommonResponse<UserDetailResponseDto>> updateUser(
-        @PathVariable Long userId,
-        @RequestBody UserUpdateRequestDto requestDto) {
+            @RequestHeader("X-User-Id") Long requesterId,
+            @PathVariable Long userId,
+            @RequestBody UserUpdateRequestDto requestDto
+    ) {
+        if (!requesterId.equals(userId)) {
+            throw new UserException(UserException.UserErrorType.PERMISSION_DENIED);
+        }
+
         return ResponseEntity.ok(CommonResponse.success(
-            userService.updateUser(userId, requestDto),
-            "사용자 정보 업데이트 성공")
-        );
+                userService.updateUser(userId, requestDto),
+                "사용자 정보 업데이트 성공"
+        ));
     }
 
     // 사용자 논리 삭제 - Soft Delete (DELETE /users/{adminUserId}/{userId})
     @DeleteMapping("/{userId}")
     public ResponseEntity<CommonResponse<Void>> deleteUser(
-        @PathVariable Long userId) {
+            @RequestHeader("X-User-Id") Long requesterId,
+            @PathVariable Long userId
+    ) {
+        if (!requesterId.equals(userId)) {
+            throw new UserException(UserException.UserErrorType.PERMISSION_DENIED);
+        }
+
         userService.deleteUser(userId);
-        return ResponseEntity.ok(CommonResponse.success(
-            null, // Data Type ?
-            "사용자가 삭제되었습니다.")
-        );
+        return ResponseEntity.ok(CommonResponse.success(null, "사용자가 삭제되었습니다."));
     }
 
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<UserListResponseDto>> getAllUsers(
-        @RequestHeader("X-User-Role") String userRole,
-        Pageable pageable) {
+            @RequestHeader Map<String, String> headers,
+            Pageable pageable
+    ) {
+        log.info("전달받은 전체 헤더: {}", headers); // ✅ 전체 헤더 찍기
+
+        // x-user-id=1, x-user-role=MASTER
+        String userRole = headers.getOrDefault("x-user-role", null); // 소문자 키로 접근
+        log.info("추출된 userRole: {}", userRole);
 
         if (!UserRole.MASTER.name().equalsIgnoreCase(userRole)) {
             throw new UserException(UserException.UserErrorType.PERMISSION_DENIED);
         }
 
         return ResponseEntity.ok(CommonResponse.success(
-            userService.getAllUsers(pageable),
-            "전체 사용자 조회 성공"
+                userService.getAllUsers(pageable),
+                "전체 사용자 조회 성공"
         ));
     }
 

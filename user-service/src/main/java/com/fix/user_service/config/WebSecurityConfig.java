@@ -1,5 +1,7 @@
 package com.fix.user_service.config;
 
+import com.fix.user_service.infrastructure.security.HeaderAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,10 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final HeaderAuthenticationFilter headerAuthenticationFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -31,6 +37,7 @@ public class WebSecurityConfig {
             .sessionManagement((session) ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 

@@ -35,7 +35,7 @@ public abstract class Basic {
 
     protected Long deletedBy;
 
-    protected Boolean isDeleted;
+    protected Boolean isDeleted = false;
 
     public void softDelete(Long deletedBy) {
         this.isDeleted = true;
