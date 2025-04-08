@@ -19,6 +19,6 @@ public class GameSearchRequest {
 	private Team gameTeam1;
 	private Team gameTeam2;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
 
 }

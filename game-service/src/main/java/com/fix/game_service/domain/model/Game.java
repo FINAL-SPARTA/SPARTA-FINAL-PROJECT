@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +47,7 @@ public class Game extends Basic {
 	private LocalDateTime gameDate;
 
 	@Column(nullable = false)
-	private UUID stadiumId;
+	private Long stadiumId;
 
 	@Column(nullable = false)
 	private String stadiumName;
@@ -65,10 +66,10 @@ public class Game extends Basic {
 	private Double advanceReservation;  // 예매율
 
 	@Column
-	private Long remainingSeats;        // 남은 좌석
+	private Integer remainingSeats;        // 남은 좌석
 
 	@Column(nullable = false)
-	private String totalSeats;          // 총 좌석
+	private Integer totalSeats;          // 총 좌석
 
 	/**
 	 * 경기 내용 수정
@@ -80,6 +81,8 @@ public class Game extends Basic {
 		Optional.ofNullable(updateGameInfo.getAwayTeam()).ifPresent(gameTeam2 -> this.awayTeam = gameTeam2);
 		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
 		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
+		Optional.ofNullable(updateGameInfo.getStadiumName()).ifPresent(stadiumName -> this.stadiumName = stadiumName);
+		Optional.ofNullable(updateGameInfo.getTotalSeats()).ifPresent(totalSeats -> this.totalSeats = totalSeats);
 		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 		Optional.ofNullable(updateGameInfo.getOpenDate()).ifPresent(openDate -> this.openDate = openDate);
 		Optional.ofNullable(updateGameInfo.getCloseDate()).ifPresent(closeDate -> this.closeDate = closeDate);

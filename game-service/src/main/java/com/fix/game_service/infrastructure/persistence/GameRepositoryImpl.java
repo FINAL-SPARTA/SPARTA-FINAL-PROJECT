@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.response.GameListResponse;
-import com.fix.game_service.domain.QGame;
+import com.fix.game_service.domain.model.QGame;
 import com.fix.game_service.domain.model.Team;
 import com.fix.game_service.domain.repository.GameRepositoryCustom;
 import com.querydsl.core.types.OrderSpecifier;
@@ -95,7 +95,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		return gameDate != null ? QGame.game.gameDate.eq(gameDate) : null;
 	}
 
-	private BooleanExpression confirmStadiumId(UUID stadiumId) {
+	private BooleanExpression confirmStadiumId(Long stadiumId) {
 		return stadiumId != null ? QGame.game.stadiumId.eq(stadiumId) : null;
 	}
 
