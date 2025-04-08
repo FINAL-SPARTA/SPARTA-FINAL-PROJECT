@@ -2,6 +2,7 @@ package com.fix.order_serivce.presantation;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.order_serivce.application.OrderService;
+import com.fix.order_serivce.application.aop.ValidateUser;
 import com.fix.order_serivce.application.dtos.request.OrderCreateRequest;
 import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
@@ -26,6 +27,7 @@ public class OrderController {
     private final TicketRepository ticketRepository;
 
     // 주문 생성
+    @ValidateUser(roles = {"ROLE_CUSTOMER"})
     @PostMapping
     public ResponseEntity<CommonResponse<OrderResponse>> createOrder(@RequestBody OrderCreateRequest request) {
         UUID orderId = orderService.createOrder(request);
@@ -49,6 +51,7 @@ public class OrderController {
     }
 
     // 단건 조회
+    @ValidateUser(roles = {"ROLE_CUSTOMER", "ROLE_MANAGER", "ROLE_MASTER"})
     @GetMapping("/{orderId}")
     public ResponseEntity<CommonResponse<OrderDetailResponse>> getOrder(@PathVariable UUID orderId) {
         OrderDetailResponse response = orderService.getOrder(orderId);
@@ -56,6 +59,7 @@ public class OrderController {
     }
 
     // 전체 조회 (페이징)
+    @ValidateUser(roles = {"ROLE_MANAGER", "ROLE_MASTER"})
     @GetMapping
     public ResponseEntity<CommonResponse<Page<OrderResponse>>> getOrders(Pageable pageable) {
         Page<OrderResponse> orders = orderService.getOrders(pageable);
@@ -63,6 +67,7 @@ public class OrderController {
     }
 
     // 검색
+    @ValidateUser(roles = {"ROLE_MANAGER", "ROLE_MASTER"})
     @GetMapping("/search")
     public ResponseEntity<CommonResponse<Page<OrderResponse>>> searchOrders(
             @ModelAttribute OrderSearchCondition condition,
@@ -73,6 +78,7 @@ public class OrderController {
     }
 
     // 주문 수정
+    @ValidateUser(roles = {"ROLE_CUSTOM"})
     @PutMapping("/{orderId}")
     public ResponseEntity<CommonResponse<Void>> updateOrder(
             @PathVariable UUID orderId,
@@ -83,6 +89,7 @@ public class OrderController {
     }
 
     // 주문 취소 (soft delete)
+    @ValidateUser(roles = {"ROLE_MANAGER", "ROLE_MASTER", "ROLE_CUSTOM"})
     @DeleteMapping("/{orderId}")
     public ResponseEntity<CommonResponse<Void>> deleteOrder(
             @PathVariable UUID orderId,

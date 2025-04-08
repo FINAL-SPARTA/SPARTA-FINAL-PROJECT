@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.example.ticketing") // 🎯 order 모듈 전용
+@RestControllerAdvice(basePackages = "com.fix.order_serivce")
 public class OrderExceptionHandler {
 
     @ExceptionHandler(OrderException.class)
