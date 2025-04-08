@@ -49,5 +49,4 @@ public abstract class Basic {
             throw new IllegalStateException("Cannot persist a deleted entity");
         }
     }
-
 }
