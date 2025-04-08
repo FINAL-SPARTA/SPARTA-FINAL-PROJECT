@@ -2,6 +2,7 @@ package com.fix.stadium_service.application.service;
 
 import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
+import com.fix.stadium_service.application.dtos.response.PageResponseDto;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.Stadium;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,6 +48,13 @@ public class StadiumService {
         return new StadiumResponseDto(stadium);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponseDto getStadiums(int page, int size) {
+        int offset = page * size;
+        List<Stadium> stadiums = stadiumRepository.findWithPaging(offset,size);
+        long totalCount = stadiumRepository.count(); // 전체 개수 조회
+        return new PageResponseDto(stadiums, page, size, totalCount);
+    }
 
 
 
@@ -61,4 +70,6 @@ public class StadiumService {
                 .orElseThrow(() -> new IllegalArgumentException("경기장을 찾을 수 없습니다."));
         return stadium;
     }
+
+
 }
