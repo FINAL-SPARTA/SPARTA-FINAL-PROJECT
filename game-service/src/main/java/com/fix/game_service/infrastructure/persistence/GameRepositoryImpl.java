@@ -3,7 +3,6 @@ package com.fix.game_service.infrastructure.persistence;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.response.GameListResponse;
 import com.fix.game_service.domain.QGame;
-import com.fix.game_service.domain.Team;
+import com.fix.game_service.domain.model.Team;
 import com.fix.game_service.domain.repository.GameRepositoryCustom;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -41,8 +40,8 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 			.select(Projections.fields(
 				GameListResponse.class,
 				QGame.game.gameId.as("gameId"),
-				QGame.game.gameTeam1.as("gameTeam1"),
-				QGame.game.gameTeam2.as("gameTeam2"),
+				QGame.game.homeTeam.as("gameTeam1"),
+				QGame.game.awayTeam.as("gameTeam2"),
 				QGame.game.gameDate.as("gameDate"),
 				QGame.game.stadiumId.as("stadiumId")
 			))
@@ -82,13 +81,13 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 	/* 검색 조건 */
 	private BooleanExpression confirmGameTeam1(Team gameTeam1) {
 		return gameTeam1 != null
-			? QGame.game.gameTeam1.eq(gameTeam1).or(QGame.game.gameTeam2.eq(gameTeam1))
+			? QGame.game.homeTeam.eq(gameTeam1).or(QGame.game.awayTeam.eq(gameTeam1))
 			: null;
 	}
 
 	private BooleanExpression confirmGameTeam2(Team gameTeam2) {
 		return gameTeam2 != null
-			? QGame.game.gameTeam2.eq(gameTeam2).or(QGame.game.gameTeam1.eq(gameTeam2))
+			? QGame.game.homeTeam.eq(gameTeam2).or(QGame.game.awayTeam.eq(gameTeam2))
 			: null;
 	}
 

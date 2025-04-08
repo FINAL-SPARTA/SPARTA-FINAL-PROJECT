@@ -17,7 +17,7 @@ import com.fix.game_service.application.dtos.response.GameListResponse;
 import com.fix.game_service.application.dtos.response.GameStatusUpdateResponse;
 import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
-import com.fix.game_service.domain.Game;
+import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
 
 import lombok.RequiredArgsConstructor;

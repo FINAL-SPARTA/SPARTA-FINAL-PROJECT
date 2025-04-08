@@ -1,4 +1,4 @@
-package com.fix.game_service.domain;
+package com.fix.game_service.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -36,17 +36,20 @@ public class Game extends Basic {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Team gameTeam1;
+	private Team homeTeam;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Team gameTeam2;
+	private Team awayTeam;
 
 	@Column(nullable = false)
 	private LocalDateTime gameDate;
 
 	@Column(nullable = false)
 	private UUID stadiumId;
+
+	@Column(nullable = false)
+	private String stadiumName;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -64,14 +67,17 @@ public class Game extends Basic {
 	@Column
 	private Long remainingSeats;        // 남은 좌석
 
+	@Column(nullable = false)
+	private String totalSeats;          // 총 좌석
+
 	/**
 	 * 경기 내용 수정
 	 * @param updateGameInfo : 수정할 경기 내용
 	 */
 	public void updateGame(Game updateGameInfo) {
 		Optional.ofNullable(updateGameInfo.getGameName()).ifPresent(gameName -> this.gameName = gameName);
-		Optional.ofNullable(updateGameInfo.getGameTeam1()).ifPresent(gameTeam1 -> this.gameTeam1 = gameTeam1);
-		Optional.ofNullable(updateGameInfo.getGameTeam2()).ifPresent(gameTeam2 -> this.gameTeam2 = gameTeam2);
+		Optional.ofNullable(updateGameInfo.getHomeTeam()).ifPresent(gameTeam1 -> this.homeTeam = gameTeam1);
+		Optional.ofNullable(updateGameInfo.getAwayTeam()).ifPresent(gameTeam2 -> this.awayTeam = gameTeam2);
 		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
 		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
 		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
