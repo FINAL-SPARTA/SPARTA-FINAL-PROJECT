@@ -1,6 +1,7 @@
 package com.fix.event_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
+import com.fix.event_service.application.aop.ValidateUser;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
@@ -20,6 +21,7 @@ public class EventController {
     private final EventApplicationService eventApplicationService;
 
     // ✅ 이벤트 생성 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
     @PostMapping("")
     public ResponseEntity<CommonResponse<EventDetailResponseDto>> createEvent(@RequestBody EventCreateRequestDto requestDto) {
         EventDetailResponseDto responseDto = eventApplicationService.createEvent(requestDto);
@@ -28,8 +30,9 @@ public class EventController {
 
     // ✅ 이벤트 응모 API
     @PostMapping("/{eventId}")
-    public ResponseEntity<CommonResponse<Void>> applyEvent(@PathVariable("eventId") UUID eventId) {
-        eventApplicationService.applyEvent(eventId);
+    public ResponseEntity<CommonResponse<Void>> applyEvent(
+        @PathVariable("eventId") UUID eventId, @RequestHeader("x-user-id") Long userId) {
+        eventApplicationService.applyEvent(eventId, userId);
         return ResponseEntity.ok(CommonResponse.success(null, "이벤트 응모 성공"));
     }
 
@@ -50,6 +53,7 @@ public class EventController {
     }
 
     // ✅ 특정 이벤트 응모 기록(목록) 조회 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
     @GetMapping("/{eventId}/entries")
     public ResponseEntity<CommonResponse<PageResponseDto<EventEntryResponseDto>>> getEventEntries(
             @PathVariable("eventId") UUID eventId,
@@ -71,6 +75,7 @@ public class EventController {
     }
 
     // ✅ 이벤트 정보 수정 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
     @PutMapping("/{eventId}")
     public ResponseEntity<CommonResponse<EventDetailResponseDto>> updateEvent(
             @PathVariable("eventId") UUID eventId,
@@ -80,6 +85,7 @@ public class EventController {
     }
 
     // ✅ 당첨자 선정 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
     @PatchMapping("/{eventId}/announce-winners")
     public ResponseEntity<CommonResponse<WinnerListResponseDto>> announceWinners(@PathVariable("eventId") UUID eventId) {
         WinnerListResponseDto responseDto = eventApplicationService.announceWinners(eventId);
@@ -87,9 +93,11 @@ public class EventController {
     }
 
     // ✅ 이벤트 논리적 삭제 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<CommonResponse<Void>> deleteEvent(@PathVariable("eventId") UUID eventId) {
-        eventApplicationService.deleteEvent(eventId);
+    public ResponseEntity<CommonResponse<Void>> deleteEvent(
+        @PathVariable("eventId") UUID eventId, @RequestHeader("x-user-id") Long userId) {
+        eventApplicationService.deleteEvent(eventId, userId);
         return ResponseEntity.ok(CommonResponse.success(null, "이벤트 삭제 성공"));
     }
 }
