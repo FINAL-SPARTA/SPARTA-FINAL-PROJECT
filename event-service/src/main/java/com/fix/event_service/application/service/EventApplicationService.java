@@ -57,8 +57,7 @@ public class EventApplicationService {
     public void applyEvent(UUID eventId) {
         Long userId = 1L; // TODO : 실제 유저 Id 넣기
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         event.isEventOpenForApplication();
 
@@ -69,8 +68,7 @@ public class EventApplicationService {
 
     @Transactional(readOnly = true)
     public EventDetailResponseDto getEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         return new EventDetailResponseDto(event);
     }
@@ -89,8 +87,7 @@ public class EventApplicationService {
 
     @Transactional(readOnly = true)
     public PageResponseDto<EventEntryResponseDto> getEventEntries(UUID eventId, int page, int size) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         Pageable pageable = PageRequest.of(page, size);
         List<EventEntryResponseDto> entryDtoList = event.getEntries().stream()
@@ -104,8 +101,7 @@ public class EventApplicationService {
 
     @Transactional
     public EventDetailResponseDto updateEvent(UUID eventId, EventUpdateRequestDto requestDto) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         event.checkUpdatable();
 
@@ -129,8 +125,7 @@ public class EventApplicationService {
 
     @Transactional
     public WinnerListResponseDto announceWinners(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         List<EventEntry> allEntries = event.getEntries();
 
@@ -152,11 +147,15 @@ public class EventApplicationService {
 
     @Transactional
     public void deleteEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+        Event event = findEventById(eventId);
 
         event.checkDeletable();
 
         event.softDelete(1L); // TODO : 유저 Id 넣기
+    }
+
+    private Event findEventById(UUID eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
     }
 }
