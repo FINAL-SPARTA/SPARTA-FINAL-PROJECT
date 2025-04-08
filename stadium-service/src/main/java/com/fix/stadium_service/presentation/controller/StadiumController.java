@@ -26,10 +26,15 @@ public class StadiumController {
     }
 
     //경기장 단건 조회
-//    @GetMapping("/{stadiumId}")
-//    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadium(@PathVariable("stadiumId") UUID stadiumId){
-//
-//    }
+    @GetMapping("/{stadiumId}")
+    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadium(@PathVariable("stadiumId") UUID stadiumId){
+        StadiumResponseDto responseDto = stadiumService.getStadium(stadiumId);
+        return ResponseEntity.ok(CommonResponse.success(responseDto,"경기장 상세 조회 성공"));
+
+    }
+//    // 경기장 전체 조회
+//    @GetMapping
+//    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadiums()
 
 
 
