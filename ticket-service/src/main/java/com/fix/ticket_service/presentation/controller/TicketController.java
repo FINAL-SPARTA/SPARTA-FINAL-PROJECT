@@ -1,6 +1,7 @@
 package com.fix.ticket_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
+import com.fix.ticket_service.application.aop.ValidateUser;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.PageResponseDto;
@@ -27,8 +28,8 @@ public class TicketController {
     public ResponseEntity<CommonResponse<List<TicketReserveResponseDto>>> reserveTicket(
         @RequestBody TicketReserveRequestDto request,
         @RequestHeader("x-user-id") Long userId) {
-        List<TicketReserveResponseDto> responseList = ticketApplicationService.reserveTicket(request, userId);
-        return ResponseEntity.ok(CommonResponse.success(responseList, "티켓 예약 성공"));
+        List<TicketReserveResponseDto> responseDto = ticketApplicationService.reserveTicket(request, userId);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 예약 성공"));
     }
 
     // ✅ 티켓 단건 상세 조회 API
@@ -37,8 +38,8 @@ public class TicketController {
         @PathVariable("ticketId") UUID ticketId,
         @RequestHeader("x-user-id") Long userId,
         @RequestHeader("x-user-role") String userRole) {
-        TicketDetailResponseDto response = ticketApplicationService.getTicket(ticketId, userId, userRole);
-        return ResponseEntity.ok(CommonResponse.success(response, "티켓 조회 성공"));
+        TicketDetailResponseDto responseDto = ticketApplicationService.getTicket(ticketId, userId, userRole);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 조회 성공"));
     }
 
     // ✅ 로그인한 유저의 티켓 목록 조회 API
@@ -47,8 +48,21 @@ public class TicketController {
         @RequestHeader("x-user-id") Long userId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageResponseDto<TicketResponseDto> responseList = ticketApplicationService.getTickets(userId, page, size);
-        return ResponseEntity.ok(CommonResponse.success(responseList, "티켓 목록 조회 성공"));
+        PageResponseDto<TicketResponseDto> responseDto = ticketApplicationService.getTickets(userId, page, size);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 목록 조회 성공"));
+    }
+
+    // ✅ 티켓 검색 API
+    @ValidateUser(roles = {"MASTER", "MANAGER"})
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<PageResponseDto<TicketResponseDto>>> searchTickets(
+        @RequestParam(value = "gameId") UUID gameId,
+        @RequestParam(value = "userId", required = false) Long userId,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResponseDto<TicketResponseDto> responseDto =
+            ticketApplicationService.searchTickets(gameId, userId, page, size);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 검색 성공"));
     }
 
     // ✅ 주문 생성 및 결제 처리가 완료된 티켓 목록 업데이트 API

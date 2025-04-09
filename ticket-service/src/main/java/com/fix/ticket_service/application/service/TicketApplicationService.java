@@ -64,6 +64,14 @@ public class TicketApplicationService {
         return new PageResponseDto<>(mappedPage);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponseDto<TicketResponseDto> searchTickets(UUID gameId, Long userId, int page, int size) {
+        Page<TicketResponseDto> mappedPage = ticketRepository.searchTickets(gameId, userId, page, size)
+            .map(TicketResponseDto::new);
+
+        return new PageResponseDto<>(mappedPage);
+    }
+
     @Transactional
     public void updateTicketStatus(TicketSoldRequestDto requestDto) {
         // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
