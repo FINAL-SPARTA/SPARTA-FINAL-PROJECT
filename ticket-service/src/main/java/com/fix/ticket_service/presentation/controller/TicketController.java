@@ -2,13 +2,17 @@ package com.fix.ticket_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.response.PageResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.application.service.TicketApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -17,12 +21,33 @@ public class TicketController {
 
     private final TicketApplicationService ticketApplicationService;
 
+    // ✅ 티켓 예약 API
     @PostMapping("/reserve")
     public ResponseEntity<CommonResponse<List<TicketReserveResponseDto>>> reserveTicket(
         @RequestBody TicketReserveRequestDto request,
         @RequestHeader("x-user-id") Long userId) {
         List<TicketReserveResponseDto> responseList = ticketApplicationService.reserveTicket(request, userId);
         return ResponseEntity.ok(CommonResponse.success(responseList, "티켓 예약 성공"));
+    }
+
+    // ✅ 티켓 단건 상세 조회 API
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<CommonResponse<TicketDetailResponseDto>> getTicket(
+        @PathVariable("ticketId") UUID ticketId,
+        @RequestHeader("x-user-id") Long userId,
+        @RequestHeader("x-user-role") String userRole) {
+        TicketDetailResponseDto response = ticketApplicationService.getTicket(ticketId, userId, userRole);
+        return ResponseEntity.ok(CommonResponse.success(response, "티켓 조회 성공"));
+    }
+
+    // ✅ 로그인한 유저의 티켓 목록 조회 API
+    @GetMapping()
+    public ResponseEntity<CommonResponse<PageResponseDto<TicketResponseDto>>> getTickets(
+        @RequestHeader("x-user-id") Long userId,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResponseDto<TicketResponseDto> responseList = ticketApplicationService.getTickets(userId, page, size);
+        return ResponseEntity.ok(CommonResponse.success(responseList, "티켓 목록 조회 성공"));
     }
 
 
