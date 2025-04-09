@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class StadiumCreateRequest {
     private StadiumName stadiumName;
-    private Integer quantity;
     private List<SeatRequestDto> seats;
 
 }
