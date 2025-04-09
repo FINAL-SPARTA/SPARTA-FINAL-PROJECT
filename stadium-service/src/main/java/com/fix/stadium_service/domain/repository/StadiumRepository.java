@@ -1,6 +1,7 @@
 package com.fix.stadium_service.domain.repository;
 
 import com.fix.stadium_service.domain.model.Stadium;
+import com.fix.stadium_service.domain.model.StadiumName;
 
 
 import java.util.List;
@@ -12,5 +13,6 @@ public interface StadiumRepository {
     Optional<Stadium> findById(UUID id);
     List<Stadium> findWithPaging(int offset, int size);
     long count();
+
 
 }

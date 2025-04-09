@@ -35,10 +35,16 @@ public class Stadium extends Basic {
     public void addSeat(Seat seat){
         seats.add(seat);
         seat.setStadium(this);
+
+    }
+
+    @Builder
+    public Stadium(StadiumName stadiumName, Integer quantity) {
+        this.stadiumName = stadiumName;
+        this.quantity = quantity;
     }
 
 
-    @Builder
     public static Stadium createStadium(StadiumName stadiumName , Integer quantity) {
         return Stadium.builder()
                 .stadiumName(stadiumName)
