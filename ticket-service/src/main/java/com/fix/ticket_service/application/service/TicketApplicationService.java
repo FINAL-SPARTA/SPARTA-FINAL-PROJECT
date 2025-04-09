@@ -7,6 +7,7 @@ import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.domain.model.Ticket;
+import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -73,5 +74,20 @@ public class TicketApplicationService {
         for (Ticket ticket : tickets) {
             ticket.markAsSold(requestDto.getOrderId());
         }
+    }
+
+    @Transactional
+    public void deleteTicket(UUID ticketId, Long userId, String userRole) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+
+        ticket.validateAuth(userId, userRole);
+
+        ticketRepository.delete(ticket);
+    }
+
+    @Transactional
+    public void deleteReservedTickets() {
+        ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
     }
 }

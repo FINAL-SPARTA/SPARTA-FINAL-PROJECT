@@ -59,6 +59,20 @@ public class TicketController {
         return ResponseEntity.ok(CommonResponse.success(null, "티켓 상태 업데이트 성공"));
     }
 
+    // ✅ 티켓 단건 삭제 API
+    @DeleteMapping("/{ticketId}")
+    public ResponseEntity<CommonResponse<Void>> deleteTicket(
+        @PathVariable("ticketId") UUID ticketId,
+        @RequestHeader("x-user-id") Long userId,
+        @RequestHeader("x-user-role") String userRole) {
+        ticketApplicationService.deleteTicket(ticketId, userId, userRole);
+        return ResponseEntity.ok(CommonResponse.success(null, "티켓 삭제 성공"));
+    }
 
-
+    // ✅ 예약 상태인 티켓 일괄 삭제 API (스케쥴링용 API)
+    @DeleteMapping("/delete-reserved")
+    public ResponseEntity<CommonResponse<Void>> deleteReservedTickets() {
+        ticketApplicationService.deleteReservedTickets();
+        return ResponseEntity.ok(CommonResponse.success(null, "예약 상태인 티켓 일괄 삭제 성공"));
+    }
 }
