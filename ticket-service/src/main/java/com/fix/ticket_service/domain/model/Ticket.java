@@ -21,7 +21,7 @@ public class Ticket extends Basic {
     private UUID ticketId;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Column(name = "game_id", nullable = false)
     private UUID gameId;
@@ -43,7 +43,7 @@ public class Ticket extends Basic {
     private UUID orderId;
 
     @Builder
-    private Ticket(UUID userId, UUID gameId, UUID seatId, int price) {
+    private Ticket(Long userId, UUID gameId, UUID seatId, int price) {
         this.ticketId = UUID.randomUUID();
         this.userId = userId;
         this.gameId = gameId;
@@ -52,7 +52,7 @@ public class Ticket extends Basic {
         this.status = TicketStatus.RESERVED;
     }
 
-    public static Ticket create(UUID userId, UUID gameId, UUID seatId, int price) {
+    public static Ticket create(Long userId, UUID gameId, UUID seatId, int price) {
         return Ticket.builder()
                 .userId(userId)
                 .gameId(gameId)
