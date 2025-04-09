@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface JpaStadiumRepository extends JpaRepository<Stadium, UUID>, StadiumRepository {
-    @Query(value = "SELECT * FROM p_stadium WHERE is_deleted = false ORDER BY created_at DESC LIMIT :size OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT * FROM p_stadium  ORDER BY created_at DESC LIMIT :size OFFSET :offset", nativeQuery = true)
     List<Stadium> findWithPaging(@Param("offset") int offset, @Param("size") int size);
 
 }
