@@ -1,6 +1,7 @@
 package com.fix.ticket_service.infrastructure.repository;
 
 import com.fix.ticket_service.domain.model.Ticket;
+import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -44,5 +45,15 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> findAllById(List<UUID> ticketIds) {
         return jpaTicketRepository.findAllById(ticketIds);
+    }
+
+    @Override
+    public void delete(Ticket ticket) {
+        jpaTicketRepository.delete(ticket);
+    }
+
+    @Override
+    public void deleteAllByStatus(TicketStatus ticketStatus) {
+        jpaTicketRepository.deleteAllByStatus(ticketStatus);
     }
 }

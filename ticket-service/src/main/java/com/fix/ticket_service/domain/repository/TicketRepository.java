@@ -1,6 +1,7 @@
 package com.fix.ticket_service.domain.repository;
 
 import com.fix.ticket_service.domain.model.Ticket;
+import com.fix.ticket_service.domain.model.TicketStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,4 +16,8 @@ public interface TicketRepository {
     Page<Ticket> findAllByUserId(Long userId, int page, int size);
 
     List<Ticket> findAllById(List<UUID> ticketIds);
+
+    void delete(Ticket ticket);
+
+    void deleteAllByStatus(TicketStatus ticketStatus);
 }
