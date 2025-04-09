@@ -13,12 +13,11 @@ public class SeatResponseDto {
     private Integer row;
     private Integer number;
     private String section;
-    private String status;
     public SeatResponseDto(Seat seat) {
         this.seatId = seat.getSeatId();
         this.row = seat.getRow();
         this.number = seat.getNumber();
         this.section = seat.getSection().name();
-        this.status = seat.getStatus().name();
+
     }
 }

@@ -26,7 +26,7 @@ public class StadiumService {
 
         Stadium stadium = Stadium.createStadium(
                 requestDto.getStadiumName(),
-                requestDto.getQuantity()
+                requestDto.getStadiumName().getSeatCapacity()
         );
 
         for (SeatRequestDto seatDto : requestDto.getSeats()) {

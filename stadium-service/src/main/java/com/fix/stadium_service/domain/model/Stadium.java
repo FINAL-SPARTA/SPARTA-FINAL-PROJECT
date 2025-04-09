@@ -26,7 +26,6 @@ public class Stadium extends Basic {
 
     @Enumerated(EnumType.STRING)
     private  StadiumName stadiumName;
-
     private Integer quantity;
 
 
@@ -40,16 +39,16 @@ public class Stadium extends Basic {
 
 
     @Builder
-    public Stadium(StadiumName stadiumName, Integer quantity) {
+    public Stadium(StadiumName stadiumName,Integer quantity) {
       this.stadiumName = stadiumName;
-      this.quantity = quantity;
+      this.quantity = stadiumName.getSeatCapacity();
     }
 
 
     public static Stadium createStadium(StadiumName stadiumName , Integer quantity) {
         return Stadium.builder()
                 .stadiumName(stadiumName)
-                .quantity(quantity)
+                .quantity(stadiumName.getSeatCapacity())
                 .build();
     }
 
