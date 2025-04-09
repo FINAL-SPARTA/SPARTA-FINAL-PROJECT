@@ -66,4 +66,10 @@ public class Ticket extends Basic {
         this.orderId = orderId;
         this.soldAt = LocalDateTime.now();
     }
+
+    public void validateAuth(Long userId, String userRole) {
+        if (!this.userId.equals(userId) && !(userRole.equals("MASTER") || userRole.equals("MANAGER"))) {
+            throw new IllegalArgumentException("조회, 수정 권한이 없습니다.");
+        }
+    }
 }

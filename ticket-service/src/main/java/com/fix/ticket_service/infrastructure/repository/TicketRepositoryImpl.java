@@ -5,6 +5,8 @@ import com.fix.ticket_service.domain.repository.TicketRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -31,5 +33,10 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public Optional<Ticket> findById(UUID ticketId) {
         return jpaTicketRepository.findById(ticketId);
+    }
+
+    @Override
+    public Page<Ticket> findAllByUserId(Long userId, int page, int size) {
+        return jpaTicketRepository.findAllByUserId(userId, PageRequest.of(page, size));
     }
 }

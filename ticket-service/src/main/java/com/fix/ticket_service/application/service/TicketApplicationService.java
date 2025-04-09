@@ -1,11 +1,16 @@
 package com.fix.ticket_service.application.service;
 
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.response.PageResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +22,7 @@ public class TicketApplicationService {
 
     private final TicketRepository ticketRepository;
 
+    @Transactional
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         // 1) TODO: Redis 분산락 적용
@@ -35,5 +41,23 @@ public class TicketApplicationService {
         }
 
         return responseDtoList;
+    }
+
+    @Transactional(readOnly = true)
+    public TicketDetailResponseDto getTicket(UUID ticketId, Long userId, String userRole) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+
+        ticket.validateAuth(userId, userRole);
+
+        return new TicketDetailResponseDto(ticket);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponseDto<TicketResponseDto> getTickets(Long userId, int page, int size) {
+        Page<TicketResponseDto> mappedPage = ticketRepository.findAllByUserId(userId, page, size)
+            .map(TicketResponseDto::new);
+
+        return new PageResponseDto<>(mappedPage);
     }
 }
