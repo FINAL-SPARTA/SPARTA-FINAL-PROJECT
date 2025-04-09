@@ -99,6 +99,6 @@ project(':user-service') {
 
 project(':ticket-service') {
     dependencies {
-        implementation project(':ticket-service')
+        implementation project(':common-service')
     }
 }

@@ -20,4 +20,6 @@ public interface TicketRepository {
     void delete(Ticket ticket);
 
     void deleteAllByStatus(TicketStatus ticketStatus);
+
+    Page<Ticket> searchTickets(UUID gameId, Long userId, int page, int size);
 }
