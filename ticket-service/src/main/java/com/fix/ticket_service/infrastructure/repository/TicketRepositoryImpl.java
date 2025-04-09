@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,5 +39,10 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public Page<Ticket> findAllByUserId(Long userId, int page, int size) {
         return jpaTicketRepository.findAllByUserId(userId, PageRequest.of(page, size));
+    }
+
+    @Override
+    public List<Ticket> findAllById(List<UUID> ticketIds) {
+        return jpaTicketRepository.findAllById(ticketIds);
     }
 }
