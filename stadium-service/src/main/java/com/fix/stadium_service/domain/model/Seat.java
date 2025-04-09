@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -50,5 +51,7 @@ public class Seat extends Basic {
         seat.section = section;
         return seat;
     }
+
+
 
 }

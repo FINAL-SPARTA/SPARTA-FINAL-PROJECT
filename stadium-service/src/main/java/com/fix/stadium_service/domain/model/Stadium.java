@@ -39,18 +39,32 @@ public class Stadium extends Basic {
 
 
     @Builder
-    public Stadium(StadiumName stadiumName,Integer quantity) {
-      this.stadiumName = stadiumName;
-      this.quantity = stadiumName.getSeatCapacity();
-    }
-
-
     public static Stadium createStadium(StadiumName stadiumName , Integer quantity) {
         return Stadium.builder()
                 .stadiumName(stadiumName)
                 .quantity(stadiumName.getSeatCapacity())
                 .build();
     }
+
+    public void updateStadium(StadiumName name, Integer quantity) {
+        if (name != null) this.stadiumName = name;
+        if (quantity != null) this.quantity = quantity;
+
+    }
+
+
+
+    public void updateSeat(UUID seatId, Integer row, Integer number, SeatSection section) {
+        Seat seat = this.seats.stream()
+                .filter(s -> s.getSeatId().equals(seatId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 좌석이 경기장에 존재하지 않습니다."));
+        if (row != null) seat.setRow(row);
+        if (number != null) seat.setNumber(number);
+        if (section != null) seat.setSection(section);
+    }
+
+
 
     @Override
     public void softDelete(Long userId){
