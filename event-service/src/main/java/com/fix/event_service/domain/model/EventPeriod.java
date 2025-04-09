@@ -1,5 +1,6 @@
 package com.fix.event_service.domain.model;
 
+import com.fix.event_service.application.exception.EventException;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
@@ -19,13 +20,13 @@ public class EventPeriod {
     public EventPeriod(LocalDateTime eventStartAt, LocalDateTime eventEndAt) {
         LocalDateTime now = LocalDateTime.now();
         if (eventStartAt == null || eventEndAt == null) {
-            throw new IllegalArgumentException("이벤트 시작 및 종료 시간은 null일 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_INVALID_PERIOD);
         }
         if (eventStartAt.isAfter(eventEndAt)) {
-            throw new IllegalArgumentException("이벤트 시작 시간은 종료 시간보다 늦을 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_INVALID_PERIOD);
         }
         if (eventStartAt.isBefore(now)) {
-            throw new IllegalArgumentException("이벤트 시작 시간은 현재 시간보다 과거일 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_INVALID_PERIOD);
         }
         this.eventStartAt = eventStartAt;
         this.eventEndAt = eventEndAt;

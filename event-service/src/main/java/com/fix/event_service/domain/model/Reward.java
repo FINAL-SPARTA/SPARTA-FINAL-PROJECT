@@ -1,6 +1,7 @@
 package com.fix.event_service.domain.model;
 
 import com.fix.common_service.entity.Basic;
+import com.fix.event_service.application.exception.EventException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,7 +48,7 @@ public class Reward extends Basic {
 
     public void decreaseQuantity(int amount) {
         if (this.quantity < amount) {
-            throw new IllegalStateException("상품 재고가 부족합니다");
+            throw new EventException(EventException.EventErrorType.REWARD_LACK);
         }
         this.quantity -= amount;
     }

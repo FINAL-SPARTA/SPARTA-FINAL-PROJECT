@@ -3,12 +3,14 @@ package com.fix.event_service.application.service;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
+import com.fix.event_service.application.exception.EventException;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
 import com.fix.event_service.domain.model.EventStatus;
 import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
 import com.fix.event_service.domain.service.EventDomainService;
+import com.fix.event_service.infrastructure.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,17 +29,17 @@ public class EventApplicationService {
 
     private final EventRepository eventRepository;
     private final EventDomainService eventDomainService;
+    private final UserClient userClient;
 
     @Transactional
     public EventDetailResponseDto createEvent(EventCreateRequestDto requestDto) {
-        // TODO : Event의 중복 검사 로직? 필요 없을지도..
-
         Event event = Event.createEvent(
                 requestDto.getEventName(),
                 requestDto.getDescription(),
                 requestDto.getEventStartAt(),
                 requestDto.getEventEndAt(),
-                requestDto.getMaxWinners()
+                requestDto.getMaxWinners(),
+                requestDto.getRequiredPoints()
         );
 
         Reward reward = Reward.createReward(
@@ -54,12 +56,12 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public void applyEvent(UUID eventId) {
-        Long userId = 1L; // TODO : 실제 유저 Id 넣기
-
+    public void applyEvent(UUID eventId, Long userId) {
         Event event = findEventById(eventId);
 
         event.isEventOpenForApplication();
+
+        userClient.deductPoints(userId, event.getRequiredPoints());
 
         EventEntry entry = EventEntry.createEventEntry(event, userId);
 
@@ -117,6 +119,7 @@ public class EventApplicationService {
                 requestDto.getEventStartAt(),
                 requestDto.getEventEndAt(),
                 requestDto.getMaxWinners(),
+                requestDto.getRequiredPoints(),
                 newReward
         );
 
@@ -146,16 +149,16 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public void deleteEvent(UUID eventId) {
+    public void deleteEvent(UUID eventId, Long userId) {
         Event event = findEventById(eventId);
 
         event.checkDeletable();
 
-        event.softDelete(1L); // TODO : 유저 Id 넣기
+        event.softDelete(userId);
     }
 
     private Event findEventById(UUID eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EventException(EventException.EventErrorType.EVENT_NOT_FOUND));
     }
 }

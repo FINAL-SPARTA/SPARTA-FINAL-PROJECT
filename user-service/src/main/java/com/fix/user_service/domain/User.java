@@ -2,6 +2,7 @@ package com.fix.user_service.domain;
 
 import com.fix.common_service.entity.UserRole;
 import com.fix.common_service.entity.Basic;
+import com.fix.user_service.application.exception.UserException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +36,8 @@ public class User extends Basic {
     @Column(nullable = false)
     private UserRole roleName;
 
+    private Integer point;
+
 //    빌더 패턴
     @Builder
     private User(String username, String email, String password, String nickname, UserRole roleName) {
@@ -43,6 +46,7 @@ public class User extends Basic {
         this.password = password;
         this.nickname = nickname;
         this.roleName = roleName;
+        this.point = 0;
     }
 
 
@@ -62,5 +66,12 @@ public class User extends Basic {
         this.nickname = nickname;
         this.email = email;
         this.roleName = roleName;
+    }
+
+    public void deductPoints(Integer requiredPoints) {
+        if (this.point < requiredPoints) {
+            throw new UserException(UserException.UserErrorType.NOT_ENOUGH_POINTS);
+        }
+        this.point -= requiredPoints;
     }
 }
