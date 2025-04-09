@@ -8,6 +8,8 @@ import com.fix.stadium_service.application.dtos.response.PageResponseDto;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.Stadium;
+import com.fix.stadium_service.domain.model.StadiumName;
+import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.fix.stadium_service.domain.repository.StadiumRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class StadiumService {
 
     private final StadiumRepository stadiumRepository;
+    private final StadiumQueryRepository stadiumQueryRepository;
 
 
     @Transactional
@@ -80,11 +83,22 @@ public class StadiumService {
     }
 
 
+    @Transactional(readOnly = true)
+    public PageResponseDto searchStadiums (StadiumName stadiumName, int page, int size) {
+        int offset = page * size;
+        List<Stadium> stadiums = stadiumQueryRepository.findByStadiumName(stadiumName, offset, size);
+        long totalCount = stadiumQueryRepository.countByStadiumName(stadiumName);
+        return new PageResponseDto(stadiums,page,size,totalCount);
+
+    }
+
+
     @Transactional
     public void deleteStadium(UUID stadiumId) {
         Stadium stadium = findStadium(stadiumId);
         stadium.softDelete(1L); // userID
     }
+
 
 
 
