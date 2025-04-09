@@ -1,6 +1,7 @@
 package com.fix.ticket_service.application.service;
 
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.PageResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
@@ -39,6 +40,7 @@ public class TicketApplicationService {
 
             responseDtoList.add(new TicketReserveResponseDto(ticket));
         }
+        // 5) TODO: Order 서버를 호출(또는 이벤트 발행)하여 주문 생성 및 결제 처리 요청
 
         return responseDtoList;
     }
@@ -59,5 +61,17 @@ public class TicketApplicationService {
             .map(TicketResponseDto::new);
 
         return new PageResponseDto<>(mappedPage);
+    }
+
+    @Transactional
+    public void updateTicketStatus(TicketSoldRequestDto requestDto) {
+        // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
+        // TODO: 티켓 예매 시점에 레디스 캐시에 저장하고 가져와도 될 듯
+        List<Ticket> tickets = ticketRepository.findAllById(requestDto.getTicketIds());
+
+        // 2) 각 티켓 상태 업데이트
+        for (Ticket ticket : tickets) {
+            ticket.markAsSold(requestDto.getOrderId());
+        }
     }
 }

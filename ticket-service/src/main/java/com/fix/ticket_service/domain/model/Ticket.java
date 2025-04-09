@@ -1,6 +1,5 @@
 package com.fix.ticket_service.domain.model;
 
-import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @Table(name = "p_ticket")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Ticket extends Basic {
+public class Ticket {
 
     @Id
     @Column(name = "ticket_id", nullable = false, updatable = false)

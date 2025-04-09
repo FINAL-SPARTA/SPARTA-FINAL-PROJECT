@@ -2,6 +2,7 @@ package com.fix.ticket_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.PageResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
 import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
@@ -49,6 +50,15 @@ public class TicketController {
         PageResponseDto<TicketResponseDto> responseList = ticketApplicationService.getTickets(userId, page, size);
         return ResponseEntity.ok(CommonResponse.success(responseList, "티켓 목록 조회 성공"));
     }
+
+    // ✅ 주문 생성 및 결제 처리가 완료된 티켓 목록 업데이트 API
+    @PatchMapping("/sold")
+    public ResponseEntity<CommonResponse<Void>> updateTicketStatus(
+        @RequestBody TicketSoldRequestDto requestDto) {
+        ticketApplicationService.updateTicketStatus(requestDto);
+        return ResponseEntity.ok(CommonResponse.success(null, "티켓 상태 업데이트 성공"));
+    }
+
 
 
 }
