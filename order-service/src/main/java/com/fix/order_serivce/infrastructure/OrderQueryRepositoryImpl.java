@@ -1,4 +1,4 @@
-package com.fix.order_serivce.infrastructure.config;
+package com.fix.order_serivce.infrastructure;
 
 import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.response.OrderResponse;
