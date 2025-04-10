@@ -95,4 +95,15 @@ public class Game extends Basic {
 	public void updateGameStatus(Game updateGameStatusInfo) {
 		Optional.ofNullable(updateGameStatusInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 	}
+
+	/**
+	 * 경기 잔여 좌석 및 예매율 수정
+	 * @param newRemainingSeats : 잔여 좌석
+	 * @param newAdvanceReservation : 예매율
+	 */
+	public void updateGameSeats(Integer newRemainingSeats, Double newAdvanceReservation) {
+		this.remainingSeats = newRemainingSeats;
+		this.advanceReservation = newAdvanceReservation;
+	}
+
 }
