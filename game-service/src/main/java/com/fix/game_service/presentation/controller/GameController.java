@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fix.common_service.dto.CommonResponse;
@@ -120,6 +121,17 @@ public class GameController {
 		return ResponseEntity.ok(CommonResponse.success(
 			response, "경기 상태 수정 성공"
 		));
+	}
+
+	/**
+	 * 경기 잔여 좌석 수정
+	 * @param gameId : 경기 ID
+	 * @param quantity : 변경할 좌석 수량
+	 */
+	@PatchMapping("/feign/{gameId}")
+	public void updateRemainingSeats(@PathVariable("gameId") UUID gameId,
+		@RequestParam("quantity") int quantity) {
+		gameService.updateGameSeats(gameId, quantity);
 	}
 
 	/**
