@@ -10,6 +10,7 @@ import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
+import com.fix.ticket_service.infrastructure.client.GameClient;
 import com.fix.ticket_service.infrastructure.client.OrderClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class TicketApplicationService {
 
     private final TicketRepository ticketRepository;
     private final OrderClient orderClient;
+    private final GameClient gameClient;
 
     @Transactional
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
@@ -81,7 +83,6 @@ public class TicketApplicationService {
     @Transactional
     public void updateTicketStatus(TicketSoldRequestDto requestDto) {
         // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
-        // TODO: 티켓 예매 시점에 레디스 캐시에 저장하고 가져와도 될 듯
         List<Ticket> tickets = ticketRepository.findAllById(requestDto.getTicketIds());
 
         // 2) 각 티켓 상태 업데이트
@@ -89,7 +90,10 @@ public class TicketApplicationService {
             ticket.markAsSold(requestDto.getOrderId());
         }
 
-        // 3) 경기 서버에 잔여 좌석 업데이트 요청
+        // 3) 경기 서버에 잔여 좌석 업데이트(잔여 좌석 차감) 요청
+        // TODO: 이벤트 발행 방식 비동기 처리
+        int quantity = tickets.size();
+        gameClient.updateRemainingSeats(tickets.get(0).getGameId(), -quantity);
     }
 
     @Transactional
@@ -102,7 +106,10 @@ public class TicketApplicationService {
             ticket.markAsCancelled();
         }
 
-        // 3) 경기 서버에 잔여 좌석 업데이트 요청
+        // 3) 경기 서버에 잔여 좌석 업데이트(잔여 좌석 증가) 요청
+        // TODO: 이벤트 발행 방식 비동기 처리
+        int quantity = tickets.size();
+        gameClient.updateRemainingSeats(tickets.get(0).getGameId(), quantity);
     }
 
     @Transactional
