@@ -3,9 +3,11 @@ package com.fix.stadium_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.aop.ValidateUser;
+import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
+import com.fix.stadium_service.application.dtos.response.SeatPriceListResponseDto;
 import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
@@ -23,7 +25,7 @@ public class StadiumController {
     private final StadiumService stadiumService;
 
     // 경기장 생성
-    @ValidateUser(roles = {"MASTER"})
+   // @ValidateUser(roles = {"MASTER"})
     @PostMapping()
     public ResponseEntity<CommonResponse<StadiumResponseDto>> createStadium(@RequestBody StadiumCreateRequest requestDto) {
         StadiumResponseDto responseDto = stadiumService.createStadium(requestDto);
@@ -78,6 +80,12 @@ public class StadiumController {
     public ResponseEntity<StadiumFeignResponse> getStadiumInfo(@PathVariable(name="home-team") String homeTeam){
         return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
     }
+
+    @PostMapping("feign/get-prices")
+    public SeatPriceListResponseDto getPrices(@RequestBody SeatPriceRequestDto request){
+        return  stadiumService.getPrices(request);
+    }
+
 
 
 
