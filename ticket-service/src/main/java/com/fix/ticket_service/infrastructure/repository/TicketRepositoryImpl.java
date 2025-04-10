@@ -99,4 +99,9 @@ public class TicketRepositoryImpl implements TicketRepository {
     public List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved) {
         return jpaTicketRepository.findBySeatIdInAndStatusIn(seatIds, reserved);
     }
+
+    @Override
+    public void saveAll(List<Ticket> ticketsToSave) {
+        jpaTicketRepository.saveAll(ticketsToSave);
+    }
 }

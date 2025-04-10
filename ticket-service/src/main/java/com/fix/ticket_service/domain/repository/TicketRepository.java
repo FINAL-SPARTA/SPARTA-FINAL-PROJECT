@@ -26,4 +26,6 @@ public interface TicketRepository {
     List<Ticket> findAllByOrderId(UUID orderId);
 
     List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved);
+
+    void saveAll(List<Ticket> ticketsToSave);
 }

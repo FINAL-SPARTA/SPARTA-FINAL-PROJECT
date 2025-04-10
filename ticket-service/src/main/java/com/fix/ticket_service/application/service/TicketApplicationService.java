@@ -49,15 +49,18 @@ public class TicketApplicationService {
 
         Map<UUID, Integer> seatPriceMap = seatPriceListResponseDto.toMap();
 
+        // 4) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
+        List<Ticket> ticketsToSave = new ArrayList<>();
         for (UUID seatId : request.getSeatIds()) {
             int price = seatPriceMap.get(seatId);
 
-            // 4) 티켓 예약 처리 (엔티티 생성 및 DB 저장)
             Ticket ticket = Ticket.create(userId, request.getGameId(), seatId, price);
-            ticketRepository.save(ticket);
 
-            responseDtoList.add(new TicketReserveResponseDto(ticket));
+            ticketsToSave.add(ticket);
         }
+        // 5) 티켓 정보 일괄 저장
+        ticketRepository.saveAll(ticketsToSave);
+
         // 5) Order 서버를 호출하여 주문 생성 및 결제 처리 요청
         // TODO: 이벤트 발행 방식 비동기 처리
         OrderCreateRequestDto orderCreateRequestDto = new OrderCreateRequestDto(responseDtoList);
