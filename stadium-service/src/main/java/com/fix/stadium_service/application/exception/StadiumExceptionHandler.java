@@ -1,7 +1,6 @@
 package com.fix.stadium_service.application.exception;
 
 import com.fix.common_service.dto.CommonResponse;
-import com.fix.stadium_service.domain.model.Stadium;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
