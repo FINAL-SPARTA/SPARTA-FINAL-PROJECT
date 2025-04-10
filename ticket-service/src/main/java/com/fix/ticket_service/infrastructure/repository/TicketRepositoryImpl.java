@@ -76,7 +76,7 @@ public class TicketRepositoryImpl implements TicketRepository {
         List<Ticket> content = qf
             .selectFrom(ticket)
             .where(builder)
-//            .orderBy(ticket.createdAt.desc())
+            .orderBy(ticket.soldAt.isNotNull().desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -88,5 +88,10 @@ public class TicketRepositoryImpl implements TicketRepository {
                 .fetchOne()).orElse(0L);
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public List<Ticket> findAllByOrderId(UUID orderId) {
+        return jpaTicketRepository.findAllByOrderId(orderId);
     }
 }

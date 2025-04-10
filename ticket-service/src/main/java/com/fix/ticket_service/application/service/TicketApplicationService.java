@@ -82,6 +82,21 @@ public class TicketApplicationService {
         for (Ticket ticket : tickets) {
             ticket.markAsSold(requestDto.getOrderId());
         }
+
+        // 3) 경기 서버에 잔여 좌석 업데이트 요청
+    }
+
+    @Transactional
+    public void cancelTicketStatus(UUID orderId) {
+        // 1) 주문 ID에 해당하는 티켓 목록 조회
+        List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
+
+        // 2) 각 티켓 상태 업데이트
+        for (Ticket ticket : tickets) {
+            ticket.markAsCancelled();
+        }
+
+        // 3) 경기 서버에 잔여 좌석 업데이트 요청
     }
 
     @Transactional
