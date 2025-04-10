@@ -5,6 +5,7 @@ import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
+import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.Stadium;
@@ -48,7 +49,7 @@ public class StadiumService {
 
 
     @Transactional
-    public StadiumResponseDto updateStadium(UUID stadiumId, StadiumUpdateRequest requestDto) {
+    public StadiumResponseDto updateStadium(Long stadiumId, StadiumUpdateRequest requestDto) {
         Stadium stadium = findStadium(stadiumId);
 
         stadium.updateStadium(
@@ -68,7 +69,7 @@ public class StadiumService {
 
 
     @Transactional(readOnly = true)
-    public StadiumResponseDto getStadium(UUID stadiumId) {
+    public StadiumResponseDto getStadium(Long stadiumId) {
         Stadium stadium = findStadium(stadiumId);
         return new StadiumResponseDto(stadium);
     }
@@ -94,9 +95,17 @@ public class StadiumService {
 
 
     @Transactional
-    public void deleteStadium(UUID stadiumId) {
+    public void deleteStadium(Long stadiumId) {
         Stadium stadium = findStadium(stadiumId);
         stadium.softDelete(1L); // userID
+    }
+
+    @Transactional(readOnly = true)
+    public StadiumFeignResponse getStadiumInfoByName(String teamName){
+        StadiumName stadiumName = StadiumName.fromTeamName(teamName);
+        Stadium stadium = stadiumRepository.findByStadiumName(stadiumName).orElseThrow(
+                () -> new IllegalArgumentException("해당 팀의 경기장이 존재하지 않습니다."));
+        return StadiumFeignResponse.from(stadium);
     }
 
 
@@ -104,7 +113,7 @@ public class StadiumService {
 
 
 
-    private Stadium findStadium(UUID stadiumId) {
+    private Stadium findStadium(Long stadiumId) {
         return stadiumRepository.findById(stadiumId)
                 .orElseThrow(() -> new IllegalArgumentException("경기장을 찾을 수 없습니다."));
     }

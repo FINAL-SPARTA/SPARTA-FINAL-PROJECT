@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class StadiumResponseDto {
 
-    private UUID stadiumId;
+    private Long stadiumId;
     private StadiumName stadiumName;
     private Integer quantity;
     private List<SeatResponseDto> seats;

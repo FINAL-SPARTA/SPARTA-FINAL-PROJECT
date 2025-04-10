@@ -6,13 +6,13 @@ import com.fix.stadium_service.domain.model.StadiumName;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface StadiumRepository {
     Stadium save(Stadium stadium);
-    Optional<Stadium> findById(UUID id);
+    Optional<Stadium> findById(Long id);
     List<Stadium> findWithPaging(int offset, int size);
     long count();
+    Optional<Stadium> findByStadiumName(StadiumName stadiumName);
 
 
 }
