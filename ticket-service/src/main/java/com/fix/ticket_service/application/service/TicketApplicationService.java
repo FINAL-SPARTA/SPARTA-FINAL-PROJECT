@@ -1,5 +1,6 @@
 package com.fix.ticket_service.application.service;
 
+import com.fix.ticket_service.application.dtos.request.OrderCreateRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.PageResponseDto;
@@ -9,6 +10,7 @@ import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
+import com.fix.ticket_service.infrastructure.client.OrderClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class TicketApplicationService {
 
     private final TicketRepository ticketRepository;
+    private final OrderClient orderClient;
 
     @Transactional
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
@@ -41,7 +44,10 @@ public class TicketApplicationService {
 
             responseDtoList.add(new TicketReserveResponseDto(ticket));
         }
-        // 5) TODO: Order 서버를 호출(또는 이벤트 발행)하여 주문 생성 및 결제 처리 요청
+        // 5) Order 서버를 호출하여 주문 생성 및 결제 처리 요청
+        // TODO: 이벤트 발행 방식 비동기 처리
+        OrderCreateRequestDto orderCreateRequestDto = new OrderCreateRequestDto(responseDtoList);
+        orderClient.createOrder(orderCreateRequestDto);
 
         return responseDtoList;
     }
