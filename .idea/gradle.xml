@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/order-service" />
             <option value="$PROJECT_DIR$/server" />
             <option value="$PROJECT_DIR$/stadium-service" />
+            <option value="$PROJECT_DIR$/ticket-service" />
             <option value="$PROJECT_DIR$/user-service" />
           </set>
         </option>
