@@ -8,7 +8,7 @@ public enum Team {
 	KIA("KIA 타이거즈"),
 	SAMSUNG("삼성 라이온즈"),
 	LG("LG 트윈스"),
-	BEARS("두산 베어스"),
+	HANHWA("한화 이글스"),
 	KT("KT 위즈"),
 	SSG("SSG 렌더스");
 
