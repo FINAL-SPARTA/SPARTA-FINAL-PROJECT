@@ -117,6 +117,28 @@ public class GameService {
 	}
 
 	/**
+	 * 잔여좌석 업데이트
+	 * @param gameId : 경기 ID
+	 * @param quantity : 뱐동할 잔여 좌석 수량
+	 */
+	@Transactional
+	public void updateGameSeats(UUID gameId, int quantity) {
+		Game game = findGame(gameId);
+
+		Integer totalSeats = game.getTotalSeats();
+		Integer newRemainingSeats;
+		if (game.getRemainingSeats() == null) {
+			newRemainingSeats = game.getTotalSeats() - quantity;
+		} else {
+			newRemainingSeats = game.getRemainingSeats() - quantity;
+		}
+
+		Double newAdvanceReservation = Double.valueOf(newRemainingSeats / totalSeats);
+
+		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
+	}
+
+	/**
 	 * 경기 삭제
 	 * @param gameId : 삭제할 경기 ID
 	 * @param userId : 삭제한 사용자의 ID
@@ -131,5 +153,4 @@ public class GameService {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
 	}
-
 }
