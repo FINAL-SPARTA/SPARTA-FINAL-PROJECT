@@ -24,4 +24,6 @@ public interface TicketRepository {
     Page<Ticket> searchTickets(UUID gameId, Long userId, int page, int size);
 
     List<Ticket> findAllByOrderId(UUID orderId);
+
+    List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved);
 }

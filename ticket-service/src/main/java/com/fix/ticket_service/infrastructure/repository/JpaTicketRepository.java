@@ -17,4 +17,6 @@ public interface JpaTicketRepository extends JpaRepository<Ticket, UUID> {
     void deleteAllByStatus(TicketStatus ticketStatus);
 
     List<Ticket> findAllByOrderId(UUID orderId);
+
+    List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved);
 }

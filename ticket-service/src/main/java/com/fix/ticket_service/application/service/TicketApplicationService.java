@@ -35,8 +35,13 @@ public class TicketApplicationService {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         // 1) TODO: Redis 분산락 적용
 
-        // 2) TODO: 중복 예매 방지 (DB 검사 or Redis 캐시 검사)
-        // ...
+        // 2) 중복 예매 방지 (DB 검사)
+        // TODO: Redis 캐시를 활용한 중복 예매 방지
+        List<Ticket> existingTickets =
+            ticketRepository.findBySeatIdInAndStatusIn(request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+        if (!existingTickets.isEmpty()) {
+            throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+        }
 
         // 3) Feign 호출을 통한 좌석 Id의 유효성 검사 및 가격 조회
         SeatPriceListResponseDto seatPriceListResponseDto =

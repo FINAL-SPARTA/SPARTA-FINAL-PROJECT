@@ -94,4 +94,9 @@ public class TicketRepositoryImpl implements TicketRepository {
     public List<Ticket> findAllByOrderId(UUID orderId) {
         return jpaTicketRepository.findAllByOrderId(orderId);
     }
+
+    @Override
+    public List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved) {
+        return jpaTicketRepository.findBySeatIdInAndStatusIn(seatIds, reserved);
+    }
 }
