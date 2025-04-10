@@ -17,8 +17,10 @@ import com.fix.game_service.application.dtos.response.GameListResponse;
 import com.fix.game_service.application.dtos.response.GameStatusUpdateResponse;
 import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
-import com.fix.game_service.domain.Game;
+import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
+import com.fix.game_service.infrastructure.client.StadiumClient;
+import com.fix.game_service.infrastructure.client.dto.StadiumResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GameService {
 
 	private final GameRepository gameRepository;
+	private final StadiumClient stadiumClient;
 
 	/**
 	 * 경기 생성
@@ -36,10 +39,16 @@ public class GameService {
 	 * @return : 반환
 	 */
 	public GameCreateResponse createGame(GameCreateRequest request) {
-		// TODO: Stadium 쪽으로 요청 전송
-		// 검증 요청 및 경기장 ID와 총 좌석 수 받아와서 남은 좌석 수에 넣어두기
-		Game game = request.toGame();
+		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
+		StadiumResponseDto responseDto = stadiumClient.getStadiumInfo(request.getHomeTeam().toString());
+
+		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
+		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
+
+		// 3. 생성한 경기 Entity 저장
 		Game savedGame = gameRepository.save(game);
+
+		// 4. 경기 내용 반환
 		return GameCreateResponse.fromGame(savedGame);
 	}
 
@@ -72,12 +81,22 @@ public class GameService {
 	 */
 	@Transactional
 	public GameUpdateResponse updateGame(UUID gameId, GameUpdateRequest request) {
+		// 1. 수정할 경기 검색
 		Game game = findGame(gameId);
-		// TODO : stadiumId != null 이라면 Stadium 쪽으로 검증 요청 필요
 
-		Game updateGameInfo = request.toGame();
+		// 2. homeTeam이 변동되었다면 재요청 필요
+		Game updateGameInfo;
+		if (request.getHomeTeam() != null) {
+			StadiumResponseDto response = stadiumClient.getStadiumInfo(request.getHomeTeam().toString());
+			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
+		} else {
+			updateGameInfo = request.toGame();
+		}
+
+		// 3. 변동된 사항 저장
 		game.updateGame(updateGameInfo);
 
+		// 4. 변동된 경기 반환
 		return GameUpdateResponse.fromGame(game);
 	}
 

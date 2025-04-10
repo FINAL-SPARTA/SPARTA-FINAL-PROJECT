@@ -1,4 +1,4 @@
-package com.fix.game_service.domain;
+package com.fix.game_service.domain.model;
 
 public enum GameStatus {
 

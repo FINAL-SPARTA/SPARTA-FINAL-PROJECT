@@ -3,9 +3,9 @@ package com.fix.game_service.application.dtos.request;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fix.game_service.domain.Game;
-import com.fix.game_service.domain.GameStatus;
-import com.fix.game_service.domain.Team;
+import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameStatus;
+import com.fix.game_service.domain.model.Team;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 public class GameUpdateRequest {
 
 	private String gameName;
-	private Team gameTeam1;
-	private Team gameTeam2;
+	private Team homeTeam;
+	private Team awayTeam;
 
 	private LocalDateTime gameDate;
 	private UUID stadiumId;
@@ -33,14 +33,27 @@ public class GameUpdateRequest {
 	public Game toGame() {
 		return Game.builder()
 			.gameName(this.gameName)
-			.gameTeam1(this.gameTeam1)
-			.gameTeam2(this.gameTeam2)
+			.homeTeam(this.homeTeam)
+			.awayTeam(this.awayTeam)
 			.gameDate(this.gameDate)
-			.stadiumId(this.stadiumId)
 			.gameStatus(this.gameStatus)
 			.openDate(this.openDate)
 			.closeDate(this.closeDate)
 			.build();
 	}
 
+	public Game toGameWithStadium(Long stadiumId, String stadiumName, Integer seatQuantity) {
+		return Game.builder()
+			.gameName(this.gameName)
+			.homeTeam(this.homeTeam)
+			.awayTeam(this.awayTeam)
+			.gameDate(this.gameDate)
+			.stadiumId(stadiumId)
+			.stadiumName(stadiumName)
+			.totalSeats(seatQuantity)
+			.gameStatus(this.gameStatus)
+			.openDate(this.openDate)
+			.closeDate(this.closeDate)
+			.build();
+	}
 }

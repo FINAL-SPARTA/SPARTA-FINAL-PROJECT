@@ -3,9 +3,9 @@ package com.fix.game_service.application.dtos.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fix.game_service.domain.Game;
-import com.fix.game_service.domain.GameStatus;
-import com.fix.game_service.domain.Team;
+import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameStatus;
+import com.fix.game_service.domain.model.Team;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,10 +20,11 @@ public class GameCreateResponse {
 
 	private UUID gameId;
 	private String gameName;
-	private Team gameTeam1;
-	private Team gameTeam2;
+	private Team homeTeam;
+	private Team awayTeam;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
+	private String stadiumName;
 	private GameStatus gameStatus;
 	private LocalDateTime openDate;
 	private LocalDateTime closeDate;
@@ -32,10 +33,11 @@ public class GameCreateResponse {
 		return GameCreateResponse.builder()
 			.gameId(game.getGameId())
 			.gameName(game.getGameName())
-			.gameTeam1(game.getGameTeam1())
-			.gameTeam2(game.getGameTeam2())
+			.homeTeam(game.getHomeTeam())
+			.awayTeam(game.getAwayTeam())
 			.gameDate(game.getGameDate())
 			.stadiumId(game.getStadiumId())
+			.stadiumName(game.getStadiumName())
 			.gameStatus(game.getGameStatus())
 			.openDate(game.getOpenDate())
 			.closeDate(game.getCloseDate())
