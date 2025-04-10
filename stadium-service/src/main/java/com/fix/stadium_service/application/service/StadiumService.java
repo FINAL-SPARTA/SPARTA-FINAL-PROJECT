@@ -7,6 +7,7 @@ import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
 import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
+import com.fix.stadium_service.application.exception.StadiumException;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.Stadium;
 import com.fix.stadium_service.domain.model.StadiumName;
@@ -104,7 +105,7 @@ public class StadiumService {
     public StadiumFeignResponse getStadiumInfoByName(String teamName){
         StadiumName stadiumName = StadiumName.fromTeamName(teamName);
         Stadium stadium = stadiumRepository.findByStadiumName(stadiumName).orElseThrow(
-                () -> new IllegalArgumentException("해당 팀의 경기장이 존재하지 않습니다."));
+                () -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NAME_NOT_FOUND));
         return StadiumFeignResponse.from(stadium);
     }
 
@@ -115,7 +116,7 @@ public class StadiumService {
 
     private Stadium findStadium(Long stadiumId) {
         return stadiumRepository.findById(stadiumId)
-                .orElseThrow(() -> new IllegalArgumentException("경기장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NOT_FOUND));
     }
 
 
