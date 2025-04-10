@@ -15,5 +15,6 @@ public class EventUpdateRequestDto {
     private LocalDateTime eventStartAt;
     private LocalDateTime eventEndAt;
     private Integer maxWinners;
+    private Integer requiredPoints;
     private RewardRequestDto reward;
 }

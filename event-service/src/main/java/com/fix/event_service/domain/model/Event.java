@@ -1,6 +1,7 @@
 package com.fix.event_service.domain.model;
 
 import com.fix.common_service.entity.Basic;
+import com.fix.event_service.application.exception.EventException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Event extends Basic {
     private String eventName;
     private String description;
     private Integer maxWinners;
+    private Integer requiredPoints;
 
     @Embedded
     private EventPeriod eventPeriod;
@@ -38,43 +40,48 @@ public class Event extends Basic {
     private List<EventEntry> entries = new ArrayList<>();
 
     @Builder
-    public Event(String eventName, String description, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxWinners) {
+    public Event(String eventName, String description, LocalDateTime eventStartAt,
+                 LocalDateTime eventEndAt, Integer maxWinners, Integer requiredPoints) {
         this.eventId = UUID.randomUUID();
         this.eventName = eventName;
         this.description = description;
         this.eventPeriod = new EventPeriod(eventStartAt, eventEndAt);
         this.maxWinners = maxWinners;
+        this.requiredPoints = requiredPoints;
         this.status = EventStatus.PLANNED;
     }
 
-    public static Event createEvent(String eventName, String description, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxWinners) {
+    public static Event createEvent(String eventName, String description, LocalDateTime eventStartAt,
+                                    LocalDateTime eventEndAt, Integer maxWinners, Integer requiredPoints) {
         return Event.builder()
                 .eventName(eventName)
                 .description(description)
                 .eventStartAt(eventStartAt)
                 .eventEndAt(eventEndAt)
                 .maxWinners(maxWinners)
+                .requiredPoints(requiredPoints)
                 .build();
     }
 
-    public void updateEvent(
-        String eventName, String description, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxWinners, Reward reward) {
+    public void updateEvent(String eventName, String description, LocalDateTime eventStartAt,
+                            LocalDateTime eventEndAt, Integer maxWinners, Integer requiredPoints, Reward reward) {
         this.eventName = eventName;
         this.description = description;
         this.eventPeriod = new EventPeriod(eventStartAt, eventEndAt);
         this.maxWinners = maxWinners;
+        this.requiredPoints = requiredPoints;
         this.reward = reward;
     }
 
     public void checkUpdatable() {
         if (this.status != EventStatus.PLANNED) {
-            throw new IllegalStateException("진행중이거나 종료된 이벤트는 수정할 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_CANNOT_UPDATE);
         }
     }
 
     public void checkDeletable() {
         if (this.status == EventStatus.ONGOING) {
-            throw new IllegalStateException("응모가 진행중인 이벤트는 삭제할 수 없습니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_CANNOT_DELETE);
         }
     }
 
@@ -103,7 +110,7 @@ public class Event extends Basic {
         boolean isBeforeEnd = now.isBefore(eventPeriod.getEventEndAt());
 
         if (!isOngoing || !isAfterStart || !isBeforeEnd) {
-            throw new IllegalStateException("이벤트 응모 기간이 아닙니다.");
+            throw new EventException(EventException.EventErrorType.EVENT_NOT_OPEN_FOR_APPLY);
         }
     }
 

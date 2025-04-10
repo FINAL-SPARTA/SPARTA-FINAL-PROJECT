@@ -3,9 +3,11 @@ package com.fix.stadium_service.presentation.controller;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
+import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
+import com.fix.stadium_service.domain.model.StadiumName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,26 @@ public class StadiumController {
     public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") UUID stadiumId) {
         stadiumService.deleteStadium(stadiumId);
         return ResponseEntity.ok(CommonResponse.success(null, "경기장 삭제 성공"));
+
+    }
+
+    @PatchMapping("/{stadiumId}")
+    public ResponseEntity<CommonResponse<StadiumResponseDto>> updateStadium(
+            @PathVariable UUID stadiumId,
+            @RequestBody StadiumUpdateRequest request) {
+        StadiumResponseDto response = stadiumService.updateStadium(stadiumId, request);
+        return ResponseEntity.ok(CommonResponse.success(response, "경기장 수정 완료"));
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<PageResponseDto>> searchStadiums(@RequestParam("name") StadiumName stadiumName,
+                                                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                          @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResponseDto response = stadiumService.searchStadiums(stadiumName, page, size);
+
+        return ResponseEntity.ok(CommonResponse.success(response, "구장명으로 경기장 검색 성공"));
+
 
     }
 

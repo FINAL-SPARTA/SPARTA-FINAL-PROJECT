@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,8 +29,6 @@ public class Seat extends Basic {
     @Column(name="seat_number")
     private Integer number;
 
-    @Enumerated(EnumType.STRING)
-    private SeatStatus status = SeatStatus.AVAILABLE;
 
     @Enumerated(EnumType.STRING)
     private SeatSection section;
@@ -44,20 +43,15 @@ public class Seat extends Basic {
     }
 
 
-//    @Builder
-//    public Seat (Integer row, Integer number, SeatSection section) {
-//        this.row = row;
-//        this.number = number;
-//        this.section = section;
-//    }
 
     public static Seat createSeat(Integer row, Integer number, SeatSection section) {
         Seat seat = new Seat();
         seat.row = row;
         seat.number = number;
         seat.section = section;
-        seat.status = SeatStatus.AVAILABLE;
         return seat;
     }
+
+
 
 }
