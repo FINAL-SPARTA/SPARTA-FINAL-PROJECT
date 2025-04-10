@@ -40,7 +40,7 @@ public class GameService {
 	 */
 	public GameCreateResponse createGame(GameCreateRequest request) {
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
-		StadiumResponseDto responseDto = stadiumClient.getStadiumInfo(request.getHomeTeam().toString());
+		StadiumResponseDto responseDto = stadiumClient.getStadiumInfo(request.getHomeTeam().toString()).getBody();
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
 		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
@@ -87,7 +87,7 @@ public class GameService {
 		// 2. homeTeam이 변동되었다면 재요청 필요
 		Game updateGameInfo;
 		if (request.getHomeTeam() != null) {
-			StadiumResponseDto response = stadiumClient.getStadiumInfo(request.getHomeTeam().toString());
+			StadiumResponseDto response = stadiumClient.getStadiumInfo(request.getHomeTeam().toString()).getBody();
 			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
 		} else {
 			updateGameInfo = request.toGame();
