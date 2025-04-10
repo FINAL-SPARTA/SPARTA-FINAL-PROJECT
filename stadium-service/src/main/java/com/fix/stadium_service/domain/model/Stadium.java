@@ -19,9 +19,9 @@ import java.util.UUID;
 public class Stadium extends Basic {
 
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "stadium_id", updatable = false, nullable = false)
-    private UUID stadiumId;
+    private Long stadiumId;
 
 
     @Enumerated(EnumType.STRING)

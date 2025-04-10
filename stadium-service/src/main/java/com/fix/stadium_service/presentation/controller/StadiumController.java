@@ -5,6 +5,7 @@ import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
+import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
 import com.fix.stadium_service.domain.model.StadiumName;
@@ -30,7 +31,7 @@ public class StadiumController {
 
     //경기장 단건 조회
     @GetMapping("/{stadiumId}")
-    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadium(@PathVariable("stadiumId") UUID stadiumId) {
+    public ResponseEntity<CommonResponse<StadiumResponseDto>> getStadium(@PathVariable("stadiumId") Long stadiumId) {
         StadiumResponseDto responseDto = stadiumService.getStadium(stadiumId);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "경기장 상세 조회 성공"));
 
@@ -46,7 +47,7 @@ public class StadiumController {
 
 
     @DeleteMapping("/{stadiumId}")
-    public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") UUID stadiumId) {
+    public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") Long stadiumId) {
         stadiumService.deleteStadium(stadiumId);
         return ResponseEntity.ok(CommonResponse.success(null, "경기장 삭제 성공"));
 
@@ -54,7 +55,7 @@ public class StadiumController {
 
     @PatchMapping("/{stadiumId}")
     public ResponseEntity<CommonResponse<StadiumResponseDto>> updateStadium(
-            @PathVariable UUID stadiumId,
+            @PathVariable Long stadiumId,
             @RequestBody StadiumUpdateRequest request) {
         StadiumResponseDto response = stadiumService.updateStadium(stadiumId, request);
         return ResponseEntity.ok(CommonResponse.success(response, "경기장 수정 완료"));
@@ -66,11 +67,16 @@ public class StadiumController {
                                                                           @RequestParam(value = "page", defaultValue = "0") int page,
                                                                           @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponseDto response = stadiumService.searchStadiums(stadiumName, page, size);
-
         return ResponseEntity.ok(CommonResponse.success(response, "구장명으로 경기장 검색 성공"));
 
 
     }
+
+    @GetMapping("/{home-team}/games")
+    public ResponseEntity<StadiumFeignResponse> getStadiumInfo(@PathVariable(name="home-team") String homeTeam){
+        return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
+    }
+
 
 
 }
