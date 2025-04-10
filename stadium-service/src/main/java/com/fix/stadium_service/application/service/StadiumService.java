@@ -96,9 +96,9 @@ public class StadiumService {
 
 
     @Transactional
-    public void deleteStadium(Long stadiumId) {
+    public void deleteStadium(Long stadiumId,Long userId) {
         Stadium stadium = findStadium(stadiumId);
-        stadium.softDelete(1L); // userID
+        stadium.softDelete(userId);
     }
 
     @Transactional(readOnly = true)

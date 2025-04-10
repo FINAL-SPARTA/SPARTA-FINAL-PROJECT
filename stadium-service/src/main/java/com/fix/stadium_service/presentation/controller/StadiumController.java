@@ -2,6 +2,7 @@ package com.fix.stadium_service.presentation.controller;
 
 
 import com.fix.common_service.dto.CommonResponse;
+import com.fix.stadium_service.application.aop.ValidateUser;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.dtos.response.PageResponseDto;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,6 +23,7 @@ public class StadiumController {
     private final StadiumService stadiumService;
 
     // 경기장 생성
+    @ValidateUser(roles = {"MASTER"})
     @PostMapping()
     public ResponseEntity<CommonResponse<StadiumResponseDto>> createStadium(@RequestBody StadiumCreateRequest requestDto) {
         StadiumResponseDto responseDto = stadiumService.createStadium(requestDto);
@@ -45,14 +46,15 @@ public class StadiumController {
         return ResponseEntity.ok(CommonResponse.success(responseDto, "경기장 목록(페이지) 조회 성공"));
     }
 
-
+    @ValidateUser(roles = {"MASTER"})
     @DeleteMapping("/{stadiumId}")
-    public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") Long stadiumId) {
-        stadiumService.deleteStadium(stadiumId);
+    public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") Long stadiumId,
+                                                                @RequestHeader("x-user-id")Long userId) {
+        stadiumService.deleteStadium(stadiumId ,userId);
         return ResponseEntity.ok(CommonResponse.success(null, "경기장 삭제 성공"));
 
     }
-
+    @ValidateUser(roles = {"MASTER","MANAGER"})
     @PatchMapping("/{stadiumId}")
     public ResponseEntity<CommonResponse<StadiumResponseDto>> updateStadium(
             @PathVariable Long stadiumId,
