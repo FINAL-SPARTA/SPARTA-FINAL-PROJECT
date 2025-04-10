@@ -1,17 +1,16 @@
 package com.fix.ticket_service.application.service;
 
 import com.fix.ticket_service.application.dtos.request.OrderCreateRequestDto;
+import com.fix.ticket_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
-import com.fix.ticket_service.application.dtos.response.PageResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
+import com.fix.ticket_service.application.dtos.response.*;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
 import com.fix.ticket_service.infrastructure.client.GameClient;
 import com.fix.ticket_service.infrastructure.client.OrderClient;
+import com.fix.ticket_service.infrastructure.client.StadiumClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -28,17 +28,24 @@ public class TicketApplicationService {
     private final TicketRepository ticketRepository;
     private final OrderClient orderClient;
     private final GameClient gameClient;
+    private final StadiumClient stadiumClient;
 
     @Transactional
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         // 1) TODO: Redis 분산락 적용
-        for (UUID seatId : request.getSeatIds()) {
-            // 2) TODO: 중복 예매 방지 (DB 검사 or Redis 캐시 검사)
-            // ...
 
-            // 3) TODO: Feign 호출을 통한 좌석 Id의 유효성 검사 및 가격 조회
-            int price = 10000; // 임시로 설정
+        // 2) TODO: 중복 예매 방지 (DB 검사 or Redis 캐시 검사)
+        // ...
+
+        // 3) Feign 호출을 통한 좌석 Id의 유효성 검사 및 가격 조회
+        SeatPriceListResponseDto seatPriceListResponseDto =
+            stadiumClient.getPrices(new SeatPriceRequestDto(request.getSeatIds()));
+
+        Map<UUID, Integer> seatPriceMap = seatPriceListResponseDto.toMap();
+
+        for (UUID seatId : request.getSeatIds()) {
+            int price = seatPriceMap.get(seatId);
 
             // 4) 티켓 예약 처리 (엔티티 생성 및 DB 저장)
             Ticket ticket = Ticket.create(userId, request.getGameId(), seatId, price);
@@ -126,4 +133,6 @@ public class TicketApplicationService {
     public void deleteReservedTickets() {
         ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
     }
+
+
 }
