@@ -72,9 +72,9 @@ public class StadiumController {
 
     }
 
-    @GetMapping("/{stadiumId}/feign-info")
-    public ResponseEntity<StadiumFeignResponse> getStadiumInfo(@PathVariable("stadiumId") Long stadiumId){
-        return ResponseEntity.ok(stadiumService.getStadiumInfo(stadiumId));
+    @GetMapping("/{home-team}/games")
+    public ResponseEntity<StadiumFeignResponse> getStadiumInfo(@PathVariable(name="home-team") String homeTeam){
+        return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
     }
 
 

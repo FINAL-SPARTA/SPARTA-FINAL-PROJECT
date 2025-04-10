@@ -101,8 +101,10 @@ public class StadiumService {
     }
 
     @Transactional(readOnly = true)
-    public StadiumFeignResponse getStadiumInfo(Long stadiumId){
-        Stadium stadium = findStadium(stadiumId);
+    public StadiumFeignResponse getStadiumInfoByName(String teamName){
+        StadiumName stadiumName = StadiumName.fromTeamName(teamName);
+        Stadium stadium = stadiumRepository.findByStadiumName(stadiumName).orElseThrow(
+                () -> new IllegalArgumentException("해당 팀의 경기장이 존재하지 않습니다."));
         return StadiumFeignResponse.from(stadium);
     }
 
