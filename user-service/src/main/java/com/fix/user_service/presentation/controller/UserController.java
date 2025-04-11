@@ -113,6 +113,15 @@ public class UserController {
         return ResponseEntity.ok(CommonResponse.success(null, "사용자가 삭제되었습니다."));
     }
 
+    @PostMapping("/feign/deduct-points/{userId}")
+    public ResponseEntity<CommonResponse<Void>> deductPoints(
+            @PathVariable Long userId,
+            @RequestParam Integer points
+    ) {
+        userService.deductPoints(userId, points);
+        return ResponseEntity.ok(CommonResponse.success(null, "포인트 차감 성공"));
+    }
+
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<UserListResponseDto>> getAllUsers(
             @RequestHeader Map<String, String> headers,

@@ -1,5 +1,7 @@
 package com.fix.stadium_service.domain.model;
 
+import java.util.Arrays;
+
 public enum StadiumName {
     KIA_DIA("기아챔피언스필드", 20500),
     SAM_DIA("삼성라이온즈파크", 24000),
@@ -23,4 +25,12 @@ public enum StadiumName {
     public int getSeatCapacity() {
         return seatCapacity;
     }
+
+    public static StadiumName fromTeamName(String teamName) {
+        return Arrays.stream(values())
+                .filter(s -> s.name().contains(teamName.toUpperCase()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 팀 이름에 대한 경기장을 찾을 수 없습니다."));
+    }
+
 }

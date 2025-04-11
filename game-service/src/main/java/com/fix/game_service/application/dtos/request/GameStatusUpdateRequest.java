@@ -1,7 +1,7 @@
 package com.fix.game_service.application.dtos.request;
 
-import com.fix.game_service.domain.Game;
-import com.fix.game_service.domain.GameStatus;
+import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

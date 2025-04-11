@@ -1,6 +1,6 @@
 package com.fix.stadium_service.application.dtos.request;
 
-import com.fix.stadium_service.domain.model.Stadium;
+
 import com.fix.stadium_service.domain.model.StadiumName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class StadiumCreateRequest {
     private StadiumName stadiumName;
-    private Integer quantity;
     private List<SeatRequestDto> seats;
 
 }

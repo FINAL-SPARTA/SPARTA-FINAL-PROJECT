@@ -43,7 +43,8 @@ public class UserException extends CustomException {
         AUTHENTICATION_FAILED("USER_008", HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
         TOKEN_EXPIRED("USER_009", HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
         USER_SERVICE_UNAVAILABLE("USER_503", HttpStatus.SERVICE_UNAVAILABLE, "User 서비스에 접근할 수 없습니다."),
-        INVALID_UUID_FORMAT("USER_010", HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다.");
+        INVALID_UUID_FORMAT("USER_010", HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
+        NOT_ENOUGH_POINTS("USER_011", HttpStatus.BAD_REQUEST, "포인트가 부족합니다.");
 
         private final String code;
         private final HttpStatus status;

@@ -3,8 +3,8 @@ package com.fix.game_service.application.dtos.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fix.game_service.domain.Game;
-import com.fix.game_service.domain.Team;
+import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.Team;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 public class GameListResponse {
 
 	private UUID gameId;
-	private Team gameTeam1;
-	private Team gameTeam2;
+	private Team homeTeam;
+	private Team awayTeam;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
 
 	public static GameListResponse fromGame(Game game) {
 		return GameListResponse.builder()
 			.gameId(game.getGameId())
-			.gameTeam1(game.getGameTeam1())
-			.gameTeam2(game.getGameTeam2())
+			.homeTeam(game.getHomeTeam())
+			.awayTeam(game.getAwayTeam())
 			.gameDate(game.getGameDate())
 			.stadiumId(game.getStadiumId())
 			.build();

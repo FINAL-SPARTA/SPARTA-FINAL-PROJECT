@@ -14,6 +14,7 @@ public class SeatRequestDto {
     private Integer number;
     private SeatSection section;
 
+
 }
 
 

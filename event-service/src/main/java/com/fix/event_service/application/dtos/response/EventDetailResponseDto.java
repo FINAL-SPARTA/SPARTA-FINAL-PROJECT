@@ -16,6 +16,7 @@ public class EventDetailResponseDto {
     private String eventStartAt;
     private String eventEndAt;
     private Integer maxWinners;
+    private Integer requiredPoints;
     private EventStatus status;
     private RewardResponseDto reward;
 
@@ -26,6 +27,7 @@ public class EventDetailResponseDto {
         this.eventStartAt = event.getEventPeriod().getEventStartAt().toString();
         this.eventEndAt = event.getEventPeriod().getEventEndAt().toString();
         this.maxWinners = event.getMaxWinners();
+        this.requiredPoints = event.getRequiredPoints();
         this.status = event.getStatus();
         this.reward = new RewardResponseDto(event.getReward());
     }

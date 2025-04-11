@@ -3,7 +3,7 @@ package com.fix.game_service.application.dtos.request;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fix.game_service.domain.Team;
+import com.fix.game_service.domain.model.Team;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +19,6 @@ public class GameSearchRequest {
 	private Team gameTeam1;
 	private Team gameTeam2;
 	private LocalDateTime gameDate;
-	private UUID stadiumId;
+	private Long stadiumId;
 
 }

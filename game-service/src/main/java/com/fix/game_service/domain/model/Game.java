@@ -1,4 +1,4 @@
-package com.fix.game_service.domain;
+package com.fix.game_service.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,17 +37,20 @@ public class Game extends Basic {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Team gameTeam1;
+	private Team homeTeam;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Team gameTeam2;
+	private Team awayTeam;
 
 	@Column(nullable = false)
 	private LocalDateTime gameDate;
 
 	@Column(nullable = false)
-	private UUID stadiumId;
+	private Long stadiumId;
+
+	@Column(nullable = false)
+	private String stadiumName;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -62,7 +66,10 @@ public class Game extends Basic {
 	private Double advanceReservation;  // 예매율
 
 	@Column
-	private Long remainingSeats;        // 남은 좌석
+	private Integer remainingSeats;        // 남은 좌석
+
+	@Column(nullable = false)
+	private Integer totalSeats;          // 총 좌석
 
 	/**
 	 * 경기 내용 수정
@@ -70,10 +77,12 @@ public class Game extends Basic {
 	 */
 	public void updateGame(Game updateGameInfo) {
 		Optional.ofNullable(updateGameInfo.getGameName()).ifPresent(gameName -> this.gameName = gameName);
-		Optional.ofNullable(updateGameInfo.getGameTeam1()).ifPresent(gameTeam1 -> this.gameTeam1 = gameTeam1);
-		Optional.ofNullable(updateGameInfo.getGameTeam2()).ifPresent(gameTeam2 -> this.gameTeam2 = gameTeam2);
+		Optional.ofNullable(updateGameInfo.getHomeTeam()).ifPresent(gameTeam1 -> this.homeTeam = gameTeam1);
+		Optional.ofNullable(updateGameInfo.getAwayTeam()).ifPresent(gameTeam2 -> this.awayTeam = gameTeam2);
 		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
 		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
+		Optional.ofNullable(updateGameInfo.getStadiumName()).ifPresent(stadiumName -> this.stadiumName = stadiumName);
+		Optional.ofNullable(updateGameInfo.getTotalSeats()).ifPresent(totalSeats -> this.totalSeats = totalSeats);
 		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 		Optional.ofNullable(updateGameInfo.getOpenDate()).ifPresent(openDate -> this.openDate = openDate);
 		Optional.ofNullable(updateGameInfo.getCloseDate()).ifPresent(closeDate -> this.closeDate = closeDate);
@@ -86,4 +95,15 @@ public class Game extends Basic {
 	public void updateGameStatus(Game updateGameStatusInfo) {
 		Optional.ofNullable(updateGameStatusInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 	}
+
+	/**
+	 * 경기 잔여 좌석 및 예매율 수정
+	 * @param newRemainingSeats : 잔여 좌석
+	 * @param newAdvanceReservation : 예매율
+	 */
+	public void updateGameSeats(Integer newRemainingSeats, Double newAdvanceReservation) {
+		this.remainingSeats = newRemainingSeats;
+		this.advanceReservation = newAdvanceReservation;
+	}
+
 }
