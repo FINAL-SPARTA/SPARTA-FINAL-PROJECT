@@ -1,4 +1,4 @@
-package com.fix.order_serivce.infrastructure.config;
+package com.fix.order_serivce.infrastructure;
 
 import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.response.OrderResponse;
@@ -53,7 +53,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
                         .userId(o.getUserId())
                         .gameId(o.getGameId())
                         .peopleCount(o.getPeopleCount())
-                        .totalCount(o.getTotalCount())
+                        .totalPrice(o.getTotalPrice())
                         .ticketIds(null) // 간략 응답
                         .build())
                 .toList();

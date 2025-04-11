@@ -6,7 +6,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication(scanBasePackages = {"com.fix.common_service", "com.fix.order_serivce"})
-@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableFeignClients
 public class OrderServiceApplication {
 

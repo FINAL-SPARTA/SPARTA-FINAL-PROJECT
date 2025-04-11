@@ -8,8 +8,6 @@ import com.fix.order_serivce.application.dtos.request.OrderSearchCondition;
 import com.fix.order_serivce.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_serivce.application.dtos.response.OrderDetailResponse;
 import com.fix.order_serivce.application.dtos.response.OrderResponse;
-import com.fix.order_serivce.domain.Ticket;
-import com.fix.order_serivce.domain.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,31 +22,6 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
-    private final TicketRepository ticketRepository;
-
-    // 주문 생성
-    @ValidateUser(roles = {"ROLE_CUSTOMER"})
-    @PostMapping
-    public ResponseEntity<CommonResponse<OrderResponse>> createOrder(@RequestBody OrderCreateRequest request) {
-        UUID orderId = orderService.createOrder(request);
-
-        // 생성된 티켓 ID 목록을 조회
-        List<UUID> ticketIds = ticketRepository.findAllByOrderId(orderId)
-                .stream()
-                .map(Ticket::getTicketId)
-                .toList();
-
-        OrderResponse response = OrderResponse.builder()
-                .orderId(orderId)
-                .userId(request.getUserId())
-                .gameId(request.getGameId())
-                .peopleCount(request.getPeopleCount())
-                .totalCount(ticketIds.size())
-                .ticketIds(ticketIds)
-                .build();
-
-        return ResponseEntity.ok(CommonResponse.created(response, "주문이 생성되었습니다."));
-    }
 
     // 단건 조회
     @ValidateUser(roles = {"ROLE_CUSTOMER", "ROLE_MANAGER", "ROLE_MASTER"})

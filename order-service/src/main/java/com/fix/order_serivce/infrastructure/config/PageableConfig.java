@@ -1,4 +1,4 @@
-package com.fix.order_serivce.infrastructure.config.config;
+package com.fix.order_serivce.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
