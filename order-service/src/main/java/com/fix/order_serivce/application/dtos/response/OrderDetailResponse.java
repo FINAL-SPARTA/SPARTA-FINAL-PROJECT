@@ -11,8 +11,8 @@ import java.util.UUID;
 @Builder
 public class OrderDetailResponse {
     private UUID orderId;
-    private UUID userId;
+    private Long userId;
     private UUID gameId;
     private int peopleCount;
-    private int totalCount;
+    private int totalPrice;
 }

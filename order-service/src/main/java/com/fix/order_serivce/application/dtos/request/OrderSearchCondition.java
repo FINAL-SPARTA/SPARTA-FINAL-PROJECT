@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 public class OrderSearchCondition {
-    private UUID userId;
+    private Long userId;
     private UUID gameId;
     private OrderStatus orderStatus;
 

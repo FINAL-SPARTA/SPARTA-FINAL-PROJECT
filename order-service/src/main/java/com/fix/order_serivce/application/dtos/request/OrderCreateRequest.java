@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 public class OrderCreateRequest {
-    private UUID userId;
+    private Long userId;
     private UUID gameId;
     private List<UUID> seatIds;
     private int peopleCount;

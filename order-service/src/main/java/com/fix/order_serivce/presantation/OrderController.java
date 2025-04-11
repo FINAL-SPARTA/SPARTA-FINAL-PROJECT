@@ -34,7 +34,7 @@ public class OrderController {
                 .userId(request.getUserId())
                 .gameId(request.getGameId())
                 .peopleCount(request.getPeopleCount())
-                .totalCount(request.getSeatIds().size())
+                .totalPrice(request.getSeatIds().size())
                 .ticketIds(null) // ticket-service 연동 이후 설정 예정
                 .build();
 

@@ -7,8 +7,7 @@ import com.fix.order_serivce.application.exception.OrderException;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
 import com.fix.order_serivce.domain.repository.OrderRepository;
-import com.fix.order_serivce.infrastructure.client.TicketCancelClient;
-import com.fix.order_serivce.infrastructure.client.TicketStatusUpdateClient;
+import com.fix.order_serivce.infrastructure.client.TicketClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +23,7 @@ import static com.fix.order_serivce.application.exception.OrderException.OrderEr
 public class OrderFeignService {
 
     private final OrderRepository orderRepository;
-    private final TicketStatusUpdateClient ticketStatusUpdateClient;
-    private TicketCancelClient ticketCancelClient;
+    private final TicketClient ticketClient;
 
     /**
      * ticket-service에서 예약된 티켓 리스트를 전달받아 주문을 생성하고,
@@ -48,7 +46,7 @@ public class OrderFeignService {
 
         // [3] 주문 생성
         Order order = Order.create(
-                UUID.fromString(userId.toString()), // Order Entity는 UUID 기반
+                userId,  // Order Entity는 UUID 기반
                 gameId,
                 OrderStatus.CREATED,
                 tickets.size(), // peopleCount
@@ -64,8 +62,7 @@ public class OrderFeignService {
                 .toList();
 
         // [6] 티켓 상태 SOLD로 변경 요청
-        FeignTicketSoldRequest soldRequest = new FeignTicketSoldRequest(order.getOrderId(), ticketIds);
-        ticketStatusUpdateClient.updateTicketStatus(soldRequest); // ✅ 변경된 호출
+        ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds)); // ✅ 통합된 호출출
         // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
     }
 
@@ -78,7 +75,7 @@ public class OrderFeignService {
         order.cancel();
 
         // 티켓 상태도 CANCELLED로 변경 요청
-        ticketCancelClient.cancelTicketStatus(orderId);
+        ticketClient.cancelTicketStatus(orderId);
     }
 }
 //예약된 티켓 → 주문 생성 → 상태 변경

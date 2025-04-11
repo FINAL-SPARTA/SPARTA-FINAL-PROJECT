@@ -59,9 +59,9 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		long totalCount = totalCount(request);
+		long totalPrice = totalPrice(request);
 
-		Page<GameListResponse> gameList = new PageImpl<>(results, pageable, totalCount);
+		Page<GameListResponse> gameList = new PageImpl<>(results, pageable, totalPrice);
 		return new PagedModel<>(gameList);
 	}
 
