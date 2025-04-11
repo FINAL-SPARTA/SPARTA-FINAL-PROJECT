@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/orders/feign")
+@RequestMapping("/api/v1/orders")
 public class OrderFeignController {
 
     private final OrderFeignService orderFeignService;
@@ -19,7 +19,7 @@ public class OrderFeignController {
         orderFeignService.createOrderFromTicket(request);
     }
 
-    @PostMapping("/cancel/{orderId}")
+    @PostMapping("/feign/cancel/{orderId}")
     public void cancelOrder(@PathVariable UUID orderId) {
         orderFeignService.cancelOrderFromTicket(orderId);
     }
