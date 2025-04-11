@@ -2,10 +2,12 @@ package com.fix.order_serivce.application.dtos.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class FeignOrderCreateRequest {
     private List<FeignTicketReserveDto> ticketDtoList;

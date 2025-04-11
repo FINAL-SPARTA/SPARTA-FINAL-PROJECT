@@ -1,26 +1,34 @@
 package com.fix.ticket_service.application.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fix.ticket_service.application.dtos.request.OrderCreateRequestDto;
 import com.fix.ticket_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
-import com.fix.ticket_service.application.dtos.response.*;
+import com.fix.ticket_service.application.dtos.response.PageResponseDto;
+import com.fix.ticket_service.application.dtos.response.SeatPriceListResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
+import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
 import com.fix.ticket_service.infrastructure.client.GameClient;
 import com.fix.ticket_service.infrastructure.client.OrderClient;
 import com.fix.ticket_service.infrastructure.client.StadiumClient;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketApplicationService {
@@ -30,7 +38,6 @@ public class TicketApplicationService {
     private final GameClient gameClient;
     private final StadiumClient stadiumClient;
 
-    @Transactional
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         // 1) TODO: Redis 분산락 적용
@@ -57,6 +64,7 @@ public class TicketApplicationService {
             Ticket ticket = Ticket.create(userId, request.getGameId(), seatId, price);
 
             ticketsToSave.add(ticket);
+            responseDtoList.add(new TicketReserveResponseDto(ticket));
         }
         // 5) 티켓 정보 일괄 저장
         ticketRepository.saveAll(ticketsToSave);

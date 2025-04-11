@@ -8,6 +8,8 @@ import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.repository.OrderQueryRepository;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.application.exception.OrderException;
+import com.fix.order_serivce.infrastructure.client.TicketClient;
+
 import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.*;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final TicketClient ticketClient;
 
 //    단건 조회
     @Transactional(readOnly = true)
@@ -66,6 +69,19 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
         order.update(request.getPeopleCount(), request.getOrderStatus());
+    }
+
+    // 주문 취소
+    @Transactional
+    public void cancelOrderFromTicket(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
+
+        // 주문 상태 변경 (soft delete 아님)
+        order.cancel();
+
+        // 티켓 상태도 CANCELLED로 변경 요청
+        ticketClient.cancelTicketStatus(orderId);
     }
 
 //    주문 삭제 (soft delete)

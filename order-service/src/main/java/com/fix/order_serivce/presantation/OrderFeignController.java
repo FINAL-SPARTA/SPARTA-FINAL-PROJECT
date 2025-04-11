@@ -14,13 +14,9 @@ public class OrderFeignController {
 
     private final OrderFeignService orderFeignService;
 
-    @PostMapping
+    @PostMapping("/feign")
     public void createOrder(@RequestBody FeignOrderCreateRequest request) {
         orderFeignService.createOrderFromTicket(request);
     }
 
-    @PostMapping("/feign/cancel/{orderId}")
-    public void cancelOrder(@PathVariable UUID orderId) {
-        orderFeignService.cancelOrderFromTicket(orderId);
-    }
 }

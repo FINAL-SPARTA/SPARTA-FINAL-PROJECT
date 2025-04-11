@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -59,6 +59,12 @@ public class OrderController {
     ) {
         orderService.updateOrder(orderId, request);
         return ResponseEntity.ok(CommonResponse.success(null, "주문 정보가 수정되었습니다."));
+    }
+
+    // 주문 취소
+    @PatchMapping("/cancel/{orderId}")
+    public void cancelOrder(@PathVariable UUID orderId) {
+        orderService.cancelOrderFromTicket(orderId);
     }
 
     // 주문 취소 (soft delete)

@@ -35,8 +35,8 @@ dependencies {
 	// ✅ H2
 	runtimeOnly 'com.h2database:h2'
 
-//	// ✅ PostgreSQL
-//	runtimeOnly 'org.postgresql:postgresql'
+	// ✅ PostgreSQL
+	runtimeOnly 'org.postgresql:postgresql'
 
 	// ✅ JSON
 	implementation 'org.json:json:20230227'

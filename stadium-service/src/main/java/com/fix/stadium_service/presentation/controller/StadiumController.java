@@ -1,5 +1,16 @@
 package com.fix.stadium_service.presentation.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.aop.ValidateUser;
@@ -12,9 +23,8 @@ import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
 import com.fix.stadium_service.domain.model.StadiumName;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 
 @RequiredArgsConstructor
@@ -81,7 +91,7 @@ public class StadiumController {
         return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
     }
 
-    @PostMapping("feign/get-prices")
+    @PostMapping("/feign/get-prices")
     public SeatPriceListResponseDto getPrices(@RequestBody SeatPriceRequestDto request){
         return  stadiumService.getPrices(request);
     }

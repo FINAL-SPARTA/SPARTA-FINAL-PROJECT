@@ -128,7 +128,7 @@ public class GameController {
 	 * @param gameId : 경기 ID
 	 * @param quantity : 변경할 좌석 수량
 	 */
-	@PatchMapping("/feign/{gameId}")
+	@PostMapping("/feign/{gameId}")
 	public void updateRemainingSeats(@PathVariable("gameId") UUID gameId,
 		@RequestParam("quantity") int quantity) {
 		gameService.updateGameSeats(gameId, quantity);

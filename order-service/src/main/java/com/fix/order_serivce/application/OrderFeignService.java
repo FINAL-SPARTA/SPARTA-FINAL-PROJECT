@@ -9,6 +9,8 @@ import com.fix.order_serivce.domain.OrderStatus;
 import com.fix.order_serivce.domain.repository.OrderRepository;
 import com.fix.order_serivce.infrastructure.client.TicketClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import java.util.UUID;
 import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.INVALID_REQUEST;
 import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.ORDER_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderFeignService {
@@ -71,17 +74,6 @@ public class OrderFeignService {
         // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
     }
 
-    @Transactional
-    public void cancelOrderFromTicket(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
-
-        // 주문 상태 변경 (soft delete 아님)
-        order.cancel();
-
-        // 티켓 상태도 CANCELLED로 변경 요청
-        ticketClient.cancelTicketStatus(orderId);
-    }
 }
 //예약된 티켓 → 주문 생성 → 상태 변경
 //ticket-service

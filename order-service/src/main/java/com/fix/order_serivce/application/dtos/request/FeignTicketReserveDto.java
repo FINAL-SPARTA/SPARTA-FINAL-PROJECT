@@ -3,10 +3,12 @@ package com.fix.order_serivce.application.dtos.request;
 import com.fix.order_serivce.domain.TicketStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class FeignTicketReserveDto {
 
