@@ -1,7 +1,6 @@
 package com.fix.order_serivce.presantation;
 
 import com.fix.order_serivce.application.OrderFeignService;
-import com.fix.order_serivce.application.OrderService;
 import com.fix.order_serivce.application.dtos.request.FeignOrderCreateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

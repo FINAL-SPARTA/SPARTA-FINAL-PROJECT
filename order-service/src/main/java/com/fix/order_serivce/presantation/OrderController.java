@@ -23,24 +23,6 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // 주문 생성
-    @ValidateUser(roles = {"ROLE_CUSTOMER"})
-    @PostMapping
-    public ResponseEntity<CommonResponse<OrderResponse>> createOrder(@RequestBody OrderCreateRequest request) {
-        UUID orderId = orderService.createOrder(request);
-
-        OrderResponse response = OrderResponse.builder()
-                .orderId(orderId)
-                .userId(request.getUserId())
-                .gameId(request.getGameId())
-                .peopleCount(request.getPeopleCount())
-                .totalPrice(request.getSeatIds().size())
-                .ticketIds(null) // ticket-service 연동 이후 설정 예정
-                .build();
-
-        return ResponseEntity.ok(CommonResponse.created(response, "주문이 생성되었습니다."));
-    }
-
     // 단건 조회
     @ValidateUser(roles = {"ROLE_CUSTOMER", "ROLE_MANAGER", "ROLE_MASTER"})
     @GetMapping("/{orderId}")

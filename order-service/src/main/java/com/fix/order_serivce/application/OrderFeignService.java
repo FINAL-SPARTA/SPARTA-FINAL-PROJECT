@@ -44,13 +44,18 @@ public class OrderFeignService {
         Long userId = tickets.get(0).getUserId();
         UUID gameId = tickets.get(0).getGameId();
 
+        // ✅ 총 가격 계산 (price 합산)
+        int totalPrice = tickets.stream()
+                .mapToInt(FeignTicketReserveDto::getPrice)
+                .sum();
+
         // [3] 주문 생성
         Order order = Order.create(
-                userId,  // Order Entity는 UUID 기반
+                userId,
                 gameId,
                 OrderStatus.CREATED,
                 tickets.size(), // peopleCount
-                tickets.size()  // totalCount
+                totalPrice       // ✅ 가격 반영
         );
 
         // [4] 주문 저장

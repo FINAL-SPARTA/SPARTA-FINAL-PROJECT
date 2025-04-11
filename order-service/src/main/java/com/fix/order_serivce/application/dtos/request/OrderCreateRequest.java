@@ -9,7 +9,6 @@ import java.util.UUID;
 public class OrderCreateRequest {
     private Long userId;
     private UUID gameId;
-    private List<UUID> seatIds;
     private int peopleCount;
     private int totalPrice;
 }
