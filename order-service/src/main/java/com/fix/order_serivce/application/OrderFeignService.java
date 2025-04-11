@@ -7,7 +7,8 @@ import com.fix.order_serivce.application.exception.OrderException;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
 import com.fix.order_serivce.domain.repository.OrderRepository;
-import com.fix.order_serivce.infrastructure.client.TicketFeignClient;
+import com.fix.order_serivce.infrastructure.client.TicketCancelClient;
+import com.fix.order_serivce.infrastructure.client.TicketStatusUpdateClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,13 +17,15 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.INVALID_REQUEST;
+import static com.fix.order_serivce.application.exception.OrderException.OrderErrorType.ORDER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class OrderFeignService {
 
     private final OrderRepository orderRepository;
-    private final TicketFeignClient ticketFeignClient;
+    private final TicketStatusUpdateClient ticketStatusUpdateClient;
+    private TicketCancelClient ticketCancelClient;
 
     /**
      * ticket-service에서 예약된 티켓 리스트를 전달받아 주문을 생성하고,
@@ -62,9 +65,20 @@ public class OrderFeignService {
 
         // [6] 티켓 상태 SOLD로 변경 요청
         FeignTicketSoldRequest soldRequest = new FeignTicketSoldRequest(order.getOrderId(), ticketIds);
-        ticketFeignClient.updateTicketStatus(soldRequest);
-
+        ticketStatusUpdateClient.updateTicketStatus(soldRequest); // ✅ 변경된 호출
         // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
+    }
+
+    @Transactional
+    public void cancelOrderFromTicket(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
+
+        // 주문 상태 변경 (soft delete 아님)
+        order.cancel();
+
+        // 티켓 상태도 CANCELLED로 변경 요청
+        ticketCancelClient.cancelTicketStatus(orderId);
     }
 }
 //예약된 티켓 → 주문 생성 → 상태 변경
