@@ -4,10 +4,12 @@ import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class TicketReserveResponseDto {
     private UUID ticketId;

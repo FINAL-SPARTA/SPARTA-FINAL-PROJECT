@@ -1,7 +1,21 @@
 package com.fix.stadium_service.application.service;
 
-import com.fix.stadium_service.application.dtos.request.*;
-import com.fix.stadium_service.application.dtos.response.*;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
+import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
+import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
+import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
+import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
+import com.fix.stadium_service.application.dtos.response.PageResponseDto;
+import com.fix.stadium_service.application.dtos.response.SeatPriceListResponseDto;
+import com.fix.stadium_service.application.dtos.response.SeatPriceResponseDto;
+import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
+import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.exception.StadiumException;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.SeatSection;
@@ -9,14 +23,11 @@ import com.fix.stadium_service.domain.model.Stadium;
 import com.fix.stadium_service.domain.model.StadiumName;
 import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.fix.stadium_service.domain.repository.StadiumRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.UUID;
-
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StadiumService {

@@ -128,12 +128,12 @@ public class GameService {
 		Integer totalSeats = game.getTotalSeats();
 		Integer newRemainingSeats;
 		if (game.getRemainingSeats() == null) {
-			newRemainingSeats = game.getTotalSeats() - quantity;
+			newRemainingSeats = game.getTotalSeats() + quantity;
 		} else {
-			newRemainingSeats = game.getRemainingSeats() - quantity;
+			newRemainingSeats = game.getRemainingSeats() + quantity;
 		}
 
-		Double newAdvanceReservation = Double.valueOf(newRemainingSeats / totalSeats);
+		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
 
 		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
 	}

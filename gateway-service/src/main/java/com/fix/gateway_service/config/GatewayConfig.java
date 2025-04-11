@@ -63,6 +63,10 @@ public class GatewayConfig {
                         .filters(this::applyFilters)
                         .uri("lb://stadium-service"))
 
+                .route("ticket-service", r -> r.path("/api/v1/tickets/**")
+                    .filters(this::applyFilters)
+                    .uri("lb://ticket-service"))
+
                 .route("fallback-route", r -> r.path("/fallback")
                         .uri("no://op"))
 

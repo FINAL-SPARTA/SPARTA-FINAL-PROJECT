@@ -66,7 +66,7 @@ public class TicketController {
     }
 
     // ✅ 주문 생성 및 결제 처리가 완료된 티켓 목록 업데이트 API
-    @PatchMapping("/sold")
+    @PostMapping("/sold")
     public ResponseEntity<CommonResponse<Void>> updateTicketStatus(
         @RequestBody TicketSoldRequestDto requestDto) {
         ticketApplicationService.updateTicketStatus(requestDto);
@@ -74,7 +74,7 @@ public class TicketController {
     }
 
     // ✅ 주문이 취소된 티켓(List) 상태 업데이트 API
-    @PatchMapping("/cancel/{orderId}")
+    @PostMapping("/cancel/{orderId}")
     public ResponseEntity<CommonResponse<Void>> cancelTicketStatus(
         @PathVariable("orderId") UUID orderId) {
         ticketApplicationService.cancelTicketStatus(orderId);
