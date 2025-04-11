@@ -70,8 +70,17 @@ public class TicketController {
     public ResponseEntity<CommonResponse<Void>> updateTicketStatus(
         @RequestBody TicketSoldRequestDto requestDto) {
         ticketApplicationService.updateTicketStatus(requestDto);
-        return ResponseEntity.ok(CommonResponse.success(null, "티켓 상태 업데이트 성공"));
+        return ResponseEntity.ok(CommonResponse.success(null, "티켓 상태 업데이트 (RESERVED -> SOLD) 성공"));
     }
+
+    // ✅ 주문이 취소된 티켓(List) 상태 업데이트 API
+    @PatchMapping("/cancel/{orderId}")
+    public ResponseEntity<CommonResponse<Void>> cancelTicketStatus(
+        @PathVariable("orderId") UUID orderId) {
+        ticketApplicationService.cancelTicketStatus(orderId);
+        return ResponseEntity.ok(CommonResponse.success(null, "티켓 상태 업데이트 (SOLD -> CANCELLED) 성공"));
+    }
+
 
     // ✅ 티켓 단건 삭제 API
     @DeleteMapping("/{ticketId}")

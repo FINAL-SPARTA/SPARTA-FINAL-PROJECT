@@ -38,6 +38,9 @@ public class Ticket {
     @Column(name = "sold_at")
     private LocalDateTime soldAt;
 
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
     @Column(name = "order_id")
     private UUID orderId;
 
@@ -64,6 +67,11 @@ public class Ticket {
         this.status = TicketStatus.SOLD;
         this.orderId = orderId;
         this.soldAt = LocalDateTime.now();
+    }
+
+    public void markAsCancelled() {
+        this.status = TicketStatus.CANCELLED;
+        this.cancelledAt = LocalDateTime.now();
     }
 
     public void validateAuth(Long userId, String userRole) {
