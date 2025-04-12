@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.RedissonMultiLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +37,13 @@ public class TicketApplicationService {
     private final StadiumClient stadiumClient;
     private final RedissonClient redissonClient;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     private static final long LOCK_WAIT_TIME = 5; // 락 대기 시간 (5초)
     private static final long LOCK_LEASE_TIME = 3; // 락 점유 시간 (3초)
+
+    private static final long RESERVED_TTL_SECONDS = 180L; // 예약 상태 TTL (3분)
+    private static final long SOLD_TTL_SECONDS = 86400L; // SOLD 상태 TTL (24시간) , 더 길어야 하나? 예매가 얼마나 오래 진행되지..
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
@@ -54,14 +61,22 @@ public class TicketApplicationService {
             }
             log.info("좌석 락 획득 성공: userId={}, seatIds={}", userId, request.getSeatIds());
 
-            // 2) 중복 예매 방지 (DB 검사)
-            // TODO: Redis 캐시를 활용한 중복 예매 방지
-            List<Ticket> existingTickets =
-                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
-                    request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
-            if (!existingTickets.isEmpty()) {
-                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+            // 2) 중복 예매 방지 (Redis 캐시 검사)
+            for (UUID seatId : request.getSeatIds()) {
+                String redisKey = getSeatKey(seatId);
+                String status = redisTemplate.opsForValue().get(redisKey);
+                if ("RESERVED".equals(status) || "SOLD".equals(status)) {
+                    throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+                }
             }
+
+            // 3) 중복 예매 방지 (DB 검사) : 이중 방어 TODO: 이게 필요할 지 검토 필요
+//            List<Ticket> existingTickets =
+//                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
+//                    request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+//            if (!existingTickets.isEmpty()) {
+//                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+//            }
 
             // 3) Feign 호출을 통한 좌석 Id의 유효성 검사 및 가격 조회
             SeatPriceListResponseDto seatPriceListResponseDto =
@@ -82,7 +97,13 @@ public class TicketApplicationService {
             // 5) 티켓 정보 일괄 저장
             ticketRepository.saveAll(ticketsToSave);
 
-            // 5) Order 서버를 호출하여 주문 생성 및 결제 처리 요청
+            // 6) Redis 캐시에 예약 상태 저장 (TTL = 3분)
+            for (UUID seatId : request.getSeatIds()) {
+                String redisKey = getSeatKey(seatId);
+                redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
+            }
+
+            // 7) Order 서버를 호출하여 주문 생성 및 결제 처리 요청
             // TODO: 이벤트 발행 방식 비동기 처리
             OrderCreateRequestDto orderCreateRequestDto = new OrderCreateRequestDto(responseDtoList);
             orderClient.createOrder(orderCreateRequestDto);
@@ -127,6 +148,7 @@ public class TicketApplicationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "seatView", key = "#gameId.toString() + ':' + #stadiumId.toString() + ':' + #section")
     public List<SeatStatusResponseDto> getSeatView(UUID gameId, UUID stadiumId, String section) {
         // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
         SeatInfoListResponseDto seatInfoListResponseDto =
@@ -186,6 +208,12 @@ public class TicketApplicationService {
         // TODO: 이벤트 발행 방식 비동기 처리
         int quantity = tickets.size();
         gameClient.updateRemainingSeats(tickets.get(0).getGameId(), -quantity);
+
+        // 4) Redis 캐시에 SOLD 상태 저장 (TTL = 24시간)
+        for (Ticket ticket : tickets) {
+            String redisKey = getSeatKey(ticket.getSeatId());
+            redisTemplate.opsForValue().set(redisKey, "SOLD", SOLD_TTL_SECONDS, TimeUnit.SECONDS);
+        }
     }
 
     @Transactional
@@ -202,6 +230,12 @@ public class TicketApplicationService {
         // TODO: 이벤트 발행 방식 비동기 처리
         int quantity = tickets.size();
         gameClient.updateRemainingSeats(tickets.get(0).getGameId(), quantity);
+
+        // 4) Redis 캐시에서 해당 좌석 키 삭제
+        for (Ticket ticket : tickets) {
+            String redisKey = getSeatKey(ticket.getSeatId());
+            redisTemplate.delete(redisKey);
+        }
     }
 
     @Transactional
@@ -217,5 +251,9 @@ public class TicketApplicationService {
     @Transactional
     public void deleteReservedTickets() {
         ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
+    }
+
+    private String getSeatKey(UUID seatId) {
+        return "ticketStatus:" + seatId.toString();
     }
 }
