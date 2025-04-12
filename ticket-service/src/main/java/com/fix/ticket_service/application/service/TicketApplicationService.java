@@ -164,8 +164,8 @@ public class TicketApplicationService {
         // 3) 데이터 조합 및 상태 계산 (조회 성능을 위해 Map 으로 변환)
         Map<UUID, TicketStatus> SeatStatusMap = tickets.stream()
             .collect(Collectors.toMap(
-                Ticket::getSeatId, // Ticket 엔티티에서 직접 가져옴
-                Ticket::getStatus, // Ticket 엔티티에서 직접 가져옴
+                Ticket::getSeatId,
+                Ticket::getStatus,
                 (existing, replacement) -> existing
             ));
 
