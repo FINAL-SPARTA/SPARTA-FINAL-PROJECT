@@ -27,20 +27,34 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
     private final TicketClient ticketClient;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 //    단건 조회
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(UUID orderId) {
+        String key = "order:detail:" + orderId;
+
+//        [1] Redis 캐시 조회
+        OrderDetailResponse cached = (OrderDetailResponse) redisTemplate.opsForValue().get(key);
+        if (cached != null) {
+            return cached;
+        }
+//        [2] DB 조회
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
 
-        return OrderDetailResponse.builder()
+        OrderDetailResponse response = OrderDetailResponse.builder()
                 .orderId(order.getOrderId())
                 .userId(order.getUserId())
                 .gameId(order.getGameId())
                 .peopleCount(order.getPeopleCount())
                 .totalPrice(order.getTotalPrice())
                 .build();
+
+        // [3] 캐시에 저장 (TTL: 5분)
+        redisTemplate.opsForValue().set(key, response, Duration.ofMinutes(5));
+
+        return response;
     }
 
 //    전체 조회(페이징)
@@ -69,6 +83,9 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
         order.update(request.getPeopleCount(), request.getOrderStatus());
+
+//        캐시 무효화
+        redisTemplate.delete("order:detail:" + orderId);
     }
 
     // 주문 취소
@@ -90,5 +107,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
         order.softDelete(userId);
+
+        //    캐시 무효화
+        redisTemplate.delete("order:detail:" + orderId);
     }
 }
