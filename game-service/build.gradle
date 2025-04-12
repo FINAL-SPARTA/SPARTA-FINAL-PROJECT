@@ -38,6 +38,12 @@ dependencies {
 	// ✅ PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
+	// ✅ Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// ✅ WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	// ✅ JSON
 	implementation 'org.json:json:20230227'
 
