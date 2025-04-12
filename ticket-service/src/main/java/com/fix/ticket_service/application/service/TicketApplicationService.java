@@ -1,9 +1,6 @@
 package com.fix.ticket_service.application.service;
 
-import com.fix.ticket_service.application.dtos.request.OrderCreateRequestDto;
-import com.fix.ticket_service.application.dtos.request.SeatPriceRequestDto;
-import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
-import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
+import com.fix.ticket_service.application.dtos.request.*;
 import com.fix.ticket_service.application.dtos.response.*;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
@@ -25,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,7 +57,8 @@ public class TicketApplicationService {
             // 2) 중복 예매 방지 (DB 검사)
             // TODO: Redis 캐시를 활용한 중복 예매 방지
             List<Ticket> existingTickets =
-                ticketRepository.findBySeatIdInAndStatusIn(request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
+                    request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
             if (!existingTickets.isEmpty()) {
                 throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
             }
@@ -127,6 +126,52 @@ public class TicketApplicationService {
         return new PageResponseDto<>(mappedPage);
     }
 
+    @Transactional(readOnly = true)
+    public List<SeatStatusResponseDto> getSeatView(UUID gameId, UUID stadiumId, String section) {
+        // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
+        SeatInfoListResponseDto seatInfoListResponseDto =
+            stadiumClient.getSeatsBySection(stadiumId, section);
+
+        // 2) DB 조회 : 해당 게임의 RESERVED, SOLD 상태의 티켓 목록 조회
+        List<UUID> seatIdsInSection = seatInfoListResponseDto.getSeatInfoList().stream()
+            .map(SeatInfoResponseDto::getSeatId)
+            .toList();
+        List<Ticket> tickets =
+            ticketRepository.findByGameIdAndSeatIdInAndStatusIn(gameId, seatIdsInSection, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+
+        // 3) 데이터 조합 및 상태 계산 (조회 성능을 위해 Map 으로 변환)
+        Map<UUID, TicketStatus> SeatStatusMap = tickets.stream()
+            .collect(Collectors.toMap(
+                Ticket::getSeatId, // Ticket 엔티티에서 직접 가져옴
+                Ticket::getStatus, // Ticket 엔티티에서 직접 가져옴
+                (existing, replacement) -> existing
+            ));
+
+        // 4) SeatInfoResponseDto 와 TicketStatus 를 조합하여 SeatStatusResponseDto 생성
+        List<SeatStatusResponseDto> result = seatInfoListResponseDto.getSeatInfoList().stream()
+            .map(seatInfo -> {
+                TicketStatus bookedStatus = SeatStatusMap.get(seatInfo.getSeatId());
+                Boolean availabilityStatus;
+
+                if (bookedStatus == TicketStatus.RESERVED || bookedStatus == TicketStatus.SOLD) {
+                    availabilityStatus = false;
+                } else {
+                    availabilityStatus = true; // Map에 없으면 AVAILABLE
+                }
+
+                return new SeatStatusResponseDto(
+                    seatInfo.getSeatId(),
+                    seatInfo.getSection(),
+                    seatInfo.getSeatRow(),
+                    seatInfo.getSeatNumber(),
+                    availabilityStatus
+                );
+            })
+            .toList();
+
+        return result;
+    }
+
     @Transactional
     public void updateTicketStatus(TicketSoldRequestDto requestDto) {
         // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
@@ -173,6 +218,4 @@ public class TicketApplicationService {
     public void deleteReservedTickets() {
         ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
     }
-
-
 }

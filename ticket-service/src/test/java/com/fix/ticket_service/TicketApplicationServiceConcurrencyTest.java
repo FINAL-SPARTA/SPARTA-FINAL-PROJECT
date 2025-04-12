@@ -130,7 +130,7 @@ class TicketApplicationServiceConcurrencyTest {
         assertThat(failCount.get()).isEqualTo(numberOfThreads - 1); // 나머지 스레드는 실패해야 함
 
         // DB 상태 확인: 해당 좌석에 대한 티켓이 1개만 생성되었는지 확인
-        List<Ticket> ticketsInDb = ticketRepository.findBySeatIdInAndStatusIn(List.of(contestedSeatId), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+        List<Ticket> ticketsInDb = ticketRepository.findByGameIdAndSeatIdInAndStatusIn(gameId, List.of(contestedSeatId), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
         assertThat(ticketsInDb).hasSize(1); // DB에도 1개의 티켓만 있어야 함
 
         System.out.println("분산락 테스트 결과: Success=" + successCount.get() + ", Fail=" + failCount.get());

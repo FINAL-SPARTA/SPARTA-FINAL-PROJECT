@@ -4,10 +4,7 @@ import com.fix.common_service.dto.CommonResponse;
 import com.fix.ticket_service.application.aop.ValidateUser;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
-import com.fix.ticket_service.application.dtos.response.PageResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketDetailResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketReserveResponseDto;
-import com.fix.ticket_service.application.dtos.response.TicketResponseDto;
+import com.fix.ticket_service.application.dtos.response.*;
 import com.fix.ticket_service.application.service.TicketApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +60,16 @@ public class TicketController {
         PageResponseDto<TicketResponseDto> responseDto =
             ticketApplicationService.searchTickets(gameId, userId, page, size);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 검색 성공"));
+    }
+
+    // ✅ 좌석 뷰 조회 API (동적 뷰 생성)
+    @GetMapping("/seat-view/{gameId}")
+    public ResponseEntity<CommonResponse<List<SeatStatusResponseDto>>> getSeatView(
+        @PathVariable("gameId") UUID gameId,
+        @RequestParam("stadiumId") UUID stadiumId,
+        @RequestParam("section") String section) {
+        List<SeatStatusResponseDto> responseDto = ticketApplicationService.getSeatView(gameId, stadiumId, section);
+        return ResponseEntity.ok(CommonResponse.success(responseDto, "좌석 뷰 조회 성공"));
     }
 
     // ✅ 주문 생성 및 결제 처리가 완료된 티켓 목록 업데이트 API
