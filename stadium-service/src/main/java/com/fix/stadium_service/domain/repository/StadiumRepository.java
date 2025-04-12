@@ -14,5 +14,4 @@ public interface StadiumRepository {
     long count();
     Optional<Stadium> findByStadiumName(StadiumName stadiumName);
 
-    List<Stadium> findAll();
 }

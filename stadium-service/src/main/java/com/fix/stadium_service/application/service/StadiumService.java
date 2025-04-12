@@ -38,6 +38,10 @@ public class StadiumService {
 
     @Transactional
     public StadiumResponseDto createStadium(StadiumCreateRequest requestDto) {
+        boolean exist  = stadiumRepository.findByStadiumName(requestDto.getStadiumName()).isPresent();
+        if (exist){
+            throw new StadiumException(StadiumException.StadiumErrorType.STADIUM_DUPLICATE);
+        }
 
         Stadium stadium = Stadium.createStadium(
                 requestDto.getStadiumName(),
@@ -110,6 +114,7 @@ public class StadiumService {
     }
 
     // 경기 도메인의 호출
+    // TODO 레디스 적용
     @Transactional(readOnly = true)
     public StadiumFeignResponse getStadiumInfoByName(String teamName) {
         StadiumName stadiumName = StadiumName.fromTeamName(teamName);
@@ -119,29 +124,30 @@ public class StadiumService {
     }
 
     // 티켓 도메인의 호출
+
     @Transactional(readOnly = true)
     public SeatPriceListResponseDto getPrices(SeatPriceRequestDto request) {
-
         List<UUID> seatIds = request.getSeatIds();
+        UUID seatId = seatIds.get(0);
 
-        List<Stadium> stadiums = stadiumRepository.findAll();
+        // seatId 기준으로 stadium 조회 (seatId 하나면 충분)
+        Stadium stadium = stadiumQueryRepository.findBySeatId(seatId)
+                .orElseThrow(() -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NOT_FOUND));
 
-        List<SeatPriceResponseDto> seatPrices = stadiums.stream()
-                .flatMap(stadium -> stadium.getSeats().stream())
+        // 해당 stadium의 좌석 중 요청 seatIds에 해당하는 좌석만 필터링
+        List<SeatPriceResponseDto> seatPrices = stadium.getSeats().stream()
                 .filter(seat -> seatIds.contains(seat.getSeatId()))
                 .map(seat -> {
-                    if (seat.getIsDeleted()) {
+                    if (Boolean.TRUE.equals(seat.getIsDeleted())) {
                         throw new StadiumException(StadiumException.StadiumErrorType.SEAT_NOT_AVAILABLE);
                     }
-
                     int price = sectionToPrice(seat.getSection());
                     return new SeatPriceResponseDto(seat.getSeatId(), price);
-
                 })
                 .toList();
-
         return new SeatPriceListResponseDto(seatPrices);
     }
+
 
     private int sectionToPrice(SeatSection section) {
 
