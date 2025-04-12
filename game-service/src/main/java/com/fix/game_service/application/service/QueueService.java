@@ -1,5 +1,7 @@
 package com.fix.game_service.application.service;
 
+import static com.fix.game_service.application.exception.GameException.GameErrorType.*;
+
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
@@ -8,6 +10,7 @@ import com.fix.game_service.presentation.scheduler.DeactivateGameScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,8 +20,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.fix.game_service.application.exception.GameException.GameErrorType.GAME_CANNOT_RESERVATION;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,11 +28,10 @@ public class QueueService {
 	private final GameRepository gameRepository;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final DeactivateGameScheduler deactivateGameScheduler;
+	private final SimpMessagingTemplate messagingTemplate;
 	private final String QUEUE_KEY_PREFIX = "queue:";
 	private final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 	private final String ACTIVE_GAMES_KEY = "active-game";
-	private final Long MAX_WORKING_QUEUE_SIZE = 50L;
-	private final int FREE_PASS_LIMIT = 10;
 
 	public Map<String, Object> enterQueue(UUID gameId, Long userId) {
 		// 1. 해당 경기를 찾아서 예매 가능 시간인지 확인
@@ -86,6 +86,16 @@ public class QueueService {
 	}
 
 	/**
+	 * 해당 경기의 대기열에 남아있는 모든 토큰 가져오기
+	 * @param gameId : 해당 경기 ID
+	 * @return : 토큰 Set 반환
+	 */
+	public Set<String> getAllTokensInQueue(UUID gameId) {
+		String queueKey = QUEUE_KEY_PREFIX + gameId;
+		return redisTemplate.opsForZSet().range(queueKey, 0, -1);
+	}
+
+	/**
 	 * 현재 사용자의 대기 순서를 반환
 	 * @param gameId : 경기 ID
 	 * @param token : 대기열 token
@@ -94,7 +104,7 @@ public class QueueService {
 	public Long getQueueNumber(UUID gameId, String token) {
 		String queueKey = QUEUE_KEY_PREFIX + gameId;
 		Long rank = redisTemplate.opsForZSet().rank(queueKey, token);
-		return rank;
+		return rank != null ? rank + 1 : null;
 	}
 
 	/**
@@ -103,19 +113,8 @@ public class QueueService {
 	 * @param token : 떠나는 사용자의 토큰
 	 */
 	public void leaveQueue(UUID gameId, String token) {
-		String queueKey = "queue:" + gameId;
-		redisTemplate.opsForZSet().remove(queueKey, token);
-	}
-
-	/**
-	 * 대기열을 거치지 않아도 되는가 ?
-	 * @param gameId : 경기 ID
-	 * @return : 대기열을 거치지 않아도 되는지 여부 반환
-	 */
-	public boolean canSkipQueue(UUID gameId) {
 		String queueKey = QUEUE_KEY_PREFIX + gameId;
-		Long queueSize = redisTemplate.opsForZSet().size(queueKey);
-		return queueSize != null && queueSize < FREE_PASS_LIMIT;
+		redisTemplate.opsForZSet().remove(queueKey, token);
 	}
 
 	/**
@@ -129,7 +128,13 @@ public class QueueService {
 		
 		// TODO : 다음 요청으로 전송하는 로직 추가
 		try {
-
+			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
+			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + token, 1);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new GameException(GAME_WAITING_ERROR);
+			}
 		} finally {
 			// 처리 후 working queue에서 제거
 			redisTemplate.opsForSet().remove(workingKey, token);

@@ -1,15 +1,13 @@
 package com.fix.game_service.presentation.scheduler;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.fix.game_service.application.service.QueueService;
 
@@ -23,8 +21,8 @@ public class QueueScheduler {
 
 	private final QueueService queueService;
 	private final StringRedisTemplate redisTemplate;
+	private final SimpMessagingTemplate messagingTemplate;
 	private final String ACTIVE_GAMES_KEY = "active-game";
-
 	// 한 번에 넘길 사용자 수
 	private final int BATCH_SIZE = 10;
 
@@ -45,7 +43,9 @@ public class QueueScheduler {
 
 			// 정상 처리: 대기열 → 작업열
 			Set<String> tokens = queueService.getRemainUsersInQueue(gameId, BATCH_SIZE);
-			if (tokens == null || tokens.isEmpty()) continue;
+			if (tokens == null || tokens.isEmpty()) {
+				continue;
+			}
 
 			for (String token : tokens) {
 				log.info("다음 작업열로 이동할 Token: {}", token);
@@ -55,6 +55,11 @@ public class QueueScheduler {
 				} catch (Exception e) {
 					log.error("입장 처리 실패 [{}]: {}", token, e.getMessage());
 				}
+			}
+			Set<String> allTokens = queueService.getAllTokensInQueue(gameId);
+			for (String token : allTokens) {
+				Long waitNumber = queueService.getQueueNumber(gameId, token);
+				messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + token, waitNumber);
 			}
 		}
 	}
