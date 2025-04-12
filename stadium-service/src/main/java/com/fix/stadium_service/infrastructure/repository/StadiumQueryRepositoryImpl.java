@@ -1,5 +1,6 @@
 package com.fix.stadium_service.infrastructure.repository;
 
+import com.fix.stadium_service.domain.model.QSeat;
 import com.fix.stadium_service.domain.model.QStadium;
 import com.fix.stadium_service.domain.model.Stadium;
 import com.fix.stadium_service.domain.model.StadiumName;
@@ -10,6 +11,8 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
@@ -51,5 +54,17 @@ public class StadiumQueryRepositoryImpl implements StadiumQueryRepository {
                 )
                 .fetchOne();
 
+    }
+
+
+    @Override
+    public Optional<Stadium> findBySeatId(UUID seatId) {
+        QStadium stadium = QStadium.stadium;
+        QSeat seat = QSeat.seat;
+        return Optional.ofNullable(qf
+                .selectFrom(stadium)
+                .join(stadium.seats, seat)
+                .where(seat.seatId.eq(seatId))
+                .fetchOne());
     }
 }
