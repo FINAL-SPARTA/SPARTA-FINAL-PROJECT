@@ -12,17 +12,16 @@ java {
     }
 }
 
-// 루트 프로젝트에서 테스트 비활성화
-tasks.withType(Test).configureEach {
-    enabled = false
-}
-
 allprojects{
     group = 'com.fix'
     version = '0.0.1-SNAPSHOT'
 
     repositories {
         mavenCentral()
+    }
+// 루트 프로젝트에서 테스트 비활성화
+    tasks.withType(Test).configureEach {
+        enabled = false
     }
 
     // 루트 프로젝트에서 BootJar 비활성화
