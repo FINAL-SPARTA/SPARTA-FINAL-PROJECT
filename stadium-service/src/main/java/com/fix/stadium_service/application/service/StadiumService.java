@@ -3,6 +3,7 @@ package com.fix.stadium_service.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,7 +115,7 @@ public class StadiumService {
     }
 
     // 경기 도메인의 호출
-    // TODO 레디스 적용
+    @Cacheable(value = "stadiumInfoCache" , key = "#teamName")
     @Transactional(readOnly = true)
     public StadiumFeignResponse getStadiumInfoByName(String teamName) {
         StadiumName stadiumName = StadiumName.fromTeamName(teamName);
