@@ -35,7 +35,7 @@ public class StadiumController {
     private final StadiumService stadiumService;
 
     // 경기장 생성
-   // @ValidateUser(roles = {"MASTER"})
+    @ValidateUser(roles = {"MASTER"})
     @PostMapping()
     public ResponseEntity<CommonResponse<StadiumResponseDto>> createStadium(@RequestBody StadiumCreateRequest requestDto) {
         StadiumResponseDto responseDto = stadiumService.createStadium(requestDto);
