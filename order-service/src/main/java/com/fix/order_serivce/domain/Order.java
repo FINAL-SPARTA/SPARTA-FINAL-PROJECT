@@ -53,6 +53,7 @@ public class Order extends Basic {
                 .totalPrice(totalPrice)
                 .build();
     }
+    public void complete() {this.orderStatus = OrderStatus.COMPLETED;}
 
     public void cancel() {
         this.orderStatus = OrderStatus.CANCELLED;
