@@ -143,7 +143,7 @@ public class TicketApplicationService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "seatView", key = "#gameId.toString() + ':' + #stadiumId.toString() + ':' + #section")
-    public List<SeatStatusResponseDto> getSeatView(UUID gameId, UUID stadiumId, String section) {
+    public List<SeatStatusResponseDto> getSeatView(UUID gameId, Long stadiumId, String section) {
         // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
         SeatInfoListResponseDto seatInfoListResponseDto =
             stadiumClient.getSeatsBySection(stadiumId, section);

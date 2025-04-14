@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface StadiumClient {
 
     @GetMapping("/api/v1/stadiums/feign/{stadiumId}/get-seats-by-section")
-    SeatInfoListResponseDto getSeatsBySection(@PathVariable("stadiumId") UUID stadiumId,
+    SeatInfoListResponseDto getSeatsBySection(@PathVariable("stadiumId") Long stadiumId,
                                               @RequestParam("section") String section);
 
 }
