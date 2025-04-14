@@ -2,10 +2,8 @@ package com.fix.ticket_service;
 
 
 import com.fix.ticket_service.application.dtos.request.OrderCreateRequestDto;
-import com.fix.ticket_service.application.dtos.request.SeatPriceRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketInfoRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
-import com.fix.ticket_service.application.dtos.response.SeatPriceListResponseDto;
-import com.fix.ticket_service.application.dtos.response.SeatPriceResponseDto;
 import com.fix.ticket_service.application.service.TicketApplicationService;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
@@ -36,7 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 @Testcontainers
 @SpringBootTest
@@ -81,15 +78,16 @@ class TicketApplicationServiceConcurrencyTest {
         // GIVEN
         final int numberOfThreads = 5; // 동시에 시도할 스레드 수
         final UUID gameId = UUID.randomUUID();
+        final UUID stadiumId = UUID.randomUUID();
         final UUID contestedSeatId = UUID.randomUUID(); // 경쟁이 발생할 좌석 ID
         final Long userId = 1L;
         final int price = 10000;
 
         // Mock StadiumClient 응답 설정
-        SeatPriceListResponseDto priceResponse = new SeatPriceListResponseDto(
-            List.of(new SeatPriceResponseDto(contestedSeatId, price))
-        );
-        when(stadiumClient.getPrices(any(SeatPriceRequestDto.class))).thenReturn(priceResponse);
+//        SeatPriceListResponseDto priceResponse = new SeatPriceListResponseDto(
+//            List.of(new SeatPriceResponseDto(contestedSeatId, price))
+//        );
+//        when(stadiumClient.getPrices(any(SeatPriceRequestDto.class))).thenReturn(priceResponse);
 
         // Mock OrderClient 설정 (void 메서드이므로 특별한 동작 없음)
         doNothing().when(orderClient).createOrder(any(OrderCreateRequestDto.class));
@@ -100,7 +98,7 @@ class TicketApplicationServiceConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0); // 성공 카운트 (스레드 안전)
         AtomicInteger failCount = new AtomicInteger(0);  // 실패 카운트
 
-        TicketReserveRequestDto request = new TicketReserveRequestDto(gameId, List.of(contestedSeatId));
+        TicketReserveRequestDto request = new TicketReserveRequestDto(gameId, stadiumId, List.of(new TicketInfoRequestDto(contestedSeatId, price)));
 
         // WHEN
         for (int i = 0; i < numberOfThreads; i++) {
