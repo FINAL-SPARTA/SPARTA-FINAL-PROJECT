@@ -15,7 +15,9 @@ public class GameException extends CustomException {
 
 	public enum GameErrorType {
 		GAME_NOT_FOUND("GAME_001", HttpStatus.NOT_FOUND, "경기를 찾을 수 없습니다"),
-		GAME_ROLE_UNAUTHORIZED("GAME_002", HttpStatus.UNAUTHORIZED, "경기 관련 권한이 없습니다");
+		GAME_ROLE_UNAUTHORIZED("GAME_002", HttpStatus.UNAUTHORIZED, "경기 관련 권한이 없습니다"),
+		GAME_CANNOT_RESERVATION("GAME_003", HttpStatus.BAD_REQUEST, "경기 예매 가능 시간이 아닙니다"),
+		GAME_WAITING_ERROR("GAME_004", HttpStatus.BAD_GATEWAY, "경기 대기열과의 접속이 끊어졌습니다");
 
 		private final String code;
 		private final HttpStatus status;

@@ -18,5 +18,5 @@ public interface JpaTicketRepository extends JpaRepository<Ticket, UUID> {
 
     List<Ticket> findAllByOrderId(UUID orderId);
 
-    List<Ticket> findBySeatIdInAndStatusIn(List<UUID> seatIds, List<TicketStatus> reserved);
+    List<Ticket> findByGameIdAndSeatIdInAndStatusIn(UUID gameId, List<UUID> seatIdsInSection, List<TicketStatus> statusesToFetch);
 }
