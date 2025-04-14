@@ -1,0 +1,40 @@
+ext {
+	set('springCloudVersion', "2024.0.0")
+	set('querydslVersion', "5.0.0")
+}
+
+dependencies {
+	// ✅ common 모듈
+	implementation project(':common-service')
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.h2database:h2'
+	// ✅ JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+def querydslDir = "src/main/generated"
+
+sourceSets {
+	main.java.srcDirs += querydslDir
+}
+
+
+clean {
+	delete file(querydslDir)
+}

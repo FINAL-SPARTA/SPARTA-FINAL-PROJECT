@@ -101,3 +101,9 @@ project(':ticket-service') {
         implementation project(':common-service')
     }
 }
+
+project(':payments-service') {
+    dependencies {
+        implementation project(':common-service')
+    }
+}

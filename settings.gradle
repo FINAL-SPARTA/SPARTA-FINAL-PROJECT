@@ -12,3 +12,4 @@ include ('alarm-service')
 include ('ticket-service')
 
 include ('chat-service')
+include ('payments-service')
