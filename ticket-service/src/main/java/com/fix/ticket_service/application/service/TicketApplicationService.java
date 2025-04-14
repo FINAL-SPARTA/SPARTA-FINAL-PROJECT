@@ -201,10 +201,9 @@ public class TicketApplicationService {
             ticket.markAsSold(requestDto.getOrderId());
         }
 
-        // 3) 경기 서버에 잔여 좌석 업데이트(잔여 좌석 차감) 요청
-        // TODO: 이벤트 발행 방식 비동기 처리
+        // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 차감 요청)
         int quantity = tickets.size();
-        gameClient.updateRemainingSeats(tickets.get(0).getGameId(), -quantity);
+        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), -quantity);
 
         // 4) Redis 캐시에 SOLD 상태 저장 (TTL = 24시간)
         for (Ticket ticket : tickets) {
@@ -223,10 +222,9 @@ public class TicketApplicationService {
             ticket.markAsCancelled();
         }
 
-        // 3) 경기 서버에 잔여 좌석 업데이트(잔여 좌석 증가) 요청
-        // TODO: 이벤트 발행 방식 비동기 처리
+        // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 증가 요청)
         int quantity = tickets.size();
-        gameClient.updateRemainingSeats(tickets.get(0).getGameId(), quantity);
+        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), quantity);
 
         // 4) Redis 캐시에서 해당 좌석 키 삭제
         for (Ticket ticket : tickets) {
