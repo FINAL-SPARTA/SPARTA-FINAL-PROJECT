@@ -2,6 +2,7 @@ package com.fix.stadium_service.domain.model;
 
 import com.fix.common_service.entity.Basic;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 @Table(name = "p_seat", indexes = { @Index(name = "idx_seat_stadium_section",columnList = "stadium_id, section")})
