@@ -1,9 +1,6 @@
 package com.fix.common_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -11,5 +8,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EventKafkaMessage {
     private String eventType;
-    private EventPayload payload;
+    private Object payload;
 }
