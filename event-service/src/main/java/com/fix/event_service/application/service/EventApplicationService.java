@@ -11,6 +11,7 @@ import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
 import com.fix.event_service.domain.service.EventDomainService;
 import com.fix.event_service.infrastructure.client.UserClient;
+import com.fix.event_service.infrastructure.kafka.producer.EventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +31,7 @@ public class EventApplicationService {
     private final EventRepository eventRepository;
     private final EventDomainService eventDomainService;
     private final UserClient userClient;
+    private final EventProducer eventProducer;
 
     @Transactional
     public EventDetailResponseDto createEvent(EventCreateRequestDto requestDto) {
@@ -61,7 +63,8 @@ public class EventApplicationService {
 
         event.isEventOpenForApplication();
 
-        userClient.deductPoints(userId, event.getRequiredPoints());
+        // 기존의 Feign 호출 제거, 대신 Kafka 이벤트 발행
+        eventProducer.sendEventApplyRequest(eventId, userId, event.getRequiredPoints());
 
         EventEntry entry = EventEntry.createEventEntry(event, userId);
 
