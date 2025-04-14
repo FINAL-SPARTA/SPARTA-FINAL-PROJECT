@@ -16,6 +16,7 @@ public class UserDetailResponseDto {
     private final String nickname;
     private final String email;
     private final String roleName;
+    private final String phoneNumber;
     private final Integer point;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -31,6 +32,7 @@ public class UserDetailResponseDto {
             .nickname(user.getNickname())
             .email(user.getEmail())
             .roleName(user.getRoleName().name())
+            .phoneNumber(user.getPhoneNumber())
             .point(user.getPoint())
             .createdAt(user.getCreatedAt())
             .updatedAt(user.getUpdatedAt())

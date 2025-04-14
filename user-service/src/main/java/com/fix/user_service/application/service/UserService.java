@@ -28,7 +28,7 @@ public class UserService {
     // ✅ CREATE
     @Transactional
     public UserDetailResponseDto createUser(UserCreateRequestDto requestDto) {
-        validateDuplicateUser(requestDto.getUsername(), requestDto.getEmail());
+        validateDuplicateUser(requestDto.getUsername(), requestDto.getEmail(),requestDto.getPhoneNumber());
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
@@ -37,7 +37,8 @@ public class UserService {
             requestDto.getEmail(),
             encodedPassword,
             requestDto.getNickname(),
-            requestDto.getRoleName()
+            requestDto.getRoleName(),
+            requestDto.getPhoneNumber()
         );
 
         return UserDetailResponseDto.from(userRepository.save(user));
@@ -75,7 +76,7 @@ public class UserService {
         User user = findUserById(userId);
         UserRole role = parseRole(requestDto.getRoleName(), user.getRoleName());
 
-        user.update(requestDto.getNickname(), requestDto.getEmail(), role);
+        user.update(requestDto.getNickname(), requestDto.getEmail(), role,requestDto.getPhoneNumber());
 
         return UserDetailResponseDto.from(user);
     }
@@ -97,13 +98,19 @@ public class UserService {
     }
 
     // 🔧 중복 검사
-    private void validateDuplicateUser(String username, String email) {
+    private void validateDuplicateUser(String username, String email,String phoneNumber) {
         if (userRepository.existsByUsername(username)) {
             throw new UserException(UserErrorType.DUPLICATE_USERNAME);
         }
         if (userRepository.existsByEmail(email)) {
             throw new UserException(UserErrorType.DUPLICATE_EMAIL);
         }
+
+        if(userRepository.existsByPhoneNumber(phoneNumber)){
+            throw new UserException(UserErrorType.DUPLICATE_PHONE_NUMBER);
+        }
+
+
     }
     // 역할 파싱
     private UserRole parseRole(String roleName, UserRole defaultRole) {
