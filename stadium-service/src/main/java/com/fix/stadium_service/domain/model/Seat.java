@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "p_seat")
+@Table(name = "p_seat", indexes = { @Index(name = "idx_seat_stadium_section",columnList = "stadium_id, section")})
 @Where(clause = "is_deleted = false")
 public class Seat extends Basic {
 

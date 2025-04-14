@@ -3,6 +3,7 @@ package com.fix.stadium_service.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.fix.stadium_service.application.dtos.response.*;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,11 +13,6 @@ import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
 import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
-import com.fix.stadium_service.application.dtos.response.PageResponseDto;
-import com.fix.stadium_service.application.dtos.response.SeatPriceListResponseDto;
-import com.fix.stadium_service.application.dtos.response.SeatPriceResponseDto;
-import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
-import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.exception.StadiumException;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.SeatSection;
@@ -26,9 +22,9 @@ import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.fix.stadium_service.domain.repository.StadiumRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
+
 @Service
 @RequiredArgsConstructor
 public class StadiumService {
@@ -147,6 +143,23 @@ public class StadiumService {
                 })
                 .toList();
         return new SeatPriceListResponseDto(seatPrices);
+    }
+
+    @Transactional(readOnly = true)
+    public SeatInfoListResponseDto getSeatBySection(Long stadiumId, String section) {
+        List<Seat>  stadiumSeats = stadiumQueryRepository.findSeatsByStadiumIdAndSection(stadiumId,section);
+        List<SeatInfoResponseDto> seatInfoList = stadiumSeats.stream()
+                .filter(seat -> Boolean.FALSE.equals(seat.getIsDeleted())) //소프트 삭제 좌석 제외
+                .map(seat -> new SeatInfoResponseDto(
+                        seat.getSeatId(),
+                        seat.getSection().name(),
+                        seat.getRow(),
+                        seat.getNumber(),
+                        seat.getSection().getPrice()
+                ))
+                .toList();
+        return new SeatInfoListResponseDto(seatInfoList);
+
     }
 
 
