@@ -48,16 +48,18 @@ public class TicketApplicationService {
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         List<UUID> seatIds = request.getSeatInfoList().stream()
-            .map(TicketInfoRequestDto::getSeatId)
-            .toList();
+                .map(TicketInfoRequestDto::getSeatId)
+                .toList();
         // 1) Redisson 분산락 적용
         List<RLock> locks = seatIds.stream()
-            .map(seatId -> redissonClient.getLock("seat:" + seatId.toString()))
-            .toList();
+                .map(seatId -> redissonClient.getLock("seat:" + seatId.toString()))
+                .toList();
         RLock multiLock = new RedissonMultiLock(locks.toArray(new RLock[0]));
 
+        boolean acquired = false;
+
         try {
-            boolean acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (!acquired) {
                 log.warn("좌석 락 획득 실패: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
                 throw new IllegalArgumentException("다른 사용자가 좌석을 선택 중입니다.");
@@ -75,8 +77,8 @@ public class TicketApplicationService {
 
             // 3) 중복 예매 방지 (DB 검사) : 이중 방어
             List<Ticket> existingTickets =
-                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
-                    seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+                    ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
+                            seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
             if (!existingTickets.isEmpty()) {
                 throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
             }
@@ -106,7 +108,7 @@ public class TicketApplicationService {
             log.error("락 대기 중 인터럽트 발생: userId={}, seatInfoList={}", userId, request.getSeatInfoList(), e);
             throw new RuntimeException("락을 획득하는 동안 문제가 발생했습니다.", e);
         } finally {
-            if (multiLock.isLocked() && multiLock.isHeldByCurrentThread()) {
+            if (acquired) {
                 multiLock.unlock();
                 log.info("좌석 락 해제: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
             }
@@ -114,7 +116,6 @@ public class TicketApplicationService {
 
         return responseDtoList;
     }
-
     @Transactional(readOnly = true)
     public TicketDetailResponseDto getTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
