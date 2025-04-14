@@ -90,7 +90,7 @@ public class GameService {
 		// 2. homeTeam이 변동되었다면 재요청 필요
 		Game updateGameInfo;
 		if (request.getHomeTeam() != null) {
-			StadiumResponseDto response = stadiumClient.getStadiumInfo(request.getHomeTeam().toString()).getBody();
+			StadiumResponseDto response = getStadiumInfo(request.getHomeTeam().toString());
 			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
 		} else {
 			updateGameInfo = request.toGame();
