@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GameService {
 
+	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
 	private final StadiumClient stadiumClient;
 
@@ -40,7 +43,7 @@ public class GameService {
 	 */
 	public GameCreateResponse createGame(GameCreateRequest request) {
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
-		StadiumResponseDto responseDto = stadiumClient.getStadiumInfo(request.getHomeTeam().toString()).getBody();
+		StadiumResponseDto responseDto = getStadiumInfo(request.getHomeTeam().toString());
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
 		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
@@ -149,6 +152,27 @@ public class GameService {
 		game.softDelete(userId);
 	}
 
+	/**
+	 * 경기장의 정보를 받아오는 메서드
+	 * @param homeTeam : 홈팀의 정보
+	 * @return : 경기장 정보 반환
+	 */
+	private StadiumResponseDto getStadiumInfo(String homeTeam) {
+		Cache cache = cacheManager.getCache("stadiumInfoCache");
+		StadiumResponseDto responseDto = cache.get(homeTeam, StadiumResponseDto.class);
+
+		if (responseDto == null) {
+			responseDto = stadiumClient.getStadiumInfo(homeTeam).getBody();
+		}
+
+		return responseDto;
+	}
+
+	/**
+	 * 경기 찾기
+	 * @param gameId : 찾을 경기 ID
+	 * @return : 찾은 경기 내용 반환
+	 */
 	private Game findGame(UUID gameId) {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
