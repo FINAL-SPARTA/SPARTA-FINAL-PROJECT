@@ -12,7 +12,7 @@ public class SeatStatusResponseDto {
     private String section;
     private String seatRow;
     private String seatNumber;
-//    private int price;
+    private int price;
     private Boolean availabilityStatus;
 }
 
