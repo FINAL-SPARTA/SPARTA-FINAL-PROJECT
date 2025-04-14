@@ -89,6 +89,15 @@ public class OrderFeignService {
         // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
     }
 
+    @Transactional
+    public void completeOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
+
+        order.complete(); // ✅ 상태 변경
+        // redis 캐시 무효화 등 필요 시 처리 가능
+    }
+
 }
 //예약된 티켓 → 주문 생성 → 상태 변경
 //ticket-service
