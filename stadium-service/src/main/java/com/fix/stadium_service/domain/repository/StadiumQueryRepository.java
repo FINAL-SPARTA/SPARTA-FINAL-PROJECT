@@ -1,5 +1,7 @@
 package com.fix.stadium_service.domain.repository;
 
+import com.fix.stadium_service.domain.model.Seat;
+import com.fix.stadium_service.domain.model.SeatSection;
 import com.fix.stadium_service.domain.model.Stadium;
 import com.fix.stadium_service.domain.model.StadiumName;
 
@@ -14,5 +16,7 @@ public interface StadiumQueryRepository {
     long countByStadiumName(StadiumName name);
 
     Optional<Stadium> findBySeatId(UUID seatId);
+
+    List<Seat>findSeatsByStadiumIdAndSection(Long stadiumId, String section);
 
 }

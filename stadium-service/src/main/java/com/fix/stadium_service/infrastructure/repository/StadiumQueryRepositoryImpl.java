@@ -1,9 +1,6 @@
 package com.fix.stadium_service.infrastructure.repository;
 
-import com.fix.stadium_service.domain.model.QSeat;
-import com.fix.stadium_service.domain.model.QStadium;
-import com.fix.stadium_service.domain.model.Stadium;
-import com.fix.stadium_service.domain.model.StadiumName;
+import com.fix.stadium_service.domain.model.*;
 import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -67,4 +64,19 @@ public class StadiumQueryRepositoryImpl implements StadiumQueryRepository {
                 .where(seat.seatId.eq(seatId))
                 .fetchOne());
     }
+
+    @Override
+    public List<Seat> findSeatsByStadiumIdAndSection(Long stadiumId, String section) {
+        QSeat seat = QSeat.seat;
+        return qf.selectFrom(seat)
+                .where(
+                        seat.stadium.stadiumId.eq(stadiumId),
+                        seat.section.eq(SeatSection.valueOf(section)),
+                        seat.isDeleted.eq(false)
+                )
+                .fetch();
+    }
+
+
+
 }
