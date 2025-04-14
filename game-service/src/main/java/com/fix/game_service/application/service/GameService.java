@@ -21,8 +21,10 @@ import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
+import com.fix.game_service.infrastructure.client.ChatClient;
 import com.fix.game_service.infrastructure.client.StadiumClient;
-import com.fix.game_service.infrastructure.client.dto.StadiumResponseDto;
+import com.fix.game_service.infrastructure.client.dto.ChatCreateRequest;
+import com.fix.game_service.infrastructure.client.dto.StadiumFeignResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ public class GameService {
 	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
 	private final StadiumClient stadiumClient;
+	private final ChatClient chatClient;
 
 	/**
 	 * 경기 생성
@@ -43,13 +46,19 @@ public class GameService {
 	 */
 	public GameCreateResponse createGame(GameCreateRequest request) {
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
-		StadiumResponseDto responseDto = getStadiumInfo(request.getHomeTeam().toString());
+		StadiumFeignResponse responseDto = getStadiumInfo(request.getHomeTeam().toString());
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
 		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
 
 		// 3. 생성한 경기 Entity 저장
 		Game savedGame = gameRepository.save(game);
+
+		// 4. 경기 내용 chat으로 전송
+		ChatCreateRequest requestDto = ChatCreateRequest.builder()
+			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
+			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
+		chatClient.createChatRoom(requestDto);
 
 		// 4. 경기 내용 반환
 		return GameCreateResponse.fromGame(savedGame);
@@ -90,7 +99,7 @@ public class GameService {
 		// 2. homeTeam이 변동되었다면 재요청 필요
 		Game updateGameInfo;
 		if (request.getHomeTeam() != null) {
-			StadiumResponseDto response = getStadiumInfo(request.getHomeTeam().toString());
+			StadiumFeignResponse response = getStadiumInfo(request.getHomeTeam().toString());
 			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
 		} else {
 			updateGameInfo = request.toGame();
@@ -157,9 +166,9 @@ public class GameService {
 	 * @param homeTeam : 홈팀의 정보
 	 * @return : 경기장 정보 반환
 	 */
-	private StadiumResponseDto getStadiumInfo(String homeTeam) {
+	private StadiumFeignResponse getStadiumInfo(String homeTeam) {
 		Cache cache = cacheManager.getCache("stadiumInfoCache");
-		StadiumResponseDto responseDto = cache.get(homeTeam, StadiumResponseDto.class);
+		StadiumFeignResponse responseDto = cache.get(homeTeam, StadiumFeignResponse.class);
 
 		if (responseDto == null) {
 			responseDto = stadiumClient.getStadiumInfo(homeTeam).getBody();
