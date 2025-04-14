@@ -3,6 +3,7 @@ package com.fix.order_serivce.application;
 import com.fix.order_serivce.application.dtos.request.FeignOrderCreateRequest;
 import com.fix.order_serivce.application.dtos.request.FeignTicketReserveDto;
 import com.fix.order_serivce.application.dtos.request.FeignTicketSoldRequest;
+import com.fix.order_serivce.application.dtos.request.OrderSummaryDto;
 import com.fix.order_serivce.application.exception.OrderException;
 import com.fix.order_serivce.domain.Order;
 import com.fix.order_serivce.domain.OrderStatus;
@@ -27,6 +28,7 @@ public class OrderFeignService {
 
     private final OrderRepository orderRepository;
     private final TicketClient ticketClient;
+    private final OrderHistoryRedisService orderHistoryRedisService;
 
     /**
      * ticket-service에서 예약된 티켓 리스트를 전달받아 주문을 생성하고,
@@ -64,10 +66,23 @@ public class OrderFeignService {
         // [4] 주문 저장
         orderRepository.save(order);
 
+        // 유저별 최근 주문 내역 Redis에 저장
+        orderHistoryRedisService.saveRecentOrder(
+                userId,
+                OrderSummaryDto.builder()
+                        .orderId(order.getOrderId())
+                        .gameId(order.getGameId())
+                        .peopleCount(order.getPeopleCount())
+                        .totalPrice(order.getTotalPrice())
+                        .createdAt(order.getCreatedAt()) // Basic 상속 필드 사용
+                        .build()
+        );
+
         // [5] 티켓 ID 추출
         List<UUID> ticketIds = tickets.stream()
                 .map(FeignTicketReserveDto::getTicketId)
                 .toList();
+
 
         // [6] 티켓 상태 SOLD로 변경 요청
         ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds)); // ✅ 통합된 호출출

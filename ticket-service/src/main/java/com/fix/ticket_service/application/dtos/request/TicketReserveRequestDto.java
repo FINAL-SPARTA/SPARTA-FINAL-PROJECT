@@ -12,5 +12,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TicketReserveRequestDto {
     private UUID gameId;
-    private List<UUID> seatIds;
+    private List<TicketInfoRequestDto> seatInfoList;
 }

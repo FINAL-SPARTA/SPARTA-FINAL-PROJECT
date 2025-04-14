@@ -47,8 +47,11 @@ public class TicketApplicationService {
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
+        List<UUID> seatIds = request.getSeatInfoList().stream()
+            .map(TicketInfoRequestDto::getSeatId)
+            .toList();
         // 1) Redisson 분산락 적용
-        List<RLock> locks = request.getSeatIds().stream()
+        List<RLock> locks = seatIds.stream()
             .map(seatId -> redissonClient.getLock("seat:" + seatId.toString()))
             .toList();
         RLock multiLock = new RedissonMultiLock(locks.toArray(new RLock[0]));
@@ -56,13 +59,13 @@ public class TicketApplicationService {
         try {
             boolean acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (!acquired) {
-                log.warn("좌석 락 획득 실패: userId={}, seatIds={}", userId, request.getSeatIds());
+                log.warn("좌석 락 획득 실패: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
                 throw new IllegalArgumentException("다른 사용자가 좌석을 선택 중입니다.");
             }
-            log.info("좌석 락 획득 성공: userId={}, seatIds={}", userId, request.getSeatIds());
+            log.info("좌석 락 획득 성공: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
 
             // 2) 중복 예매 방지 (Redis 캐시 검사)
-            for (UUID seatId : request.getSeatIds()) {
+            for (UUID seatId : seatIds) {
                 String redisKey = getSeatKey(seatId);
                 String status = redisTemplate.opsForValue().get(redisKey);
                 if ("RESERVED".equals(status) || "SOLD".equals(status)) {
@@ -70,27 +73,18 @@ public class TicketApplicationService {
                 }
             }
 
-            // 3) 중복 예매 방지 (DB 검사) : 이중 방어 TODO: 이게 필요할 지 검토 필요
-//            List<Ticket> existingTickets =
-//                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
-//                    request.getSeatIds(), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
-//            if (!existingTickets.isEmpty()) {
-//                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
-//            }
-
-            // 3) Feign 호출을 통한 좌석 Id의 유효성 검사 및 가격 조회
-            SeatPriceListResponseDto seatPriceListResponseDto =
-                stadiumClient.getPrices(new SeatPriceRequestDto(request.getSeatIds()));
-
-            Map<UUID, Integer> seatPriceMap = seatPriceListResponseDto.toMap();
+            // 3) 중복 예매 방지 (DB 검사) : 이중 방어
+            List<Ticket> existingTickets =
+                ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
+                    seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+            if (!existingTickets.isEmpty()) {
+                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+            }
 
             // 4) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
             List<Ticket> ticketsToSave = new ArrayList<>();
-            for (UUID seatId : request.getSeatIds()) {
-                int price = seatPriceMap.get(seatId);
-
-                Ticket ticket = Ticket.create(userId, request.getGameId(), seatId, price);
-
+            for (TicketInfoRequestDto seatInfo : request.getSeatInfoList()) {
+                Ticket ticket = Ticket.create(userId, request.getGameId(), seatInfo.getSeatId(), seatInfo.getPrice());
                 ticketsToSave.add(ticket);
                 responseDtoList.add(new TicketReserveResponseDto(ticket));
             }
@@ -98,7 +92,7 @@ public class TicketApplicationService {
             ticketRepository.saveAll(ticketsToSave);
 
             // 6) Redis 캐시에 예약 상태 저장 (TTL = 3분)
-            for (UUID seatId : request.getSeatIds()) {
+            for (UUID seatId : seatIds) {
                 String redisKey = getSeatKey(seatId);
                 redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
             }
@@ -109,12 +103,12 @@ public class TicketApplicationService {
             orderClient.createOrder(orderCreateRequestDto);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("락 대기 중 인터럽트 발생: userId={}, seatIds={}", userId, request.getSeatIds(), e);
+            log.error("락 대기 중 인터럽트 발생: userId={}, seatInfoList={}", userId, request.getSeatInfoList(), e);
             throw new RuntimeException("락을 획득하는 동안 문제가 발생했습니다.", e);
         } finally {
             if (multiLock.isLocked() && multiLock.isHeldByCurrentThread()) {
                 multiLock.unlock();
-                log.info("좌석 락 해제: userId={}, seatIds={}", userId, request.getSeatIds());
+                log.info("좌석 락 해제: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
             }
         }
 
@@ -149,7 +143,7 @@ public class TicketApplicationService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "seatView", key = "#gameId.toString() + ':' + #stadiumId.toString() + ':' + #section")
-    public List<SeatStatusResponseDto> getSeatView(UUID gameId, UUID stadiumId, String section) {
+    public List<SeatStatusResponseDto> getSeatView(UUID gameId, Long stadiumId, String section) {
         // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
         SeatInfoListResponseDto seatInfoListResponseDto =
             stadiumClient.getSeatsBySection(stadiumId, section);
@@ -186,6 +180,7 @@ public class TicketApplicationService {
                     seatInfo.getSection(),
                     seatInfo.getSeatRow(),
                     seatInfo.getSeatNumber(),
+                    seatInfo.getPrice(),
                     availabilityStatus
                 );
             })
