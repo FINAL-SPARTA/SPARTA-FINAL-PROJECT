@@ -3,6 +3,8 @@ package com.fix.stadium_service.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.fix.stadium_service.application.dtos.response.*;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,11 +13,6 @@ import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
 import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
-import com.fix.stadium_service.application.dtos.response.PageResponseDto;
-import com.fix.stadium_service.application.dtos.response.SeatPriceListResponseDto;
-import com.fix.stadium_service.application.dtos.response.SeatPriceResponseDto;
-import com.fix.stadium_service.application.dtos.response.StadiumFeignResponse;
-import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.exception.StadiumException;
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.SeatSection;
@@ -25,9 +22,9 @@ import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.fix.stadium_service.domain.repository.StadiumRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
+
 @Service
 @RequiredArgsConstructor
 public class StadiumService {
@@ -38,6 +35,10 @@ public class StadiumService {
 
     @Transactional
     public StadiumResponseDto createStadium(StadiumCreateRequest requestDto) {
+        boolean exist  = stadiumRepository.findByStadiumName(requestDto.getStadiumName()).isPresent();
+        if (exist){
+            throw new StadiumException(StadiumException.StadiumErrorType.STADIUM_DUPLICATE);
+        }
 
         Stadium stadium = Stadium.createStadium(
                 requestDto.getStadiumName(),
@@ -110,6 +111,7 @@ public class StadiumService {
     }
 
     // 경기 도메인의 호출
+    @Cacheable(value = "stadiumInfoCache" , key = "#teamName")
     @Transactional(readOnly = true)
     public StadiumFeignResponse getStadiumInfoByName(String teamName) {
         StadiumName stadiumName = StadiumName.fromTeamName(teamName);
@@ -119,29 +121,47 @@ public class StadiumService {
     }
 
     // 티켓 도메인의 호출
+
     @Transactional(readOnly = true)
     public SeatPriceListResponseDto getPrices(SeatPriceRequestDto request) {
-
         List<UUID> seatIds = request.getSeatIds();
+        UUID seatId = seatIds.get(0);
 
-        List<Stadium> stadiums = stadiumRepository.findAll();
+        // seatId 기준으로 stadium 조회 (seatId 하나면 충분)
+        Stadium stadium = stadiumQueryRepository.findBySeatId(seatId)
+                .orElseThrow(() -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NOT_FOUND));
 
-        List<SeatPriceResponseDto> seatPrices = stadiums.stream()
-                .flatMap(stadium -> stadium.getSeats().stream())
+        // 해당 stadium의 좌석 중 요청 seatIds에 해당하는 좌석만 필터링
+        List<SeatPriceResponseDto> seatPrices = stadium.getSeats().stream()
                 .filter(seat -> seatIds.contains(seat.getSeatId()))
                 .map(seat -> {
-                    if (seat.getIsDeleted()) {
+                    if (Boolean.TRUE.equals(seat.getIsDeleted())) {
                         throw new StadiumException(StadiumException.StadiumErrorType.SEAT_NOT_AVAILABLE);
                     }
-
                     int price = sectionToPrice(seat.getSection());
                     return new SeatPriceResponseDto(seat.getSeatId(), price);
-
                 })
                 .toList();
-
         return new SeatPriceListResponseDto(seatPrices);
     }
+
+    @Transactional(readOnly = true)
+    public SeatInfoListResponseDto getSeatBySection(Long stadiumId, String section) {
+        List<Seat>  stadiumSeats = stadiumQueryRepository.findSeatsByStadiumIdAndSection(stadiumId,section);
+        List<SeatInfoResponseDto> seatInfoList = stadiumSeats.stream()
+                .filter(seat -> Boolean.FALSE.equals(seat.getIsDeleted())) //소프트 삭제 좌석 제외
+                .map(seat -> new SeatInfoResponseDto(
+                        seat.getSeatId(),
+                        seat.getSection().name(),
+                        seat.getRow(),
+                        seat.getNumber(),
+                        seat.getSection().getPrice()
+                ))
+                .toList();
+        return new SeatInfoListResponseDto(seatInfoList);
+
+    }
+
 
     private int sectionToPrice(SeatSection section) {
 
