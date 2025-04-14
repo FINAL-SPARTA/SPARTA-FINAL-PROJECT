@@ -66,7 +66,7 @@ public class TicketController {
     @GetMapping("/seat-view/{gameId}")
     public ResponseEntity<CommonResponse<List<SeatStatusResponseDto>>> getSeatView(
         @PathVariable("gameId") UUID gameId,
-        @RequestParam("stadiumId") UUID stadiumId,
+        @RequestParam("stadiumId") Long stadiumId,
         @RequestParam("section") String section) {
         List<SeatStatusResponseDto> responseDto = ticketApplicationService.getSeatView(gameId, stadiumId, section);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "좌석 뷰 조회 성공"));
