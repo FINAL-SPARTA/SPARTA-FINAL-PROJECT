@@ -10,7 +10,6 @@
         </processorPath>
         <module name="fix-ticketing.gateway-service.main" />
         <module name="fix-ticketing.server.main" />
-        <module name="fix-ticketing.alarm-service.main" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
@@ -32,6 +31,7 @@
         <module name="fix-ticketing.stadium-service.main" />
         <module name="fix-ticketing.order-service.main" />
         <module name="fix-ticketing.user-service.main" />
+        <module name="fix-ticketing.alarm-service.main" />
         <module name="fix-ticketing.common-service.main" />
         <module name="fix-ticketing.event-service.main" />
       </profile>
