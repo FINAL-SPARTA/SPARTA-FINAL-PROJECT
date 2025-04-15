@@ -17,7 +17,7 @@ public class UserConsumer {
 
     @KafkaListener(topics = "event-apply-topic", groupId = "user-service")
     public void consumeEventApplyRequest(EventKafkaMessage message) {
-        EventPayload payload = message.getPayload();
+        EventPayload payload = (EventPayload) message.getPayload();
         log.info("[Kafka] EVENT_APPLY_REQUEST 수신: {}", payload);
 
         try {

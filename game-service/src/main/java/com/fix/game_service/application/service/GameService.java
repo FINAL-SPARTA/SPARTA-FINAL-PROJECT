@@ -2,9 +2,13 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
+
 import com.fix.common_service.dto.EventKafkaMessage;
 import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.common_service.dto.TicketUpdatedPayload;
+
+import com.fix.game_service.infrastructure.client.dto.StadiumResponseDto;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
