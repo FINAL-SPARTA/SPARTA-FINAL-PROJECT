@@ -1,5 +1,7 @@
 package com.fix.payments_service.presantation;
 
+import com.fix.payments_service.domain.TossPayment;
+import com.fix.payments_service.domain.repository.TossPaymentRepository;
 import com.fix.payments_service.infrastructure.client.OrderServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.fix.payments_service.domain.TossPaymentMethod;
+import com.fix.payments_service.domain.TossPaymentStatus;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 
 @RestController
@@ -29,6 +33,7 @@ public class PaymentConfirmController {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final OrderServiceClient orderServiceClient;
+    private final TossPaymentRepository tossPaymentRepository;
 
     // ✅ application.yml 설정 기반으로 주입받음
     @Value("${toss.widget-secret-key}")
@@ -45,13 +50,31 @@ public class PaymentConfirmController {
         // ✅ /confirm/payment → API_SECRET_KEY, /confirm/widget → WIDGET_SECRET_KEY
         String secretKey = request.getRequestURI().contains("/confirm/payment") ? apiSecretKey : widgetSecretKey;
 
+        // ✅ 요청 파싱
         JSONObject requestData = parseRequestData(jsonBody);
+        // ✅ Toss 승인 요청
         JSONObject response = sendRequest(requestData, secretKey, "https://api.tosspayments.com/v1/payments/confirm");
         int statusCode = response.containsKey("error") ? 400 : 200;
 
-        // ✅ 주문 상태 연동
+        // ✅ Toss 결제 승인 성공 시 로직
         if (!response.containsKey("error")) {
             String orderId = (String) response.get("orderId");
+            TossPaymentMethod method = TossPaymentMethod.valueOf(((String) response.get("method")).toUpperCase());
+            TossPaymentStatus status = TossPaymentStatus.valueOf(((String) response.get("status")).toUpperCase());
+            // ✅  Toss 결제 내역 저장
+            TossPayment payment = TossPayment.builder()
+                    .paymentKey((String) response.get("paymentKey"))
+                    .orderId(orderId)
+                    .amount(Integer.parseInt(String.valueOf(response.get("amount"))))
+                    .method(method)
+                    .status(status)
+                    .approvedAt(ZonedDateTime.parse((String) response.get("approvedAt")))
+                    .cardCompany(extract(response, "card", "company"))
+                    .cardNumber(extract(response, "card", "number"))
+                    .receiptUrl(extract(response, "receipt", "url"))
+                    .build();
+
+            tossPaymentRepository.save(payment);
 
             try {
                 orderServiceClient.completeOrder(orderId);
@@ -62,6 +85,12 @@ public class PaymentConfirmController {
         }
 
         return ResponseEntity.status(statusCode).body(response);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extract(JSONObject root, String section, String field) {
+        JSONObject nested = (JSONObject) root.get(section);
+        return nested != null ? (String) nested.get(field) : null;
     }
 
     // PaymentController에서 가져온 유틸 메서드
