@@ -39,10 +39,10 @@ public class PaymentConfirmController {
     private final TossPaymentFailureRepository tossPaymentFailureRepository;
 
     // ✅ application.yml 설정 기반으로 주입받음
-    @Value("${toss.widget-secret-key}")
+    @Value("${api.key}")
     private String widgetSecretKey;
 
-    @Value("${toss.api-secret-key}")
+    @Value("${toss.secret-key}")
     private String apiSecretKey;
 
     // ✅ 기존 PaymentController에서 confirmPayment 메서드 분리
@@ -62,8 +62,9 @@ public class PaymentConfirmController {
         // ✅ Toss 결제 승인 성공 시 로직
         if (!response.containsKey("error")) {
             String orderId = (String) response.get("orderId");
-            TossPaymentMethod method = TossPaymentMethod.valueOf(((String) response.get("method")).toUpperCase());
-            TossPaymentStatus status = TossPaymentStatus.valueOf(((String) response.get("status")).toUpperCase());
+            TossPaymentMethod method = TossPaymentMethod.fromKorName((String) response.get("method"));
+            String inputStatus = (String) response.get("status"); // 추가
+            TossPaymentStatus status = TossPaymentStatus.fromNameOrKorName(inputStatus); // 수정
             // ✅  Toss 결제 내역 저장
             TossPayment payment = TossPayment.builder()
                     .paymentKey((String) response.get("paymentKey"))

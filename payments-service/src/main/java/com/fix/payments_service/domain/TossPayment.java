@@ -37,4 +37,8 @@ public class TossPayment extends Basic { // ✅ createdAt/updatedAt 포함됨
     private String receiptUrl;
 
     private ZonedDateTime approvedAt;
+
+    public void updateStatus(TossPaymentStatus newStatus) {
+        this.status = newStatus;
+    }
 }
