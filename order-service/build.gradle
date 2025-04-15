@@ -38,9 +38,9 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// ✅ H2
-	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'com.h2database:h2'
 
-	// ✅ PostgreSQL
+//	// ✅ PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
 	// ✅ JSON
