@@ -3,6 +3,7 @@ package com.fix.stadium_service.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.*;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -117,7 +118,11 @@ public class StadiumService {
         StadiumName stadiumName = StadiumName.fromTeamName(teamName);
         Stadium stadium = stadiumRepository.findByStadiumName(stadiumName).orElseThrow(
                 () -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NAME_NOT_FOUND));
-        return StadiumFeignResponse.from(stadium);
+        return StadiumFeignResponse.builder()
+                .stadiumId(stadium.getStadiumId())
+                .stadiumName(stadium.getStadiumName().toString())
+                .seatQuantity(stadium.getQuantity())
+                .build();
     }
 
     // 티켓 도메인의 호출

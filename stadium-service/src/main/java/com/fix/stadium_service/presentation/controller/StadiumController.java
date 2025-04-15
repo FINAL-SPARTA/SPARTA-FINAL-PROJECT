@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.aop.ValidateUser;
 import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
