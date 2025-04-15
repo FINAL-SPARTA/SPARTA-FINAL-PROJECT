@@ -36,54 +36,50 @@ public class GatewayConfig {
     };
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
 
-            .route("user-service", r -> r.path(USER_PATHS)
-                .filters(this::applyFilters)
-                .uri("lb://user-service"))
+                .route("user-service", r -> r.path(USER_PATHS)
+                        .filters(this::applyFilters)
+                        .uri("lb://user-service"))
 
-            .route("alarm-service", r -> r.path("/api/v1/alarms/**")
-                .filters(this::applyFilters)
-                .uri("lb://alarm-service"))
+                .route("order-service", r -> r.path("/api/v1/orders/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://order-service"))
 
-            .route("event-service", r -> r.path("/api/v1/events/**")
-                .filters(this::applyFilters)
-                .uri("lb://event-service"))
+                .route("ticket-service", r -> r.path("/api/v1/tickets/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://ticket-service"))
 
-            .route("game-service", r -> r.path("/api/v1/games/**")
-                .filters(this::applyFilters)
-                .uri("lb://game-service"))
+                .route("game-service", r -> r.path("/api/v1/games/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://game-service"))
 
-            .route("order-service", r -> r.path("/api/v1/orders/**")
-                .filters(this::applyFilters)
-                .uri("lb://order-service"))
+                .route("stadium-service", r -> r.path("/api/v1/stadiums/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://stadium-service"))
 
-            .route("stadium-service", r -> r.path("/api/v1/stadiums/**")
-                .filters(this::applyFilters)
-                .uri("lb://stadium-service"))
+                .route("event-service", r -> r.path("/api/v1/events/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://event-service"))
 
-            .route("ticket-service", r -> r.path("/api/v1/tickets/**")
-                .filters(this::applyFilters)
-                .uri("lb://ticket-service"))
+                .route("alarm-service", r -> r.path("/api/v1/alarms/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://alarm-service"))
 
+                .route("chat-service", r -> r.path("/api/v1/chats/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://chat-service"))
 
-             .route("alarm-service", r -> r.path("/api/v1/alarms/**")
-                   .filters(this::applyFilters)
-                   .uri("lb://alarm-service"))
+                .route("payments-service", r -> r.path("/api/v1/payments/**")
+                        .filters(this::applyFilters)
+                        .uri("lb://payments-service"))
 
                 .route("fallback-route", r -> r.path("/fallback")
                         .uri("no://op"))
-
-            .route("chat-service", r -> r.path("/api/v1/chats/**")
-                .filters(this::applyFilters)
-                .uri("lb://chat-service"))
-
-
-            .route("fallback-route", r -> r.path("/fallback")
-                .uri("no://op"))
-
-            .build();
+                .route("frontend", r -> r.path("/")
+                        .uri("http://localhost:19100"))
+                .build();
     }
 
     /**

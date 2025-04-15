@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payments")
@@ -37,5 +40,17 @@ public class PaymentQueryController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/order-info/{orderId}")
+    public ResponseEntity<Map<String, Object>> getOrderAmountInfo(@PathVariable String orderId) {
+        TossPayment payment = tossPaymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("결제 정보가 존재하지 않습니다."));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderId", payment.getOrderId());
+        result.put("amount", payment.getAmount());
+
+        return ResponseEntity.ok(result);
     }
 }
