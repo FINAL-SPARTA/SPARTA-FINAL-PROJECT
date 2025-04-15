@@ -67,9 +67,18 @@ public class GatewayConfig {
                 .filters(this::applyFilters)
                 .uri("lb://ticket-service"))
 
+
+             .route("alarm-service", r -> r.path("/api/v1/alarms/**")
+                   .filters(this::applyFilters)
+                   .uri("lb://alarm-service"))
+
+                .route("fallback-route", r -> r.path("/fallback")
+                        .uri("no://op"))
+
             .route("chat-service", r -> r.path("/api/v1/chats/**")
                 .filters(this::applyFilters)
                 .uri("lb://chat-service"))
+
 
             .route("fallback-route", r -> r.path("/fallback")
                 .uri("no://op"))
