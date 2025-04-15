@@ -30,14 +30,6 @@ public class PaymentController {
     private static final String API_SECRET_KEY = "test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R";
     private final Map<String, String> billingKeyMap = new HashMap<>();
 
-    @RequestMapping(value = {"/confirm/widget", "/confirm/payment"})
-    public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jsonBody) throws Exception {
-        String secretKey = request.getRequestURI().contains("/confirm/payment") ? API_SECRET_KEY : WIDGET_SECRET_KEY;
-        JSONObject response = sendRequest(parseRequestData(jsonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
-        int statusCode = response.containsKey("error") ? 400 : 200;
-        return ResponseEntity.status(statusCode).body(response);
-    }
-
     @RequestMapping(value = "/confirm-billing")
     public ResponseEntity<JSONObject> confirmBilling(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
@@ -81,6 +73,7 @@ public class PaymentController {
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
 
+//    클라이언트에서 받은 JSON 문자열을 JSONObject로 파싱
     private JSONObject parseRequestData(String jsonBody) {
         try {
             return (JSONObject) new JSONParser().parse(jsonBody);
@@ -90,6 +83,7 @@ public class PaymentController {
         }
     }
 
+//    HTTP POST 방식으로 외부 API(Toss 등)에 요청을 보내고 응답을 JSON 형태로 받아 반환
     private JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
         HttpURLConnection connection = createConnection(secretKey, urlString);
         try (OutputStream os = connection.getOutputStream()) {
@@ -107,6 +101,7 @@ public class PaymentController {
         }
     }
 
+//    외부 API 서버와 연결을 설정
     private HttpURLConnection createConnection(String secretKey, String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
