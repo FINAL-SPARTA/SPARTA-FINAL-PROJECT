@@ -10,3 +10,5 @@ include ('game-service')
 include ('stadium-service')
 include ('alarm-service')
 include ('ticket-service')
+
+include ('chat-service')
