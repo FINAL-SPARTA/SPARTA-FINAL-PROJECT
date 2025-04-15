@@ -2,6 +2,7 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
+import com.fix.common_service.dto.StadiumFeignResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,6 @@ import com.fix.game_service.domain.repository.GameRepository;
 import com.fix.game_service.infrastructure.client.ChatClient;
 import com.fix.game_service.infrastructure.client.StadiumClient;
 import com.fix.game_service.infrastructure.client.dto.ChatCreateRequest;
-import com.fix.game_service.infrastructure.client.dto.StadiumFeignResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
