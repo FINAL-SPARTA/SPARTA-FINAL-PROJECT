@@ -9,4 +9,7 @@ public interface OrderServiceClient {
 
     @PatchMapping("/api/v1/orders/{orderId}/complete")
     void completeOrder(@PathVariable("orderId") String orderId);
+
+    @PatchMapping("/api/v1/orders/{orderId}/cancel")
+    void cancelOrder(@PathVariable("orderId") String orderId);
 }
