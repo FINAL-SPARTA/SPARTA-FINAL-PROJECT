@@ -3,6 +3,7 @@ package com.fix.payments_service.presantation;
 import com.fix.payments_service.application.dtos.request.TossCancelRequestDto;
 import com.fix.payments_service.application.dtos.response.TossCancelResponseDto;
 import com.fix.payments_service.domain.repository.TossPaymentRepository;
+import com.fix.payments_service.infrastructure.client.OrderServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ public class PaymentCancelController {
 
     @Value("${toss.secret-key}")
     private String secretKey;
+    private OrderServiceClient orderServiceClient;
 
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<TossCancelResponseDto> cancelPayment(
@@ -59,6 +61,14 @@ public class PaymentCancelController {
                     log.info("✅ TossPayment 상태 보정 완료");
                 });
 
+        // ✅ 주문 상태 CANCELLED 처리 (order-service 연동)
+        try {
+            orderServiceClient.cancelOrder(orderId);
+            log.info("✅ 주문 상태 CANCELLED 처리 요청 완료 - orderId: {}", orderId);
+        } catch (Exception e) {
+            log.error("❌ 주문 상태 취소 연동 실패 - orderId: {}, error: {}", orderId, e.getMessage());
+        }
+        
         return ResponseEntity.ok(response);
     }
 }
