@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface TossPaymentRepository extends JpaRepository<TossPayment, Long> {
     Optional<TossPayment> findByOrderId(String orderId);
+
+    Optional<TossPayment> findByPaymentKey(String paymentKey); // ✅ 이 메서드 반드시 필요!
 }

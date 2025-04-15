@@ -6,6 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,22 +27,23 @@ import java.util.Map;
 public class PaymentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String WIDGET_SECRET_KEY = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6";
-    private static final String API_SECRET_KEY = "test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R";
+
+    @Value("${toss.secret-key}")
+    private String apiSecretKey;
     private final Map<String, String> billingKeyMap = new HashMap<>();
 
     @RequestMapping(value = "/confirm-billing")
     public ResponseEntity<JSONObject> confirmBilling(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
         String billingKey = billingKeyMap.get(requestData.get("customerKey"));
-        JSONObject response = sendRequest(requestData, API_SECRET_KEY, "https://api.tosspayments.com/v1/billing/" + billingKey);
+        JSONObject response = sendRequest(requestData, apiSecretKey, "https://api.tosspayments.com/v1/billing/" + billingKey);
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
 
     @RequestMapping(value = "/issue-billing-key")
     public ResponseEntity<JSONObject> issueBillingKey(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
-        JSONObject response = sendRequest(requestData, API_SECRET_KEY, "https://api.tosspayments.com/v1/billing/authorizations/issue");
+        JSONObject response = sendRequest(requestData, apiSecretKey, "https://api.tosspayments.com/v1/billing/authorizations/issue");
 
         if (!response.containsKey("error")) {
             billingKeyMap.put((String) requestData.get("customerKey"), (String) response.get("billingKey"));
@@ -58,7 +60,7 @@ public class PaymentController {
         requestData.put("code", code);
         
         String url = "https://api.tosspayments.com/v1/brandpay/authorizations/access-token";
-        JSONObject response = sendRequest(requestData, API_SECRET_KEY, url);
+        JSONObject response = sendRequest(requestData, apiSecretKey, url);
 
         logger.info("Response Data: {}", response);
 
@@ -69,7 +71,7 @@ public class PaymentController {
     public ResponseEntity<JSONObject> confirmBrandpay(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
         String url = "https://api.tosspayments.com/v1/brandpay/payments/confirm";
-        JSONObject response = sendRequest(requestData, API_SECRET_KEY, url);
+        JSONObject response = sendRequest(requestData, apiSecretKey, url);
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
 
