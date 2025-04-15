@@ -6,6 +6,7 @@ import com.fix.user_service.application.dtos.request.UserCreateRequestDto;
 import com.fix.user_service.application.dtos.request.UserSearchCondition;
 import com.fix.user_service.application.dtos.request.UserSearchRequestDto;
 import com.fix.user_service.application.dtos.request.UserUpdateRequestDto;
+import com.fix.user_service.application.dtos.response.PhoneNumberResponseDto;
 import com.fix.user_service.application.dtos.response.UserDetailResponseDto;
 import com.fix.user_service.application.dtos.response.UserListResponseDto;
 import com.fix.user_service.application.exception.UserException;
@@ -121,6 +122,15 @@ public class UserController {
         userService.deductPoints(userId, points);
         return ResponseEntity.ok(CommonResponse.success(null, "포인트 차감 성공"));
     }
+
+    @GetMapping("/feign/{userId}/phone-number")
+    public PhoneNumberResponseDto getPhoneNumber(@PathVariable("userId") Long userId){
+        UserDetailResponseDto user = userService.getUser(userId);
+        String phoneNumber = user.getPhoneNumber();
+        return new PhoneNumberResponseDto(phoneNumber);
+
+    }
+
 
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<UserListResponseDto>> getAllUsers(
