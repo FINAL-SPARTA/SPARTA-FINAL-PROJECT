@@ -1,6 +1,8 @@
 package com.fix.payments_service.presantation;
 
 import com.fix.payments_service.domain.TossPayment;
+import com.fix.payments_service.domain.TossPaymentFailure;
+import com.fix.payments_service.domain.repository.TossPaymentFailureRepository;
 import com.fix.payments_service.domain.repository.TossPaymentRepository;
 import com.fix.payments_service.infrastructure.client.OrderServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +36,7 @@ public class PaymentConfirmController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final OrderServiceClient orderServiceClient;
     private final TossPaymentRepository tossPaymentRepository;
+    private final TossPaymentFailureRepository tossPaymentFailureRepository;
 
     // ✅ application.yml 설정 기반으로 주입받음
     @Value("${toss.widget-secret-key}")
@@ -82,6 +85,23 @@ public class PaymentConfirmController {
             } catch (Exception e) {
                 logger.error("주문 상태 변경 실패: {}", e.getMessage());
             }
+        }
+
+        // ✅ 결제 실패 시 실패 기록 저장
+        if (response.containsKey("error")) {
+            String orderId = (String) response.get("orderId");
+            String paymentKey = (String) response.get("paymentKey");
+            String errorCode = (String) response.get("code");
+            String errorMessage = (String) response.get("message");
+
+            TossPaymentFailure failure = TossPaymentFailure.builder()
+                    .orderId(orderId)
+                    .paymentKey(paymentKey)
+                    .errorCode(errorCode)
+                    .errorMessage(errorMessage)
+                    .build();
+
+            tossPaymentFailureRepository.save(failure);
         }
 
         return ResponseEntity.status(statusCode).body(response);
