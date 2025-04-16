@@ -1,7 +1,8 @@
 package com.fix.user_service.infrastructure.kafka.consumer;
 
-import com.fix.common_service.dto.EventKafkaMessage;
-import com.fix.common_service.dto.EventPayload;
+
+import com.fix.common_service.kafka.dto.EventKafkaMessage;
+import com.fix.common_service.kafka.dto.EventPayload;
 import com.fix.user_service.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.fix.common_service.dto;
+package com.fix.common_service.kafka.dto;
 
 import lombok.*;
 
