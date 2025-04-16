@@ -1,8 +1,9 @@
 package com.fix.ticket_service.infrastructure.kafka.consumer;
 
-import com.fix.common_service.dto.EventKafkaMessage;
-import com.fix.common_service.dto.OrderCancelledPayload;
-import com.fix.common_service.dto.OrderCreatedPayload;
+
+import com.fix.common_service.kafka.dto.EventKafkaMessage;
+import com.fix.common_service.kafka.dto.OrderCancelledPayload;
+import com.fix.common_service.kafka.dto.OrderCreatedPayload;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.service.TicketApplicationService;
 import lombok.RequiredArgsConstructor;

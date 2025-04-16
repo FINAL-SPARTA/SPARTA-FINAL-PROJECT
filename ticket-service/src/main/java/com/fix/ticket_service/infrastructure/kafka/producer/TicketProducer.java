@@ -1,8 +1,9 @@
 package com.fix.ticket_service.infrastructure.kafka.producer;
 
-import com.fix.common_service.dto.EventKafkaMessage;
-import com.fix.common_service.dto.TicketReservedPayload;
-import com.fix.common_service.dto.TicketUpdatedPayload;
+
+import com.fix.common_service.kafka.dto.EventKafkaMessage;
+import com.fix.common_service.kafka.dto.TicketReservedPayload;
+import com.fix.common_service.kafka.dto.TicketUpdatedPayload;
 import com.fix.ticket_service.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
