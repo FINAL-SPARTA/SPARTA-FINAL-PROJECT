@@ -2,6 +2,19 @@ package com.fix.game_service.application.service;
 
 import static com.fix.game_service.application.exception.GameException.GameErrorType.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
@@ -9,17 +22,6 @@ import com.fix.game_service.presentation.scheduler.DeactivateGameScheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -44,15 +46,16 @@ public class QueueService {
 
 		// 2. 입장한 사용자에게 Token 발급
 		String queueKey = QUEUE_KEY_PREFIX + gameId;
-		String token = UUID.randomUUID().toString();
+		String rawToken = UUID.randomUUID().toString();
+		String token = rawToken + "|" + userId;
 
-		// 3. Map에 저장
+		// 3. Map에 저장 (사용자에게 반환할 정보이므로 raw 자체로 반환)
 		Map<String, Object> response = new HashMap<>();
-		response.put("token", token);
+		response.put("token", rawToken);
 
 		// 4. 발급한 토큰 Redis에 추가 (대기열)
 		long timestamp = Instant.now().toEpochMilli();
-		redisTemplate.opsForZSet().add(queueKey, token, timestamp);
+		redisTemplate.opsForZSet().add(queueKey, token,  timestamp);
 
 		// 5. Sorted Set에 추가된 후 순위(대기번호)를 조회하여 반환
 		Long rank = redisTemplate.opsForZSet().rank(queueKey, token);
@@ -125,33 +128,52 @@ public class QueueService {
 	 */
 	@Async("queueExecutor")
 	public void moveToWorkingQueue(UUID gameId, String token) {
+		// 1. 작업열 Key 설정
 		String workingKey = WORKING_QUEUE_KEY_PREFIX + gameId;
+		String userToken = token.split("\\|")[0];
+		// 2. 해당 토큰 작업열에 저장
 		redisTemplate.opsForSet().add(workingKey, token);
 
+		// 3. 대기 번호 전송 및 헤더에 토큰 삽입
 		try {
 			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
-			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + token, 1);
+			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				throw new GameException(GAME_WAITING_ERROR);
 			}
 		} finally {
-			// 처리 후 working queue에서 제거
-			redisTemplate.opsForSet().remove(workingKey, token);
-			// TODO : 다음 요청으로 전송하는 로직 추가
+			// 토큰(substring 된 상태)을 헤더에 담기
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("QueueToken", userToken);
 		}
 	}
 
 	/**
+	 * 외부 요청에 의해 대기열을 떠나는 경우
+	 * @param gameId : 경기 ID
+	 * @param userId : 떠나는 사용자 ID
+	 * @param token : 떠나는 사용자의 Token
+	 */
+	public void leaveQueueByRequest(UUID gameId, Long userId, String token) {
+		String queueKey = QUEUE_KEY_PREFIX + gameId;
+		String realToken = token + "|" + userId;
+		redisTemplate.opsForZSet().remove(queueKey, realToken);
+	}
+
+	/**
 	 * 해당 사용자가 작업 대기열에 존재하는지 확인
+	 *
 	 * @param gameId : 작업 대기열에 있는지 확인할 경기 ID
-	 * @param token : 확인할 토큰
+	 * @param userId
+	 * @param token  : 확인할 토큰
 	 * @return : 토큰 존재 여부 반환
 	 */
-	public boolean isInWorkingQueue(UUID gameId, String token) {
+	public boolean isInWorkingQueue(UUID gameId, Long userId, String token) {
 		String workingKey = WORKING_QUEUE_KEY_PREFIX + gameId;
-		Boolean result = redisTemplate.opsForSet().isMember(workingKey, token);
+		String realToken = token + "|" + userId;
+		Boolean result = redisTemplate.opsForSet().isMember(workingKey, realToken);
 		return Boolean.TRUE.equals(result);
 	}
 
@@ -185,5 +207,4 @@ public class QueueService {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
 	}
-
 }

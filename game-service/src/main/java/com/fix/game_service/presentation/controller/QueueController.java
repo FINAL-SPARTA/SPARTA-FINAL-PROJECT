@@ -24,9 +24,11 @@ public class QueueController {
 	}
 
 	@GetMapping("/{gameId}/status/{token}")
-	public ResponseEntity<Long> getWaitNumber(@PathVariable UUID gameId, @PathVariable String token) {
+	public ResponseEntity<Long> getWaitNumber(@PathVariable UUID gameId,
+		@RequestHeader("x-user-id") Long userId,
+		@PathVariable String token) {
 		// 1. 사용자가 작업열에 있는가 ?
-		Boolean isInWorkingQueue = queueService.isInWorkingQueue(gameId, token);
+		Boolean isInWorkingQueue = queueService.isInWorkingQueue(gameId, userId, token);
 		if (isInWorkingQueue) {
 			// 다음 API 호출 후 보내주기
 			log.info("token - {}: 다음 화면으로 넘어갑니다", token);
@@ -45,8 +47,10 @@ public class QueueController {
 	}
 
 	@DeleteMapping("/{gameId}/leave/{token}")
-	public ResponseEntity<Void> leaveQueue(@PathVariable UUID gameId, @PathVariable String token) {
-		queueService.leaveQueue(gameId, token);
+	public ResponseEntity<Void> leaveQueue(@PathVariable UUID gameId,
+		@RequestHeader("x-user-id") Long userId,
+		@PathVariable String token) {
+		queueService.leaveQueueByRequest(gameId, userId, token);
 		return ResponseEntity.ok().build();
 	}
 
