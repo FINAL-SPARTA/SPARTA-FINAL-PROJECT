@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -122,11 +123,11 @@ public class QueueService {
 	 * @param gameId : 대기열로 이동할 게임 ID
 	 * @param token : 대기열로 이동할 토큰
 	 */
+	@Async("queueExecutor")
 	public void moveToWorkingQueue(UUID gameId, String token) {
 		String workingKey = WORKING_QUEUE_KEY_PREFIX + gameId;
 		redisTemplate.opsForSet().add(workingKey, token);
-		
-		// TODO : 다음 요청으로 전송하는 로직 추가
+
 		try {
 			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
 			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + token, 1);
@@ -138,6 +139,7 @@ public class QueueService {
 		} finally {
 			// 처리 후 working queue에서 제거
 			redisTemplate.opsForSet().remove(workingKey, token);
+			// TODO : 다음 요청으로 전송하는 로직 추가
 		}
 	}
 
