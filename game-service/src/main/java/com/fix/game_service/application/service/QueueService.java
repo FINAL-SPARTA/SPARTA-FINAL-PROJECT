@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -128,13 +129,14 @@ public class QueueService {
 	 */
 	@Async("queueExecutor")
 	public void moveToWorkingQueue(UUID gameId, String token) {
-		// 1. 작업열 Key 설정
-		String workingKey = WORKING_QUEUE_KEY_PREFIX + gameId;
-		String userToken = token.split("\\|")[0];
-		// 2. 해당 토큰 작업열에 저장
-		redisTemplate.opsForSet().add(workingKey, token);
+		// 1. token 만료 시간 설정 (1시간 30분)
+		long ttlInSeconds = 1 * 60 * 60 + 30 * 60;
 
-		// 3. 대기 번호 전송 및 헤더에 토큰 삽입
+		// 2. 해당 token 작업열에 저장 (token이 key가 됨)
+		redisTemplate.opsForValue().set(WORKING_QUEUE_KEY_PREFIX + token, gameId.toString(), ttlInSeconds, TimeUnit.SECONDS);
+
+		// 3. 대기 번호 전송 및 헤더에 token 삽입
+		String userToken = token.split("\\|")[0];
 		try {
 			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
 			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
