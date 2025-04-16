@@ -4,6 +4,9 @@ ext {
 }
 
 dependencies {
+
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	// ✅ common 모듈
 	implementation project(':common-service')
 
@@ -48,6 +51,7 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//	testImplementation 'org.springframework.kafka:spring-kafka-test'
 }
 
 dependencyManagement {
