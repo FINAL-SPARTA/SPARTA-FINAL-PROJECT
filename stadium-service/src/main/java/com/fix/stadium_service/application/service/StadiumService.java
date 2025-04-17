@@ -1,7 +1,8 @@
 package com.fix.stadium_service.application.service;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+
 
 import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.*;
@@ -9,7 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
+
 import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
 import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
@@ -110,6 +111,15 @@ public class StadiumService {
         Stadium stadium = findStadium(stadiumId);
         stadium.softDelete(userId);
     }
+    @Cacheable(value ="seatSectionsCache")
+    public SeatSectionListResponseDto getSeatSections(){
+        List<String> sections = Arrays.stream(SeatSection.values())
+                .map(Enum::name)
+                .toList();
+        return new SeatSectionListResponseDto(sections);
+    }
+
+
 
     // 경기 도메인의 호출
     @Cacheable(value = "stadiumInfoCache" , key = "#teamName")
@@ -126,30 +136,6 @@ public class StadiumService {
     }
 
     // 티켓 도메인의 호출
-
-    @Transactional(readOnly = true)
-    public SeatPriceListResponseDto getPrices(SeatPriceRequestDto request) {
-        List<UUID> seatIds = request.getSeatIds();
-        UUID seatId = seatIds.get(0);
-
-        // seatId 기준으로 stadium 조회 (seatId 하나면 충분)
-        Stadium stadium = stadiumQueryRepository.findBySeatId(seatId)
-                .orElseThrow(() -> new StadiumException(StadiumException.StadiumErrorType.STADIUM_NOT_FOUND));
-
-        // 해당 stadium의 좌석 중 요청 seatIds에 해당하는 좌석만 필터링
-        List<SeatPriceResponseDto> seatPrices = stadium.getSeats().stream()
-                .filter(seat -> seatIds.contains(seat.getSeatId()))
-                .map(seat -> {
-                    if (Boolean.TRUE.equals(seat.getIsDeleted())) {
-                        throw new StadiumException(StadiumException.StadiumErrorType.SEAT_NOT_AVAILABLE);
-                    }
-                    int price = sectionToPrice(seat.getSection());
-                    return new SeatPriceResponseDto(seat.getSeatId(), price);
-                })
-                .toList();
-        return new SeatPriceListResponseDto(seatPrices);
-    }
-
     @Transactional(readOnly = true)
     public SeatInfoListResponseDto getSeatBySection(Long stadiumId, String section) {
         List<Seat>  stadiumSeats = stadiumQueryRepository.findSeatsByStadiumIdAndSection(stadiumId,section);
@@ -168,24 +154,7 @@ public class StadiumService {
     }
 
 
-    private int sectionToPrice(SeatSection section) {
 
-        if (section == SeatSection.VIP) {
-            return SeatSection.VIP.getPrice();
-        } else if (section == SeatSection.R_SECTION) {
-            return SeatSection.R_SECTION.getPrice();
-        } else if (section == SeatSection.S_SECTION) {
-            return SeatSection.S_SECTION.getPrice();
-        } else if (section == SeatSection.A_SECTION) {
-            return SeatSection.A_SECTION.getPrice();
-        } else if (section == SeatSection.B_SECTiON) {
-            return SeatSection.B_SECTiON.getPrice();
-        } else if (section == SeatSection.OUTFIELD) {
-            return SeatSection.OUTFIELD.getPrice();
-        } else {
-            throw new StadiumException(StadiumException.StadiumErrorType.SEAT_SECTION_NOT_FOUND);
-        }
-    }
 
 
     private Stadium findStadium(Long stadiumId) {
