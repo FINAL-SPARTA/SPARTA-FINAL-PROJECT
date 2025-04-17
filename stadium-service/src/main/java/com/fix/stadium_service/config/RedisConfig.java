@@ -17,6 +17,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -66,6 +68,13 @@ public class RedisConfig {
                 )
                 .entryTtl(Duration.ofMinutes(120)) // 캐시 수명 120분
                 .disableCachingNullValues(); // null 값은 캐싱하지 않도록 설정
+
+        Map<String,RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+        //TTL 1일
+        cacheConfigs.put("seatSectionsCache",redisCacheConfiguration.entryTtl(Duration.ofDays(1)));
+
+
+
 
 
         //설정된 cacheConfig를 기반으로 RedisCacheManager를 생성

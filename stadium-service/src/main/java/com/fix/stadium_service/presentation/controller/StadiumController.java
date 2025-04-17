@@ -1,6 +1,7 @@
 package com.fix.stadium_service.presentation.controller;
 
 import com.fix.stadium_service.application.dtos.response.*;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,15 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.stadium_service.application.aop.ValidateUser;
-import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.service.StadiumService;
 import com.fix.stadium_service.domain.model.StadiumName;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -87,15 +85,18 @@ public class StadiumController {
 
     }
 
+
+    @GetMapping("/sections")
+    public ResponseEntity<SeatSectionListResponseDto> getSections() {
+        return ResponseEntity.ok(stadiumService.getSeatSections());
+    }
+
+
     @GetMapping("/{home-team}/games")
     public ResponseEntity<StadiumFeignResponse> getStadiumInfo(@PathVariable(name = "home-team") String homeTeam) {
         return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
     }
 
-    @PostMapping("/feign/get-prices")
-    public SeatPriceListResponseDto getPrices(@RequestBody SeatPriceRequestDto request) {
-        return stadiumService.getPrices(request);
-    }
 
     @GetMapping("/feign/{stadiumId}/get-seats-by-section")
     SeatInfoListResponseDto getSeatsBySection(@PathVariable("stadiumId") Long stadiumId,

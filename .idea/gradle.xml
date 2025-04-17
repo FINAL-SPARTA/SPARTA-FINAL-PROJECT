@@ -10,11 +10,13 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/alarm-service" />
+            <option value="$PROJECT_DIR$/chat-service" />
             <option value="$PROJECT_DIR$/common-service" />
             <option value="$PROJECT_DIR$/event-service" />
             <option value="$PROJECT_DIR$/game-service" />
             <option value="$PROJECT_DIR$/gateway-service" />
             <option value="$PROJECT_DIR$/order-service" />
+            <option value="$PROJECT_DIR$/payments-service" />
             <option value="$PROJECT_DIR$/server" />
             <option value="$PROJECT_DIR$/stadium-service" />
             <option value="$PROJECT_DIR$/ticket-service" />
