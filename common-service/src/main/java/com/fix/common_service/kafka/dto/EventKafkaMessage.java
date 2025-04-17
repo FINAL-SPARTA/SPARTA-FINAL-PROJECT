@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventKafkaMessage {
+public class EventKafkaMessage<T> {
     private String eventType;
-    private Object payload;
+    private T payload;
 }
