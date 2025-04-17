@@ -2,21 +2,18 @@ package com.fix.stadium_service.application.service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.stadium_service.application.dtos.response.*;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.stadium_service.application.dtos.request.SeatRequestDto;
 import com.fix.stadium_service.application.dtos.request.SeatUpdateRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
 import com.fix.stadium_service.application.exception.StadiumException;
-import com.fix.stadium_service.application.exception.StadiumException;
+
 import com.fix.stadium_service.domain.model.Seat;
 import com.fix.stadium_service.domain.model.SeatSection;
 import com.fix.stadium_service.domain.model.Stadium;
@@ -24,13 +21,6 @@ import com.fix.stadium_service.domain.model.StadiumName;
 import com.fix.stadium_service.domain.repository.StadiumQueryRepository;
 import com.fix.stadium_service.domain.repository.StadiumRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
