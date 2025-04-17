@@ -128,4 +128,10 @@ public class Event extends Basic {
             this.reward.softDelete(userId);
         }
     }
+
+    public void removeEntry(EventEntry eventEntry) {
+        if (this.entries != null) {
+            this.entries.remove(eventEntry);
+        }
+    }
 }

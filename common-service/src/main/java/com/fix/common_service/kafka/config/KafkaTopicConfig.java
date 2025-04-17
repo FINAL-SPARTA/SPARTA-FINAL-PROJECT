@@ -26,7 +26,7 @@ public class KafkaTopicConfig {
     // User 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.user.point-deduction-failed}") private String userPointDeductionFailedTopic; // SAGA
 
-    @Value("${default-topic.partitions}") private int defaultPartitions;
+    @Value("${spring.kafka.template.default-topic.partitions}") private int defaultPartitions;
     @Value("${default-topic.replicas}") private int defaultReplicas;
 
     // 각 토픽에 대한 NewTopic Bean 정의
