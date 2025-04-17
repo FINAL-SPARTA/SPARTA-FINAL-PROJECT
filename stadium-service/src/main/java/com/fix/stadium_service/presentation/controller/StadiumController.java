@@ -92,10 +92,6 @@ public class StadiumController {
         return ResponseEntity.ok(stadiumService.getStadiumInfoByName(homeTeam));
     }
 
-    @PostMapping("/feign/get-prices")
-    public SeatPriceListResponseDto getPrices(@RequestBody SeatPriceRequestDto request) {
-        return stadiumService.getPrices(request);
-    }
 
     @GetMapping("/feign/{stadiumId}/get-seats-by-section")
     SeatInfoListResponseDto getSeatsBySection(@PathVariable("stadiumId") Long stadiumId,

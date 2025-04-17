@@ -10,6 +10,8 @@
         </processorPath>
         <module name="fix-ticketing.gateway-service.main" />
         <module name="fix-ticketing.server.main" />
+        <module name="fix-ticketing.payments-service.main" />
+        <module name="fix-ticketing.chat-service.main" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
