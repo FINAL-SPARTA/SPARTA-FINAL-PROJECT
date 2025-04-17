@@ -7,7 +7,6 @@ import com.fix.common_service.kafka.dto.PointDeductionFailedPayload;
 import com.fix.event_service.application.service.EventApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,8 @@ public class PointDeductionFailedConsumer extends AbstractKafkaConsumer<PointDed
     }
 
     @Override
-    protected void processPayload(PointDeductionFailedPayload payload) {
+    protected void processPayload(Object rawPayload) {
+        PointDeductionFailedPayload payload = mapPayload(rawPayload, PointDeductionFailedPayload.class);
         log.debug("[Kafka-SAGA] 포인트 차감 실패 이벤트 수신: {}", payload);
         eventApplicationService.cancelEventApply(payload);
     }
