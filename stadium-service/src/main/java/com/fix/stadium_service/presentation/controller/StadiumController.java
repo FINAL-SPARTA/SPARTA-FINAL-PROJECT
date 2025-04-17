@@ -19,12 +19,13 @@ import com.fix.stadium_service.application.aop.ValidateUser;
 import com.fix.stadium_service.application.dtos.request.SeatPriceRequestDto;
 import com.fix.stadium_service.application.dtos.request.StadiumCreateRequest;
 import com.fix.stadium_service.application.dtos.request.StadiumUpdateRequest;
+import com.fix.stadium_service.application.dtos.response.PageResponseDto;
+import com.fix.stadium_service.application.dtos.response.StadiumResponseDto;
 import com.fix.stadium_service.application.service.StadiumService;
 import com.fix.stadium_service.domain.model.StadiumName;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -61,13 +62,12 @@ public class StadiumController {
     @ValidateUser(roles = {"MASTER"})
     @DeleteMapping("/{stadiumId}")
     public ResponseEntity<CommonResponse<Void>> deleteStadium(@PathVariable("stadiumId") Long stadiumId,
-                                                              @RequestHeader("x-user-id") Long userId) {
-        stadiumService.deleteStadium(stadiumId, userId);
+                                                                @RequestHeader("x-user-id")Long userId) {
+        stadiumService.deleteStadium(stadiumId ,userId);
         return ResponseEntity.ok(CommonResponse.success(null, "경기장 삭제 성공"));
 
     }
-
-    @ValidateUser(roles = {"MASTER", "MANAGER"})
+    @ValidateUser(roles = {"MASTER","MANAGER"})
     @PatchMapping("/{stadiumId}")
     public ResponseEntity<CommonResponse<StadiumResponseDto>> updateStadium(
             @PathVariable Long stadiumId,
