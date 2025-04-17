@@ -2,17 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
-      <profile name="Gradle Imported" enabled="true">
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="fix-ticketing.gateway-service.main" />
-        <module name="fix-ticketing.server.main" />
-        <module name="fix-ticketing.payments-service.main" />
-        <module name="fix-ticketing.chat-service.main" />
-      </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
@@ -37,38 +26,17 @@
         <module name="fix-ticketing.common-service.main" />
         <module name="fix-ticketing.event-service.main" />
       </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="fix-ticketing.gateway-service.main" />
+        <module name="fix-ticketing.server.main" />
+        <module name="fix-ticketing.payments-service.main" />
+        <module name="fix-ticketing.chat-service.main" />
+      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="17">
-      <module name="alarm-service" target="17" />
-      <module name="alarm-service.main" target="17" />
-      <module name="alarm-service.test" target="17" />
-      <module name="auth" target="17" />
-      <module name="auth.main" target="17" />
-      <module name="auth.test" target="17" />
-      <module name="common-service" target="17" />
-      <module name="common-service.main" target="17" />
-      <module name="common-service.test" target="17" />
-      <module name="event" target="17" />
-      <module name="event.main" target="17" />
-      <module name="event.test" target="17" />
-      <module name="game-service" target="17" />
-      <module name="game-service.main" target="17" />
-      <module name="game-service.test" target="17" />
-      <module name="gateway" target="17" />
-      <module name="gateway.main" target="17" />
-      <module name="gateway.test" target="17" />
-      <module name="order" target="17" />
-      <module name="order.main" target="17" />
-      <module name="order.test" target="17" />
-      <module name="server" target="17" />
-      <module name="server.main" target="17" />
-      <module name="server.test" target="17" />
-      <module name="stadium-service" target="17" />
-      <module name="stadium-service.main" target="17" />
-      <module name="stadium-service.test" target="17" />
-      <module name="user" target="17" />
-      <module name="user.main" target="17" />
-      <module name="user.test" target="17" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="17" />
   </component>
 </project>

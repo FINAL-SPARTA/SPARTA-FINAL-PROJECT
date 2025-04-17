@@ -26,7 +26,7 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${spring.kafka.consumer.properties.spring.json.trusted.packages}")
@@ -38,9 +38,9 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.listener.ack-mode}")
     private ContainerProperties.AckMode ackMode;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, EventKafkaMessage<?>> kafkaTemplate;
 
-    public KafkaConsumerConfig(KafkaTemplate<String, Object> kafkaTemplate) {
+    public KafkaConsumerConfig(KafkaTemplate<String, EventKafkaMessage<?>> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -53,11 +53,11 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         // Value Deserializer: JSON 사용 + 에러 핸들링 추가
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class); // 에러 핸들링 Deserializer 사용
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName()); // 실제 사용할 Deserializer 지정
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class); // 실제 사용할 Deserializer 지정
         // JsonDeserializer 설정
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages); // 신뢰 패키지 설정 (중요!)
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, EventKafkaMessage.class.getName()); // 기본 역직렬화 타입
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, "false"); // 타입 헤더 사용 안 함
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, "true");
 
         // Offset 관리 및 커밋 설정
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // 처음 연결 시 가장 오래된 메시지부터
@@ -76,7 +76,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, EventKafkaMessage<?>> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        // Ack 모드 설정 (application.yml 에서 주입받은 값 사용)
+        //  Ack 모드 설정 (application.yml 에서 주입받은 값 사용)
         factory.getContainerProperties().setAckMode(ackMode);
         // factory.setConcurrency(3); // 동시에 실행할 컨슈머 스레드 수 (파티션 수에 맞추거나 조절)
 

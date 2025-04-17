@@ -1,0 +1,34 @@
+{
+  "properties": [
+    {
+      "name": "kafka-topic.ticket.reserved",
+      "type": "java.lang.String",
+      "description": "Reserved ticket topic name"
+    },
+    {
+      "name": "kafka-topic.ticket.updated",
+      "type": "java.lang.String",
+      "description": "Updated ticket topic name"
+    },
+    {
+      "name": "kafka-topic.order.created",
+      "type": "java.lang.String",
+      "description": "Order created topic name"
+    },
+    {
+      "name": "kafka-topic.order.creation-failed",
+      "type": "java.lang.String",
+      "description": "Order creation failed topic name"
+    },
+    {
+      "name": "kafka-topic.event.applied",
+      "type": "java.lang.String",
+      "description": "Event applied topic name"
+    },
+    {
+      "name": "kafka-topic.user.point-deduction-failed",
+      "type": "java.lang.String",
+      "description": "User point deduction failed topic name"
+    }
+  ]
+}

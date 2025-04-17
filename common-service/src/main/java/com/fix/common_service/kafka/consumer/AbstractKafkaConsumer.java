@@ -1,5 +1,6 @@
 package com.fix.common_service.kafka.consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fix.common_service.kafka.dto.EventKafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,5 +44,9 @@ public abstract class AbstractKafkaConsumer<T> {
         }
         log.info("[Kafka] 이벤트 처리 성공. Key: {}", messageKey);
     }
-    protected abstract void processPayload(T payload);
+    protected abstract void processPayload(Object payload);
+
+    protected <T> T mapPayload(Object rawPayload, Class<T> clazz) {
+        return new ObjectMapper().convertValue(rawPayload, clazz);
+    }
 }
