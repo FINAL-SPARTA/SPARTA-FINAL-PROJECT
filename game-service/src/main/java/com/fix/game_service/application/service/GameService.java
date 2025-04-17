@@ -2,17 +2,14 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
-import com.fix.common_service.dto.EventKafkaMessage;
-import com.fix.common_service.dto.StadiumFeignResponse;
-import com.fix.common_service.dto.TicketUpdatedPayload;
-
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 
+import com.fix.common_service.dto.StadiumFeignResponse;
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.request.GameStatusUpdateRequest;
@@ -148,40 +145,6 @@ public class GameService {
 			newRemainingSeats = game.getRemainingSeats() + quantity;
 		}
 
-		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
-
-		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
-	}
-
-	/**
-	 * 잔여좌석 업데이트
-	 * @param message : 업데이트할 경기와 좌석 정보
-	 */
-	@Transactional
-	public void updateGameSeatsByConsumer(EventKafkaMessage message) {
-		log.info("[Kafka] TICKET_UPDATED 이벤트 수신 : {}", message.getEventType());
-
-		// 수정할 경기 내용 가져오기
-		TicketUpdatedPayload payload = (TicketUpdatedPayload) message.getPayload();
-		// 해당 경기 탐색
-		Game game = findGame(payload.getGameId());
-
-		// 전체 좌석
-		Integer totalSeats = game.getTotalSeats();
-		// 좌석을 변경할 수량
-		int quantity = payload.getQuantity();
-
-		// 잔여 좌석
-		Integer newRemainingSeats;
-
-		// 경기의 잔여 좌석에 따라서 잔여좌석 표시 상태 변경
-		if (game.getRemainingSeats() == null) {
-			newRemainingSeats = game.getTotalSeats() + quantity;
-		} else {
-			newRemainingSeats = game.getRemainingSeats() + quantity;
-		}
-
-		// 예매율 계산
 		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
 
 		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
