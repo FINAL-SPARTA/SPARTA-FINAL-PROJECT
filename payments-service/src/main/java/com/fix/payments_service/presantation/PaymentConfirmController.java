@@ -1,5 +1,6 @@
 package com.fix.payments_service.presantation;
 
+import com.fix.payments_service.application.PaymentEventService;
 import com.fix.payments_service.domain.TossPayment;
 import com.fix.payments_service.domain.TossPaymentFailure;
 import com.fix.payments_service.domain.repository.TossPaymentFailureRepository;
@@ -26,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class PaymentConfirmController {
     private final OrderServiceClient orderServiceClient;
     private final TossPaymentRepository tossPaymentRepository;
     private final TossPaymentFailureRepository tossPaymentFailureRepository;
+    private final PaymentEventService paymentEventService;
 
     // ✅ application.yml 설정 기반으로 주입받음
     @Value("${api.key}")
@@ -79,6 +82,9 @@ public class PaymentConfirmController {
                     .build();
 
             tossPaymentRepository.save(payment);
+
+            // ✅ Kafka 이벤트 발행
+            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
 
             try {
                 orderServiceClient.completeOrder(orderId);

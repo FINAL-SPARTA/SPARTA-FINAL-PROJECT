@@ -1,5 +1,6 @@
 package com.fix.payments_service.presantation;
 
+import com.fix.payments_service.application.PaymentEventService;
 import com.fix.payments_service.application.dtos.request.TossCancelRequestDto;
 import com.fix.payments_service.application.dtos.response.TossCancelResponseDto;
 import com.fix.payments_service.domain.repository.TossPaymentRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ import java.util.Base64;
 public class PaymentCancelController {
 
     private final TossPaymentRepository tossPaymentRepository;
+    private final PaymentEventService paymentEventService;
 
     @Value("${toss.secret-key}")
     private String secretKey;
@@ -60,6 +63,9 @@ public class PaymentCancelController {
                     payment.updateStatus(response.getStatus()); // TossPaymentStatus.CANCELED
                     log.info("✅ TossPayment 상태 보정 완료");
                 });
+
+        // ✅ Kafka 이벤트 발행
+        paymentEventService.sendPaymentCancelled(UUID.fromString(orderId));
 
         // ✅ 주문 상태 CANCELLED 처리 (order-service 연동)
         try {

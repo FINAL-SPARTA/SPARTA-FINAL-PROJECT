@@ -10,6 +10,10 @@ dependencies {
 	implementation 'com.h2database:h2'
 	// ✅ JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// ✅ Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
