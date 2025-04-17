@@ -1,5 +1,6 @@
 package com.fix.event_service.application.service;
 
+import com.fix.common_service.kafka.dto.PointDeductionFailedPayload;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
 import com.fix.event_service.application.dtos.response.*;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,12 +65,12 @@ public class EventApplicationService {
 
         event.isEventOpenForApplication();
 
-        // 기존의 Feign 호출 제거, 대신 Kafka 이벤트 발행
-        eventProducer.sendEventApplyRequest(eventId, userId, event.getRequiredPoints());
-
         EventEntry entry = EventEntry.createEventEntry(event, userId);
 
         event.addEntry(entry);
+
+        // 기존의 Feign 호출 제거, 대신 Kafka 이벤트 발행
+        eventProducer.sendEventApplyRequest(eventId, userId, event.getRequiredPoints(), entry.getEntryId());
     }
 
     @Transactional(readOnly = true)
@@ -149,6 +151,17 @@ public class EventApplicationService {
             winners.size(),
             remaining
         );
+    }
+
+    @Transactional
+    public void cancelEventApply(PointDeductionFailedPayload payload) {
+        Event event = findEventById(payload.getEventId());
+
+        Optional<EventEntry> entryToRemove = event.getEntries().stream()
+                .filter(e -> e.getEntryId().equals(payload.getEventEntryId()) && e.getUserId().equals(payload.getUserId()))
+                .findFirst();
+
+        entryToRemove.ifPresent(event::removeEntry);
     }
 
     @Transactional
