@@ -1,5 +1,6 @@
 package com.fix.stadium_service.application.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -102,6 +103,13 @@ public class StadiumService {
         long totalCount = stadiumQueryRepository.countByStadiumName(stadiumName);
         return new PageResponseDto(stadiums, page, size, totalCount);
 
+    }
+
+    public SeatSectionListResponseDto getSeatSections(){
+        List<String> sections = Arrays.stream(SeatSection.values())
+                                .map(Enum::name)
+                                .toList();
+        return new SeatSectionListResponseDto(sections);
     }
 
 

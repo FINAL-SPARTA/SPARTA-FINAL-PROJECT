@@ -84,7 +84,11 @@ public class StadiumController {
         PageResponseDto response = stadiumService.searchStadiums(stadiumName, page, size);
         return ResponseEntity.ok(CommonResponse.success(response, "구장명으로 경기장 검색 성공"));
 
+    }
 
+    @GetMapping("/sections")
+    public ResponseEntity<SeatSectionListResponseDto> getSections(){
+        return ResponseEntity.ok(stadiumService.getSeatSections());
     }
 
     @GetMapping("/{home-team}/games")
