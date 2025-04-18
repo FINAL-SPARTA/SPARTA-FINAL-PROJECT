@@ -33,7 +33,7 @@ public class EventController {
     public ResponseEntity<CommonResponse<Void>> applyEvent(
         @PathVariable("eventId") UUID eventId, @RequestHeader("x-user-id") Long userId) {
         eventApplicationService.applyEvent(eventId, userId);
-        return ResponseEntity.ok(CommonResponse.success(null, "이벤트 응모 성공"));
+        return ResponseEntity.ok(CommonResponse.success(null, "이벤트 응모 신청 성공"));
     }
 
     // ✅ 이벤트 단건 상세 조회 API
