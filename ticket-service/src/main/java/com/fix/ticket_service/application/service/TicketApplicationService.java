@@ -46,13 +46,17 @@ public class TicketApplicationService {
 
     private static final long RESERVED_TTL_SECONDS = 180L; // 예약 상태 TTL (3분)
     private static final long SOLD_TTL_SECONDS = 86400L; // SOLD 상태 TTL (24시간) , 더 길어야 하나? 예매가 얼마나 오래 진행되지..
+    private static final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 
-    public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId) {
+    public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId, String token) {
+        // 1) 큐 토큰 검증
+        validateQueueToken(token);
+
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         List<UUID> seatIds = request.getSeatInfoList().stream()
                 .map(TicketInfoRequestDto::getSeatId)
                 .toList();
-        // 1) Redisson 분산락 적용
+        // 2) Redisson 분산락 적용
         List<RLock> locks = seatIds.stream()
                 .map(seatId -> redissonClient.getLock("seat:" + seatId.toString()))
                 .toList();
@@ -68,7 +72,7 @@ public class TicketApplicationService {
             }
             log.info("좌석 락 획득 성공: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
 
-            // 2) 중복 예매 방지 (Redis 캐시 검사)
+            // 3) 중복 예매 방지 (Redis 캐시 검사)
             for (UUID seatId : seatIds) {
                 String redisKey = getSeatKey(seatId);
                 String status = redisTemplate.opsForValue().get(redisKey);
@@ -77,7 +81,7 @@ public class TicketApplicationService {
                 }
             }
 
-            // 3) 중복 예매 방지 (DB 검사) : 이중 방어
+            // 4) 중복 예매 방지 (DB 검사) : 이중 방어
             List<Ticket> existingTickets =
                     ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
                             seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
@@ -85,23 +89,23 @@ public class TicketApplicationService {
                 throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
             }
 
-            // 4) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
+            // 5) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
             List<Ticket> ticketsToSave = new ArrayList<>();
             for (TicketInfoRequestDto seatInfo : request.getSeatInfoList()) {
                 Ticket ticket = Ticket.create(userId, request.getGameId(), seatInfo.getSeatId(), seatInfo.getPrice());
                 ticketsToSave.add(ticket);
                 responseDtoList.add(new TicketReserveResponseDto(ticket));
             }
-            // 5) 티켓 정보 일괄 저장
+            // 6) 티켓 정보 일괄 저장
             ticketRepository.saveAll(ticketsToSave);
 
-            // 6) Redis 캐시에 예약 상태 저장 (TTL = 3분)
+            // 7) Redis 캐시에 예약 상태 저장 (TTL = 3분)
             for (UUID seatId : seatIds) {
                 String redisKey = getSeatKey(seatId);
                 redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
             }
 
-            // 7) 티켓 예매 이벤트 발행 (주문 생성 요청)
+            // 8) 티켓 예매 이벤트 발행 (주문 생성 요청)
             ticketProducer.sendTicketReservedEvent(ticketsToSave, userId);
 
         } catch (InterruptedException e) {
@@ -117,6 +121,7 @@ public class TicketApplicationService {
 
         return responseDtoList;
     }
+
     @Transactional(readOnly = true)
     public TicketDetailResponseDto getTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
@@ -263,5 +268,20 @@ public class TicketApplicationService {
 
     private String getSeatKey(UUID seatId) {
         return "ticketStatus:" + seatId.toString();
+    }
+
+    private void validateQueueToken(String token) {
+        // 큐 토큰이 null 이거나 비어있는 경우 예외 처리
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("큐 토큰이 필요합니다.");
+        }
+
+        // 큐 토큰이 Redis 에 존재하는지 확인 (존재하지 않는다면 TTL 이 만료된 것)
+        String redisKey = WORKING_QUEUE_KEY_PREFIX + token;
+        if (!redisTemplate.hasKey(redisKey)) {
+            throw new IllegalArgumentException("큐 토큰이 유효하지 않습니다.");
+        }
+
+        redisTemplate.delete(redisKey); // 토큰 사용 후 Redis 에서 삭제
     }
 }

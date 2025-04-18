@@ -24,8 +24,9 @@ public class TicketController {
     @PostMapping("/reserve")
     public ResponseEntity<CommonResponse<List<TicketReserveResponseDto>>> reserveTicket(
         @RequestBody TicketReserveRequestDto request,
-        @RequestHeader("x-user-id") Long userId) {
-        List<TicketReserveResponseDto> responseDto = ticketApplicationService.reserveTicket(request, userId);
+        @RequestHeader("x-user-id") Long userId,
+        @RequestHeader("QueueToken") String queueToken) {
+        List<TicketReserveResponseDto> responseDto = ticketApplicationService.reserveTicket(request, userId, queueToken);
         return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 예약 성공"));
     }
 
