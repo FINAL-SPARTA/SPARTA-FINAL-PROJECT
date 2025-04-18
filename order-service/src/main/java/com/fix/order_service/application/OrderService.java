@@ -1,7 +1,6 @@
 package com.fix.order_service.application;
 
-
-import com.fix.common_service.dto.OrderCancelledPayload;
+import com.fix.common_service.kafka.dto.OrderCancelledPayload;
 import com.fix.order_service.application.dtos.request.OrderSearchCondition;
 import com.fix.order_service.application.dtos.request.OrderUpdateRequest;
 import com.fix.order_service.application.dtos.response.OrderDetailResponse;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -32,6 +30,7 @@ public class OrderService {
     private final TicketClient ticketClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final OrderProducer orderProducer;
+
 //    단건 조회
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(UUID orderId) {
@@ -102,7 +101,7 @@ public class OrderService {
 
         // ✅ Kafka 이벤트 발행 (orderId만 전달)
         OrderCancelledPayload payload = new OrderCancelledPayload(order.getOrderId());
-        orderProducer.sendOrderCancelledEvent(payload);
+        orderProducer.sendOrderCancelledEvent(payload.getOrderId().toString(), payload);
 
         // 티켓 상태도 CANCELLED로 변경 요청
         ticketClient.cancelTicketStatus(orderId);

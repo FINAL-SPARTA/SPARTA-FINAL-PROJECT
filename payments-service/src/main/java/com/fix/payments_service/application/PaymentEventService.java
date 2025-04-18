@@ -1,7 +1,7 @@
 package com.fix.payments_service.application;
 
-import com.fix.common_service.dto.PaymentCancelledPayload;
-import com.fix.common_service.dto.PaymentCompletedPayload;
+import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
+import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
 import com.fix.payments_service.infrastructure.kafka.PaymentProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
