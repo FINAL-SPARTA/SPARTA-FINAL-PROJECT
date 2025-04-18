@@ -244,6 +244,19 @@ public class TicketApplicationService {
     }
 
     @Transactional
+    public void deleteTickets(List<UUID> ticketIds) {
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+
+        // 티켓이 존재하지 않거나, 요청한 게임 ID와 일치하지 않는 경우 예외 처리
+        if (tickets.isEmpty()) {
+            throw new IllegalArgumentException("삭제할 수 있는 티켓이 없습니다.");
+        }
+
+        // 티켓 삭제
+        ticketRepository.deleteAll(tickets);
+    }
+
+    @Transactional
     public void deleteReservedTickets() {
         ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
     }

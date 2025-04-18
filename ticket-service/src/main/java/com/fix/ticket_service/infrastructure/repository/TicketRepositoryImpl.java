@@ -104,4 +104,9 @@ public class TicketRepositoryImpl implements TicketRepository {
     public List<Ticket> findByGameIdAndSeatIdInAndStatusIn(UUID gameId, List<UUID> seatIdsInSection, List<TicketStatus> statusesToFetch) {
         return jpaTicketRepository.findByGameIdAndSeatIdInAndStatusIn(gameId, seatIdsInSection, statusesToFetch);
     }
+
+    @Override
+    public void deleteAll(List<Ticket> tickets) {
+        jpaTicketRepository.deleteAll(tickets);
+    }
 }

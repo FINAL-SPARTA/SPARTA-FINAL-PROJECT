@@ -9,7 +9,6 @@ import com.fix.ticket_service.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +21,9 @@ public class TicketProducer {
 
     private final KafkaProducerHelper kafkaProducerHelper;
 
-    @Value("${kafka.topics.ticket.reserved}")
+    @Value("${kafka-topics.ticket.reserved}")
     private String ticketReservedTopic;
-    @Value("${kafka.topics.ticket.updated}")
+    @Value("${kafka-topics.ticket.updated}")
     private String ticketUpdatedTopic;
 
     public void sendTicketReservedEvent(List<Ticket> tickets, Long userId) {

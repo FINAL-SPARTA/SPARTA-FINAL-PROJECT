@@ -28,4 +28,6 @@ public interface TicketRepository {
     void saveAll(List<Ticket> ticketsToSave);
 
     List<Ticket> findByGameIdAndSeatIdInAndStatusIn(UUID gameId, List<UUID> seatIdsInSection, List<TicketStatus> statusesToFetch);
+
+    void deleteAll(List<Ticket> tickets);
 }
