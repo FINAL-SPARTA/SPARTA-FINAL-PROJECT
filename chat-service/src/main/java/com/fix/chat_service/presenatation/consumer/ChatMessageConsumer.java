@@ -3,10 +3,11 @@ package com.fix.chat_service.presenatation.consumer;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.json.JSONObject;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.chat_service.application.dtos.ChatMessage;
 import com.fix.chat_service.infrastructure.handler.CustomWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -18,17 +19,18 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatMessageConsumer {
 
 	private final CustomWebSocketHandler webSocketHandler;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * 토픽으로 메시지 전송
 	 * @param message : 받은 메시지 해당 채팅방으로 전달
 	 */
 	@KafkaListener(topics = "chat-message", groupId = "chat-service")
-	public void consume(String message) throws IOException {
-		JSONObject json = new JSONObject(message);
-		String chatIdStr = json.getString("chatId");
+	public void consumeMessage(ChatMessage message) throws IOException {
+		// 로그 저장 등의 로직이 필요하다면 ChatMessage로 캐스팅 과정 필요
+		// ChatMessage chatMessage = objectMapper.readValue(message, ChatMessage.class);
 
 		// 메시지 브로드캐스트
-		webSocketHandler.broadcastMessage(UUID.fromString(chatIdStr), message);
+		webSocketHandler.broadcastMessage(UUID.fromString(message.getChatId()), message);
 	}
 }
