@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -140,11 +140,9 @@ public class QueueService {
 		try {
 			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
 			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				throw new GameException(GAME_WAITING_ERROR);
-			}
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			throw new GameException(GAME_WAITING_ERROR);
 		} finally {
 			// 토큰(substring 된 상태)을 헤더에 담기
 			HttpHeaders headers = new HttpHeaders();

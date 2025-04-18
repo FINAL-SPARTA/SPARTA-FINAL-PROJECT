@@ -2,14 +2,19 @@ package com.fix.game_service.infrastructure.config;
 
 import java.util.concurrent.Executor;
 
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@Configuration
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @EnableAsync
-public class AsyncConfig {
+@Configuration
+public class AsyncConfig implements AsyncConfigurer {
 
 	@Bean(name = "queueExecutor")
 	public Executor queueExecutor() {
@@ -28,6 +33,18 @@ public class AsyncConfig {
 		executor.initialize();
 		// 반환
 		return executor;
+	}
+
+	/**
+	 * 비동기 에외 처리를 위한 핸들러
+	 * @return : 예외 처리
+	 */
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		return (throwable, method, params) -> {
+			log.error("비동기 예외 발생 - 메서드: {} 파라미터: {}", method.getName(), params, throwable);
+			// 해당 오류 로그 저장 및 모니터링에 추가 가능
+		};
 	}
 
 }
