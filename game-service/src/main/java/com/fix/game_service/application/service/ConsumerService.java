@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fix.common_service.dto.EventKafkaMessage;
-import com.fix.common_service.dto.TicketUpdatedPayload;
+import com.fix.common_service.kafka.dto.EventKafkaMessage;
+import com.fix.common_service.kafka.dto.TicketUpdatedPayload;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
