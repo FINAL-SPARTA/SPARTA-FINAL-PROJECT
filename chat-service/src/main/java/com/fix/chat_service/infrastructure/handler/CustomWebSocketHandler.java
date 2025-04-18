@@ -7,13 +7,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.chat_service.application.dtos.ChatMessage;
 import com.fix.chat_service.presenatation.producer.ChatMessageProducer;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	private final Map<UUID, List<WebSocketSession>> chatRooms = new ConcurrentHashMap<>();
 	// 채팅 생성
 	private final ChatMessageProducer producer;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * 초반 WebSocket 세션 연결
@@ -50,9 +52,10 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		UUID chatId = getChatId(session);
-		JSONObject payload = new JSONObject(message.getPayload());
-		payload.put("chatId", chatId);
-		producer.sendMessage("chat-message", payload.toString());
+		ChatMessage chatMessage = objectMapper.readValue(message.getPayload(), ChatMessage.class);
+		chatMessage.setMessageType("USER");
+		chatMessage.setChatId(chatId.toString());
+		producer.sendMessage("chat-message", chatMessage);
 	}
 
 	/**
@@ -60,13 +63,14 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	 * @param chatId : 채팅방 ID
 	 * @param message : 전달할 메시지
 	 */
-	public void broadcastMessage(UUID chatId, String message) throws IOException {
+	public void broadcastMessage(UUID chatId, ChatMessage message) throws IOException {
 		List<WebSocketSession> sessions = chatRooms.get(chatId);
+		String chatMessage = objectMapper.writeValueAsString(message);
 
 		if (sessions != null) {
 			for (WebSocketSession session : sessions) {
 				if (session.isOpen()) {
-					session.sendMessage(new TextMessage(message));
+					session.sendMessage(new TextMessage(chatMessage));
 				}
 			}
 		}
