@@ -7,7 +7,7 @@ import org.apache.kafka.common.header.Headers;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import com.fix.common_service.dto.EventKafkaMessage;
+import com.fix.common_service.kafka.dto.EventKafkaMessage;
 import com.fix.game_service.application.service.ConsumerService;
 
 import lombok.RequiredArgsConstructor;
