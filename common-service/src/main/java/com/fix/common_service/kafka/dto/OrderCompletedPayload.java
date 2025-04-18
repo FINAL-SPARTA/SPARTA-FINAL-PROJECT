@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreatedPayload {
+public class OrderCompletedPayload {
     private UUID orderId;
     private List<UUID> ticketIds;
 }
