@@ -1,58 +1,64 @@
 package com.fix.alarm_service.application.service;
 
-import com.fix.alarm_service.application.dtos.request.AligoSmsRequestDto;
 import com.fix.alarm_service.application.dtos.response.PhoneNumberResponseDto;
 import com.fix.alarm_service.infrastructure.UserClient;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+import software.amazon.awssdk.services.sns.model.SnsException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AlarmService {
 
-    @Value("${aligo.api-url}")
-    private String apiUrl;
-    @Value("${aligo.key}")
-    private String apiKey;
-    @Value("${aligo.user-id}")
-    private String userId;
-    @Value("${aligo.sender}")
-    private String sender;
-
     private final UserClient userClient;
+    private final SnsClient snsClient;
+
 
     public PhoneNumberResponseDto getPhoneNumber(Long userId){
         return userClient.getPhoneNumber(userId);
     }
 
-    public String sendSms(AligoSmsRequestDto requestDto){
-        RestTemplate restTemplate = new RestTemplate();
 
-        HttpHeaders headers = new HttpHeaders();
 
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    public String sendSns(String rawPhoneNumber, String message){
 
-        MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
-        params.add("key",apiKey);
-        params.add("user_id",userId);
-        params.add("sender",sender);
-        params.add("receiver",requestDto.getReceiver());
-        params.add("msg",requestDto.getMsg());
-        params.add("msg_type","SMS");
+        try{
+            String formattedPhoneNumber = formatPhoneNumber(rawPhoneNumber);
 
-        HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(params,headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(apiUrl + "/msg" ,entity, String.class );
-        return response.getBody();
+            PublishRequest request = PublishRequest.builder()
+                    .message(message)
+                    .phoneNumber(formattedPhoneNumber)
+                    .build();
+
+            PublishResponse response = snsClient.publish(request);
+
+            log.info("SNS 발송 성공: {}", response.messageId());
+            return response.messageId();
+        } catch (SnsException e){
+            log.error("SNS 발송 실패 : {}", e.awsErrorDetails().errorMessage());
+            throw new RuntimeException("SNS 발송 중 오류가 발생했습니다.");
+
+        }
     }
+
+
+    private String formatPhoneNumber(String rawPhoneNumber){
+        if(rawPhoneNumber == null || rawPhoneNumber.isBlank()){
+            throw new IllegalArgumentException("전화번호가 유효하지 않습니다") ;//TODO 공통 예외처리하기
+
+        }
+        return rawPhoneNumber.startsWith("0")
+                ? "+82" +rawPhoneNumber.substring(1)
+                : rawPhoneNumber;
+
+    }
+
 
 
 

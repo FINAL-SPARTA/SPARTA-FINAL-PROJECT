@@ -4,6 +4,7 @@ import com.fix.alarm_service.application.dtos.request.AligoSmsRequestDto;
 import com.fix.alarm_service.application.dtos.response.PhoneNumberResponseDto;
 import com.fix.alarm_service.application.service.AlarmService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class AlarmController {
     private final AlarmService alarmService;
 
-    @GetMapping("/{userId}")
-    public PhoneNumberResponseDto getPhoneNumber(@PathVariable("userId") Long userId) {
-        return alarmService.getPhoneNumber(userId);
-    }
 
-    @PostMapping("/send")
-    public String sendSms(@RequestBody AligoSmsRequestDto requestDto){
-        return alarmService.sendSms(requestDto);
+    @PostMapping
+    public ResponseEntity<String> sendSns(@RequestParam Long userId, @RequestParam String msg){
+        String phoneNumber = alarmService.getPhoneNumber(userId).getPhoneNumber();
+        String result = alarmService.sendSns(phoneNumber,msg);
+        return ResponseEntity.ok("메세지 ID:" + result);
     }
-
 
 }
