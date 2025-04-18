@@ -16,9 +16,13 @@ public class KafkaTopicConfig {
     // Order 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.order.created}") private String orderCreatedTopic;
     @Value("${kafka-topics.order.creation-failed}") private String orderCreationFailedTopic; // SAGA
+    @Value("${kafka-topics.order.completed}") private String orderCompletedTopic;
+    @Value("${kafka-topics.order.completion-failed}") private String orderCompletionFailedTopic; // SAGA
+    @Value("${kafka-topics.order.canceled}") private String orderCanceledTopic;
 
     // payment 에서 발행하는 이벤트 토픽
-    // ...
+    @Value("${kafka-topics.payment.completed}") private String paymentCompletedTopic;
+    @Value("${kafka-topics.payment.completion-failed}") private String paymentCompletionFailedTopic; // SAGA
 
     // Event 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.event.applied}") private String eventAppliedTopic;
@@ -58,6 +62,46 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic orderCreationFailed() {
         return TopicBuilder.name(orderCreationFailedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic orderCompleted() {
+        return TopicBuilder.name(orderCompletedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic orderCompletionFailed() {
+        return TopicBuilder.name(orderCompletionFailedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic orderCanceled() {
+        return TopicBuilder.name(orderCanceledTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic paymentCompleted() {
+        return TopicBuilder.name(paymentCompletedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic paymentCompletionFailed() {
+        return TopicBuilder.name(paymentCompletionFailedTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
