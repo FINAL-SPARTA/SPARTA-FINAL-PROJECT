@@ -36,7 +36,7 @@ public class Event extends Basic {
     @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Reward reward;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<EventEntry> entries = new ArrayList<>();
 
     @Builder
@@ -131,6 +131,7 @@ public class Event extends Basic {
 
     public void removeEntry(EventEntry eventEntry) {
         if (this.entries != null) {
+            eventEntry.setEvent(null);
             this.entries.remove(eventEntry);
         }
     }
