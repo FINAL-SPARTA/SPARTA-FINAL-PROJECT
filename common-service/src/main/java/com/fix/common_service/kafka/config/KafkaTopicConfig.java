@@ -23,7 +23,7 @@ public class KafkaTopicConfig {
     // payment 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.payment.completed}") private String paymentCompletedTopic;
     @Value("${kafka-topics.payment.completion-failed}") private String paymentCompletionFailedTopic; // SAGA
-
+    @Value("${kafka-topics.payment.cancelled}") private String paymentCancelledTopic;
     // Event 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.event.applied}") private String eventAppliedTopic;
 
@@ -102,6 +102,14 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic paymentCompletionFailed() {
         return TopicBuilder.name(paymentCompletionFailedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic paymentCancelled() {
+        return TopicBuilder.name(paymentCancelledTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();

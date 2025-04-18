@@ -1,6 +1,8 @@
 package com.fix.order_service.application;
 
-import com.fix.common_service.dto.OrderCreatedPayload;
+import com.fix.common_service.kafka.dto.OrderCompletedPayload;
+import com.fix.common_service.kafka.dto.OrderCreatedPayload;
+import com.fix.common_service.kafka.dto.OrderFailedPayload;
 import com.fix.order_service.application.dtos.request.FeignOrderCreateRequest;
 import com.fix.order_service.application.dtos.request.FeignTicketReserveDto;
 import com.fix.order_service.application.dtos.request.FeignTicketSoldRequest;
@@ -29,6 +31,7 @@ public class OrderFeignService {
     private final TicketClient ticketClient;
     private final OrderHistoryRedisService orderHistoryRedisService;
     private final OrderProducer orderProducer;
+
     /**
      * ticket-service에서 예약된 티켓 리스트를 전달받아 주문을 생성하고,
      * 해당 티켓들의 상태를 SOLD로 변경 요청함
@@ -37,71 +40,87 @@ public class OrderFeignService {
      */
     @Transactional
     public void createOrderFromTicket(FeignOrderCreateRequest request) {
-        List<FeignTicketReserveDto> tickets = request.getTicketDtoList();
+        UUID orderId = UUID.randomUUID();
 
-        // [1] 유효성 검사
-        if (tickets == null || tickets.isEmpty()) {
-            throw new OrderException(OrderException.OrderErrorType.TICKET_NOT_FOUND);
+        try {
+            List<FeignTicketReserveDto> tickets = request.getTicketDtoList();
+
+            // [1] 유효성 검사
+            if (tickets == null || tickets.isEmpty()) {
+                throw new OrderException(OrderException.OrderErrorType.TICKET_NOT_FOUND);
+            }
+
+            // [2] 공통 필드 추출 (모든 티켓이 같은 userId/gameId를 가진다고 가정)
+            Long userId = tickets.get(0).getUserId();
+            UUID gameId = tickets.get(0).getGameId();
+
+            // ✅ 총 가격 계산 (price 합산)
+            int totalPrice = tickets.stream()
+                    .mapToInt(FeignTicketReserveDto::getPrice)
+                    .sum();
+
+            // [3] 주문 생성
+            Order order = Order.builder()
+                    .orderId(orderId)
+                    .userId(userId)
+                    .gameId(gameId)
+                    .orderStatus(OrderStatus.CREATED)
+                    .peopleCount(tickets.size())
+                    .totalPrice(totalPrice)
+                    .build();
+
+            // [4] 주문 저장
+            orderRepository.save(order);
+
+            // 유저별 최근 주문 내역 Redis에 저장
+            orderHistoryRedisService.saveRecentOrder(userId, OrderSummaryDto.builder()
+                    .orderId(order.getOrderId())
+                    .gameId(order.getGameId())
+                    .peopleCount(order.getPeopleCount())
+                    .totalPrice(order.getTotalPrice())
+                    .createdAt(order.getCreatedAt())
+                    .build());
+
+            // [5] 티켓 ID 추출
+            List<UUID> ticketIds = tickets.stream()
+                    .map(FeignTicketReserveDto::getTicketId)
+                    .toList();
+
+
+            // [6] 티켓 상태 SOLD로 변경 요청
+            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds)); // ✅ 통합된 호출출
+            // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
+            OrderCreatedPayload payload = new OrderCreatedPayload(order.getOrderId(), ticketIds);
+            orderProducer.sendOrderCreatedEvent(payload.getOrderId().toString(), payload);
+
+        } catch (Exception e) {
+            OrderFailedPayload failedPayload = new OrderFailedPayload(orderId);
+            orderProducer.sendOrderCreationFailedEvent(orderId.toString(), failedPayload);
+            throw e;
         }
-
-        // [2] 공통 필드 추출 (모든 티켓이 같은 userId/gameId를 가진다고 가정)
-        Long userId = tickets.get(0).getUserId();
-        UUID gameId = tickets.get(0).getGameId();
-
-        // ✅ 총 가격 계산 (price 합산)
-        int totalPrice = tickets.stream()
-                .mapToInt(FeignTicketReserveDto::getPrice)
-                .sum();
-
-        // [3] 주문 생성
-        Order order = Order.create(
-                userId,
-                gameId,
-                OrderStatus.CREATED,
-                tickets.size(), // peopleCount
-                totalPrice       // ✅ 가격 반영
-        );
-
-        // [4] 주문 저장
-        orderRepository.save(order);
-
-        // 유저별 최근 주문 내역 Redis에 저장
-        orderHistoryRedisService.saveRecentOrder(
-                userId,
-                OrderSummaryDto.builder()
-                        .orderId(order.getOrderId())
-                        .gameId(order.getGameId())
-                        .peopleCount(order.getPeopleCount())
-                        .totalPrice(order.getTotalPrice())
-                        .createdAt(order.getCreatedAt()) // Basic 상속 필드 사용
-                        .build()
-        );
-
-        // [5] 티켓 ID 추출
-        List<UUID> ticketIds = tickets.stream()
-                .map(FeignTicketReserveDto::getTicketId)
-                .toList();
-
-
-        // [6] 티켓 상태 SOLD로 변경 요청
-        ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds)); // ✅ 통합된 호출출
-        // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
-        OrderCreatedPayload payload = new OrderCreatedPayload(
-                order.getOrderId(),
-                ticketIds
-        );
-        orderProducer.sendOrderCreatedEvent(payload);
     }
 
     @Transactional
     public void completeOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
+        try {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
 
-        order.complete(); // ✅ 상태 변경
-        // redis 캐시 무효화 등 필요 시 처리 가능
+            order.complete();
+
+            OrderCompletedPayload payload = new OrderCompletedPayload(
+                    order.getOrderId(),
+                    order.getGameId(),
+                    order.getUserId()
+            );
+            orderProducer.sendOrderCompletedEvent(payload.getOrderId().toString(), payload);
+
+        } catch (Exception e) {
+            OrderFailedPayload failedPayload = new OrderFailedPayload(orderId);
+            orderProducer.sendOrderCompletionFailedEvent(orderId.toString(), failedPayload);
+            throw e;
+        }
     }
-
 }
 //예약된 티켓 → 주문 생성 → 상태 변경
 //ticket-service

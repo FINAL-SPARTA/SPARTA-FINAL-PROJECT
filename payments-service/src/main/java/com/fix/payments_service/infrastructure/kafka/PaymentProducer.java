@@ -1,7 +1,7 @@
 package com.fix.payments_service.infrastructure.kafka;
 
-import com.fix.common_service.dto.PaymentCancelledPayload;
-import com.fix.common_service.dto.PaymentCompletedPayload;
+import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
+import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
