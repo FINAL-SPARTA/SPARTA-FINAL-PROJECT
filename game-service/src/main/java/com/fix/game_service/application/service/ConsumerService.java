@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fix.common_service.kafka.dto.EventKafkaMessage;
 import com.fix.common_service.kafka.dto.TicketUpdatedPayload;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
@@ -22,11 +21,7 @@ public class ConsumerService {
 	private final GameRepository gameRepository;
 
 	@Transactional
-	public void updateGameSeatsByConsumer(EventKafkaMessage message) {
-		log.info("[Kafka] 티켓 이벤트 수신 : {}", message.getEventType());
-
-		// 수정할 경기 내용 가져오기
-		TicketUpdatedPayload payload = (TicketUpdatedPayload) message.getPayload();
+	public void updateGameSeatsByConsumer(TicketUpdatedPayload payload) {
 		// 해당 경기 탐색
 		Game game = findGame(payload.getGameId());
 
