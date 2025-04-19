@@ -1,8 +1,9 @@
 package com.fix.order_service.application;
 
 import com.fix.common_service.kafka.dto.OrderCompletedPayload;
+import com.fix.common_service.kafka.dto.OrderCompletionFailedPayload;
 import com.fix.common_service.kafka.dto.OrderCreatedPayload;
-import com.fix.common_service.kafka.dto.OrderFailedPayload;
+import com.fix.common_service.kafka.dto.OrderCreationFailedPayload;
 import com.fix.order_service.application.dtos.request.FeignOrderCreateRequest;
 import com.fix.order_service.application.dtos.request.FeignTicketReserveDto;
 import com.fix.order_service.application.dtos.request.FeignTicketSoldRequest;
@@ -13,9 +14,9 @@ import com.fix.order_service.domain.OrderStatus;
 import com.fix.order_service.domain.repository.OrderRepository;
 import com.fix.order_service.infrastructure.client.TicketClient;
 import com.fix.order_service.infrastructure.kafka.OrderProducer;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,37 +87,50 @@ public class OrderFeignService {
                     .map(FeignTicketReserveDto::getTicketId)
                     .toList();
 
-
             // [6] 티켓 상태 SOLD로 변경 요청
-            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds)); // ✅ 통합된 호출출
+            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds));
+
             // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
             OrderCreatedPayload payload = new OrderCreatedPayload(order.getOrderId(), ticketIds);
             orderProducer.sendOrderCreatedEvent(payload.getOrderId().toString(), payload);
 
         } catch (Exception e) {
-            OrderFailedPayload failedPayload = new OrderFailedPayload(orderId);
+            List<UUID> ticketIds = request.getTicketDtoList().stream()
+                    .map(FeignTicketReserveDto::getTicketId)
+                    .toList();
+
+            OrderCreationFailedPayload failedPayload = new OrderCreationFailedPayload(
+                    ticketIds,
+                    request.getTicketDtoList().get(0).getUserId(),
+                    request.getTicketDtoList().get(0).getGameId(),
+                    e.getMessage()
+            );
             orderProducer.sendOrderCreationFailedEvent(orderId.toString(), failedPayload);
             throw e;
         }
     }
 
     @Transactional
-    public void completeOrder(UUID orderId) {
+    public void completeOrder(UUID orderId, List<UUID> ticketIds) {
         try {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
 
             order.complete();
 
-            OrderCompletedPayload payload = new OrderCompletedPayload(
-                    order.getOrderId(),
-                    order.getGameId(),
-                    order.getUserId()
-            );
+            OrderCompletedPayload payload = new OrderCompletedPayload(order.getOrderId(), ticketIds);
             orderProducer.sendOrderCompletedEvent(payload.getOrderId().toString(), payload);
 
         } catch (Exception e) {
-            OrderFailedPayload failedPayload = new OrderFailedPayload(orderId);
+            Order order = orderRepository.findById(orderId).orElse(null);
+
+            OrderCompletionFailedPayload failedPayload = new OrderCompletionFailedPayload(
+                    ticketIds,
+                    order != null ? order.getUserId() : null,
+                    order != null ? order.getGameId() : null,
+                    orderId,
+                    e.getMessage()
+            );
             orderProducer.sendOrderCompletionFailedEvent(orderId.toString(), failedPayload);
             throw e;
         }
