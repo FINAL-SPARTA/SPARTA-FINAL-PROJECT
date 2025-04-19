@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,8 +23,11 @@ public class OrderFeignController {
     }
 
     @PatchMapping("/{orderId}/complete")
-    public ResponseEntity<CommonResponse<Void>> completeOrder(@PathVariable UUID orderId) {
-        orderFeignService.completeOrder(orderId);
+    public ResponseEntity<CommonResponse<Void>> completeOrder(
+            @PathVariable UUID orderId,
+            @RequestBody List<UUID> ticketIds // 👈 전파 전략에 따라 request로 받는다
+    ) {
+        orderFeignService.completeOrder(orderId, ticketIds);
         return ResponseEntity.ok(CommonResponse.success(null, "주문 상태가 COMPLETED로 변경되었습니다."));
     }
 
