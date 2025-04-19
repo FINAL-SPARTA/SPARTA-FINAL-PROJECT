@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "kafka-topic.ticket.updated",
+      "type": "java.lang.String",
+      "description": "Updated ticket topic name"
+    },
+    {
+      "name": "kafka-topic.ticket.updated.dlq",
+      "type": "java.lang.String",
+      "description": "Updated Failed ticket topic name"
+    }
+  ]
+}
