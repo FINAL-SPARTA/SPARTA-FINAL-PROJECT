@@ -101,6 +101,10 @@ public class PaymentConfirmController {
             String errorCode = (String) response.get("code");
             String errorMessage = (String) response.get("message");
 
+            // Kafka 이벤트 발행
+            paymentEventService.sendPaymentCompletionFailed(UUID.fromString(orderId), errorMessage);
+
+            // DB 저장
             TossPaymentFailure failure = TossPaymentFailure.builder()
                     .orderId(orderId)
                     .paymentKey(paymentKey)
@@ -114,7 +118,8 @@ public class PaymentConfirmController {
         return ResponseEntity.status(statusCode).body(response);
     }
 
-    @SuppressWarnings("unchecked")
+//    JSONObject 안에서 section → field로 들어가서 값을 String으로 꺼내오는 헬퍼 메서드
+    @SuppressWarnings("unchecked") // 실제 JSONObject는 타입 안정성이 떨어져서 unchecked가 자주 발생
     private String extract(JSONObject root, String section, String field) {
         JSONObject nested = (JSONObject) root.get(section);
         return nested != null ? (String) nested.get(field) : null;

@@ -2,6 +2,7 @@ package com.fix.payments_service.application;
 
 import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
 import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
+import com.fix.common_service.kafka.dto.PaymentCompletionFailedPayload;
 import com.fix.payments_service.infrastructure.kafka.PaymentProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,12 @@ public class PaymentEventService {
         PaymentCompletedPayload payload = new PaymentCompletedPayload(orderId);
         paymentProducer.sendPaymentCompletedEvent(payload);
         log.info("✅ 주문 상태 COMPLETED 이벤트 발행 완료 - orderId: {}", orderId);
+    }
+
+    public void sendPaymentCompletionFailed(UUID orderId, String reason) {
+        PaymentCompletionFailedPayload payload = new PaymentCompletionFailedPayload(orderId, reason);
+        paymentProducer.sendPaymentCompletionFailedEvent(payload);
+        log.warn("❌ 결제 실패 이벤트 발행 완료 - orderId: {}, reason: {}", orderId, reason);
     }
 
     /**
