@@ -1,6 +1,9 @@
 package com.fix.chat_service.presenatation.producer;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,7 +28,18 @@ public class ChatMessageProducer {
 	 */
 	public void sendMessage(String topic, ChatMessage chatMessage) throws JsonProcessingException {
 		// String message = objectMapper.writeValueAsString(chatMessage);
-		kafkaTemplate.send(topic, chatMessage);
+		// kafkaTemplate.send(topic, chatMessage);
+		CompletableFuture<SendResult<String, ChatMessage>> future =
+			kafkaTemplate.send(topic, chatMessage);
+
+		future.whenComplete((result, ex) -> {
+			if (ex != null) {
+				System.err.println("Kafka 전송 실패: " + ex.getMessage());
+			} else {
+				System.out.println("Kafka 전송 성공: " + result.getRecordMetadata().offset());
+			}
+		});
+
 	}
 }
 
