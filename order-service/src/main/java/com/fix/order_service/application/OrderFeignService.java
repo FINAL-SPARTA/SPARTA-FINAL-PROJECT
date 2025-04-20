@@ -26,7 +26,6 @@ import java.util.UUID;
 public class OrderFeignService {
 
     private final OrderRepository orderRepository;
-    private final TicketClient ticketClient;
     private final OrderHistoryRedisService orderHistoryRedisService;
     private final OrderProducer orderProducer;
 
@@ -85,7 +84,7 @@ public class OrderFeignService {
                     .toList();
 
             // [6] 티켓 상태 SOLD로 변경 요청
-            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds));
+//            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds));
 
             // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
             OrderCreatedPayload payload = new OrderCreatedPayload(order.getOrderId(), ticketIds);

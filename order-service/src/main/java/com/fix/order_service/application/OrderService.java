@@ -30,7 +30,6 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
-    private final TicketClient ticketClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final OrderProducer orderProducer;
 
@@ -106,8 +105,8 @@ public class OrderService {
         OrderCancelledPayload payload = new OrderCancelledPayload(order.getOrderId());
         orderProducer.sendOrderCancelledEvent(payload.getOrderId().toString(), payload);
 
-        // 티켓 상태도 CANCELLED로 변경 요청
-        ticketClient.cancelTicketStatus(orderId);
+//        // 티켓 상태도 CANCELLED로 변경 요청
+//        ticketClient.cancelTicketStatus(orderId);
     }
 
     @Transactional
