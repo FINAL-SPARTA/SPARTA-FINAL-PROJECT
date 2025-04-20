@@ -13,4 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class OrderCancelledPayload {
     private UUID orderId;
+
 }

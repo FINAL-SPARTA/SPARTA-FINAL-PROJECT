@@ -38,9 +38,23 @@ public class OrderProducer {
 
     /**
      * 주문 생성 실패 이벤트 발행
+     * - TicketReservedPayload를 기반으로 실패 이벤트 생성
+     * - 실패 사유(reason) 포함
+     * - Kafka 전송은 공통 메서드로 처리
      */
-    public void sendOrderCreationFailedEvent(String orderId, OrderCreationFailedPayload payload) {
-        send(orderCreationFailedTopic, orderId, "ORDER_CREATION_FAILED", payload);
+    public void sendOrderCreationFailedEvent(TicketReservedPayload payload, String reason) {
+        OrderCreationFailedPayload eventPayload = new OrderCreationFailedPayload(
+                payload.getTicketDetails().stream()
+                        .map(TicketReservedPayload.TicketDetail::getTicketId)
+                        .toList(),
+                payload.getUserId(),
+                payload.getGameId(),
+                reason
+        );
+
+        send(orderCreationFailedTopic, null, "ORDER_CREATION_FAILED", eventPayload);
+        log.info("📤 [Kafka] 주문 생성 실패 이벤트 발행: topic={}, userId={}, reason={}",
+                orderCreationFailedTopic, payload.getUserId(), reason);
     }
 
     /**

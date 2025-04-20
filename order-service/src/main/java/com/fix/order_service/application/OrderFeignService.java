@@ -1,9 +1,6 @@
 package com.fix.order_service.application;
 
-import com.fix.common_service.kafka.dto.OrderCompletedPayload;
-import com.fix.common_service.kafka.dto.OrderCompletionFailedPayload;
-import com.fix.common_service.kafka.dto.OrderCreatedPayload;
-import com.fix.common_service.kafka.dto.OrderCreationFailedPayload;
+import com.fix.common_service.kafka.dto.*;
 import com.fix.order_service.application.dtos.request.FeignOrderCreateRequest;
 import com.fix.order_service.application.dtos.request.FeignTicketReserveDto;
 import com.fix.order_service.application.dtos.request.FeignTicketSoldRequest;
@@ -95,17 +92,17 @@ public class OrderFeignService {
             orderProducer.sendOrderCreatedEvent(payload.getOrderId().toString(), payload);
 
         } catch (Exception e) {
-            List<UUID> ticketIds = request.getTicketDtoList().stream()
-                    .map(FeignTicketReserveDto::getTicketId)
-                    .toList();
+            List<FeignTicketReserveDto> tickets = request.getTicketDtoList();
 
-            OrderCreationFailedPayload failedPayload = new OrderCreationFailedPayload(
-                    ticketIds,
-                    request.getTicketDtoList().get(0).getUserId(),
-                    request.getTicketDtoList().get(0).getGameId(),
-                    e.getMessage()
+            TicketReservedPayload reservedPayload = new TicketReservedPayload(
+                    tickets.stream()
+                            .map(t -> new TicketReservedPayload.TicketDetail(t.getTicketId(), t.getPrice()))
+                            .toList(),
+                    tickets.get(0).getUserId(),
+                    tickets.get(0).getGameId()
             );
-            orderProducer.sendOrderCreationFailedEvent(orderId.toString(), failedPayload);
+
+            orderProducer.sendOrderCreationFailedEvent(reservedPayload, e.getMessage());
             throw e;
         }
     }
@@ -136,13 +133,11 @@ public class OrderFeignService {
         }
     }
 }
-//예약된 티켓 → 주문 생성 → 상태 변경
-//ticket-service
-//  └── Feign 요청 (POST /api/v1/orders/feign)
-//        ↓
-//order-service
-//  └── OrderFeignController → OrderFeignService
-//        ↓
-//                └── 주문 정보 저장 (OrderRepository)
-//        ↓
-//                └── (TODO: Kafka 발행 + 티켓 상태 변경 요청 예정)
+/**
+ * 예약된 티켓 기반 주문 생성
+ * - 주문 정보 저장 (OrderRepository)
+ * - 주문 요약 Redis 저장
+ * - 티켓 상태 SOLD로 변경 (ticket-service 연동)
+ * - 주문 생성 Kafka 이벤트 발행 (성공 시)
+ * - 실패 시 Kafka 주문 생성 실패 이벤트 발행
+ */

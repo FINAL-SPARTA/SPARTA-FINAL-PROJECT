@@ -66,7 +66,7 @@ public class OrderController {
         orderService.cancelOrderFromTicket(orderId);
     }
 
-    // 주문 취소 (soft delete)
+    // 주문 삭제 (soft delete)
     @ValidateUser(roles = {"ROLE_MANAGER", "ROLE_MASTER", "ROLE_CUSTOM"})
     @DeleteMapping("/{orderId}")
     public ResponseEntity<CommonResponse<Void>> deleteOrder(
