@@ -1,5 +1,8 @@
 package com.fix.payments_service.presantation;
 
+import com.fix.payments_service.application.PaymentEventService;
+import com.fix.payments_service.domain.TossPaymentFailure;
+import com.fix.payments_service.domain.repository.TossPaymentFailureRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class PaymentController {
@@ -32,14 +36,59 @@ public class PaymentController {
     private String apiSecretKey;
     private final Map<String, String> billingKeyMap = new HashMap<>();
 
+    private final PaymentEventService paymentEventService;
+    private final TossPaymentFailureRepository tossPaymentFailureRepository;
+
+    public PaymentController(PaymentEventService paymentEventService,
+                             TossPaymentFailureRepository tossPaymentFailureRepository) {
+        this.paymentEventService = paymentEventService;
+        this.tossPaymentFailureRepository = tossPaymentFailureRepository;
+    }
+
+    /**
+     * 💳 빌링 결제 확정 메서드
+     * Toss billingKey를 통해 결제 승인 요청을 보내고,
+     * 성공 시 Kafka로 결제 완료 이벤트 발행,
+     * 실패 시 실패 이벤트 발행 및 실패 내역 저장
+     */
     @RequestMapping(value = "/confirm-billing")
     public ResponseEntity<JSONObject> confirmBilling(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
-        String billingKey = billingKeyMap.get(requestData.get("customerKey"));
+        Object customerKeyObj = requestData.get("customerKey");
+        if (customerKeyObj == null) {
+            logger.warn("❗ customerKey 누락됨");
+            JSONObject error = new JSONObject();
+            error.put("error", "Missing customerKey");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        String customerKey = customerKeyObj.toString();
+        String billingKey = billingKeyMap.get(customerKey);
         JSONObject response = sendRequest(requestData, apiSecretKey, "https://api.tosspayments.com/v1/billing/" + billingKey);
+
+        String orderId = (String) requestData.get("orderId");
+
+        if (response.containsKey("error")) {
+            String errorMsg = (String) response.get("message");
+            paymentEventService.sendPaymentCompletionFailed(UUID.fromString(orderId), errorMsg);
+
+            TossPaymentFailure failure = TossPaymentFailure.builder()
+                    .orderId(orderId)
+                    .paymentKey(billingKey)
+                    .errorCode("BILLING_CONFIRM_FAILED")
+                    .errorMessage(errorMsg)
+                    .build();
+            tossPaymentFailureRepository.save(failure);
+        } else {
+            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+        }
+
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
-
+    /**
+     * 🧾 빌링 키 발급 요청 메서드
+     * Toss에 카드 정보를 전달해 billingKey를 발급받고, 메모리 캐시에 저장
+     */
     @RequestMapping(value = "/issue-billing-key")
     public ResponseEntity<JSONObject> issueBillingKey(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
@@ -52,13 +101,17 @@ public class PaymentController {
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
 
+    /**
+     * 🔐 BrandPay 인증 성공 콜백 메서드
+     * 인증 성공 후 code를 전달받아 Toss에서 access-token을 발급받음
+     */
     @RequestMapping(value = "/callback-auth", method = RequestMethod.GET)
     public ResponseEntity<JSONObject> callbackAuth(@RequestParam String customerKey, @RequestParam String code) throws Exception {
         JSONObject requestData = new JSONObject();
         requestData.put("grantType", "AuthorizationCode");
         requestData.put("customerKey", customerKey);
         requestData.put("code", code);
-        
+
         String url = "https://api.tosspayments.com/v1/brandpay/authorizations/access-token";
         JSONObject response = sendRequest(requestData, apiSecretKey, url);
 
@@ -67,13 +120,38 @@ public class PaymentController {
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
 
+    /**
+     * 💰 BrandPay 결제 확정 메서드
+     * Toss BrandPay를 통한 결제 승인 요청을 처리하고,
+     * 성공 시 Kafka로 결제 완료 이벤트 발행,
+     * 실패 시 실패 이벤트 발행 및 실패 내역 저장
+     */
     @RequestMapping(value = "/confirm/brandpay", method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<JSONObject> confirmBrandpay(@RequestBody String jsonBody) throws Exception {
         JSONObject requestData = parseRequestData(jsonBody);
         String url = "https://api.tosspayments.com/v1/brandpay/payments/confirm";
         JSONObject response = sendRequest(requestData, apiSecretKey, url);
+        String orderId = (String) requestData.get("orderId");
+        String paymentKey = (String) requestData.get("paymentKey");
+
+        if (response.containsKey("error")) {
+            String errorMsg = (String) response.get("message");
+            paymentEventService.sendPaymentCompletionFailed(UUID.fromString(orderId), errorMsg);
+
+            TossPaymentFailure failure = TossPaymentFailure.builder()
+                    .orderId(orderId)
+                    .paymentKey(paymentKey)
+                    .errorCode("BRANDPAY_CONFIRM_FAILED")
+                    .errorMessage(errorMsg)
+                    .build();
+            tossPaymentFailureRepository.save(failure);
+        } else {
+            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+        }
+
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
     }
+
 
 //    클라이언트에서 받은 JSON 문자열을 JSONObject로 파싱
     private JSONObject parseRequestData(String jsonBody) {
@@ -114,11 +192,13 @@ public class PaymentController {
         return connection;
     }
 
+//  위젯 결제 진입 페이지 렌더링
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index() {
         return "/widget/checkout";
     }
 
+//  ❌ 결제 실패 페이지 렌더링
     @RequestMapping(value = "/fail", method = RequestMethod.GET)
     public String failPayment(HttpServletRequest request, Model model) {
         model.addAttribute("code", request.getParameter("code"));
