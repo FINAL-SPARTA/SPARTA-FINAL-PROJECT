@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Component
 public class OrderConsumer {
 
+    private final OrderProducer orderProducer;
     private final TicketReservedConsumer ticketReservedConsumer;
     private final TicketUpdatedConsumer ticketUpdatedConsumer;
 
@@ -31,8 +32,11 @@ public class OrderConsumer {
      * @param idempotencyChecker Redis 기반 중복 처리 유틸
      * @param orderFeignService 이벤트 기반 주문 처리 서비스
      */
-    public OrderConsumer(RedisIdempotencyChecker idempotencyChecker, OrderFeignService orderFeignService) {
-        this.ticketReservedConsumer = new TicketReservedConsumer(idempotencyChecker, orderFeignService);
+    public OrderConsumer(RedisIdempotencyChecker idempotencyChecker,
+                         OrderFeignService orderFeignService,
+                         OrderProducer orderProducer) {
+        this.orderProducer = orderProducer;
+        this.ticketReservedConsumer = new TicketReservedConsumer(idempotencyChecker, orderFeignService, orderProducer);
         this.ticketUpdatedConsumer = new TicketUpdatedConsumer(idempotencyChecker);
     }
 
@@ -66,10 +70,14 @@ public class OrderConsumer {
     static class TicketReservedConsumer extends AbstractKafkaConsumer<TicketReservedPayload> {
 
         private final OrderFeignService orderFeignService;
+        private final OrderProducer orderProducer;
 
-        public TicketReservedConsumer(RedisIdempotencyChecker idempotencyChecker, OrderFeignService orderFeignService) {
+        public TicketReservedConsumer(RedisIdempotencyChecker idempotencyChecker,
+                                      OrderFeignService orderFeignService,
+                                      OrderProducer orderProducer) {
             super(idempotencyChecker);
             this.orderFeignService = orderFeignService;
+            this.orderProducer = orderProducer;
         }
 
         /**
@@ -99,8 +107,14 @@ public class OrderConsumer {
                     .collect(Collectors.toList());
             // (3) FeignOrderCreateRequest로 포장
             FeignOrderCreateRequest request = new FeignOrderCreateRequest(ticketDtoList);
-            // (4) order 생성 서비스 호출
-            orderFeignService.createOrderFromTicket(request);
+            try {
+                // (4) order 생성 서비스 호출
+                orderFeignService.createOrderFromTicket(request);
+            } catch (Exception e) {
+                log.error("❌ 주문 생성 실패 → 실패 이벤트 발행: {}", e.getMessage());
+                orderProducer.sendOrderCreationFailedEvent(reserved, e.getMessage());
+                throw e; // 필요 시 생략 가능 (consume 종료 목적이면)
+            }
         }
     }
 
