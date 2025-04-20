@@ -12,6 +12,7 @@ import com.fix.order_service.domain.repository.OrderRepository;
 import com.fix.order_service.infrastructure.client.TicketClient;
 import com.fix.order_service.infrastructure.kafka.OrderProducer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.UUID;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -105,6 +108,20 @@ public class OrderService {
 
         // 티켓 상태도 CANCELLED로 변경 요청
         ticketClient.cancelTicketStatus(orderId);
+    }
+
+    @Transactional
+    public void cancelOrderFromPayment(UUID orderId, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
+
+        order.cancel(); // 주문 상태 변경
+
+        OrderCancelledPayload payload = new OrderCancelledPayload(order.getOrderId());
+        orderProducer.sendOrderCancelledEvent(payload.getOrderId().toString(), payload);
+
+        // TicketClient 호출은 제외 (결제 실패로 인해 직접 예약 취소가 이미 됐다고 가정)
+        log.info("💬 [Order] 결제 실패/취소로 인한 주문 상태 변경 완료 - orderId={}, reason={}", orderId, reason);
     }
 
 //    주문 삭제 (soft delete)
