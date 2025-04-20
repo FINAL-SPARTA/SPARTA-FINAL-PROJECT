@@ -120,6 +120,8 @@ public class OrderConsumer {
 
     /**
      * TicketUpdated 이벤트를 처리하는 내부 Consumer 클래스
+     * - 티켓 상태 업데이트와 관련된 이벤트 수신
+     * - 현재는 로그만 남기며, 추후 재고 업데이트 로직을 연결 가능 근데 이건 티켓에서 처리하는거??
      */
     static class TicketUpdatedConsumer extends AbstractKafkaConsumer<TicketUpdatedPayload> {
 

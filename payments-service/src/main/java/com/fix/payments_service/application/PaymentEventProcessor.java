@@ -63,3 +63,6 @@ public class PaymentEventProcessor {
     }
 }
 
+//정상 결제 → 주문 완료
+//결제 실패 → 주문 생성 실패
+//주문 취소 → 티켓 상태 복원 + 주문 취소
