@@ -39,14 +39,20 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
 
     @Override
     protected void processPayload(Object payload) {
-        if (payload instanceof OrderCompletedPayload completed) {
-            handlePaymentCompleted(completed);
-        } else if (payload instanceof OrderCompletionFailedPayload failed) {
-            handlePaymentFailed(failed);
-        } else if (payload instanceof PaymentCancelledPayload cancelled) {
-            handlePaymentCancelled(cancelled);
-        } else {
-            log.warn("❗ 처리되지 않은 Payload 타입 수신: {}", payload.getClass().getSimpleName());
+        try {
+            if (payload instanceof OrderCompletedPayload completedPayload) {
+                handlePaymentCompleted(completedPayload);
+            } else if (payload instanceof OrderCompletionFailedPayload failedPayload) {
+                handlePaymentFailed(failedPayload);
+            } else if (payload instanceof PaymentCancelledPayload cancelledPayload) {
+                handlePaymentCancelled(cancelledPayload);
+            } else {
+                log.warn("❗️ 알 수 없는 payload 타입 수신됨: {}", payload.getClass().getSimpleName());
+            }
+        } catch (Exception e) {
+            log.error("❌ Kafka 메시지 처리 중 예외 발생: {}", e.getMessage(), e);
+            // 필요 시 사후처리 로직 추가 (예: 알림, dead-letter queue 등)
+            throw e; // 또는 swallow if retry 원하지 않는다면
         }
     }
 
