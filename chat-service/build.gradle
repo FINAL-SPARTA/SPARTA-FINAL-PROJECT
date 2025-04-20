@@ -23,6 +23,9 @@ dependencies {
     // ✅ WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // ✅ Afterburner
+    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner'
+
     // ✅ Json
     implementation 'org.json:json:20210307'
 
