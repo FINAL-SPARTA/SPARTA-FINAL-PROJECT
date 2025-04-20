@@ -1,10 +1,11 @@
 package com.fix.chat_service.infrastructure.config;
 
-import com.fix.chat_service.infrastructure.handler.CustomWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import com.fix.chat_service.infrastructure.handler.CustomWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
 

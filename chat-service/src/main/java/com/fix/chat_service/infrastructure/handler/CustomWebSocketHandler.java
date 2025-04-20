@@ -66,11 +66,15 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	public void broadcastMessage(UUID chatId, ChatMessage message) throws IOException {
 		List<WebSocketSession> sessions = chatRooms.get(chatId);
 		String chatMessage = objectMapper.writeValueAsString(message);
-
 		if (sessions != null) {
 			for (WebSocketSession session : sessions) {
 				if (session.isOpen()) {
-					session.sendMessage(new TextMessage(chatMessage));
+					try {
+						session.sendMessage(new TextMessage(chatMessage));
+					} catch (Exception e) {
+						log.warn("세션 오류로 메시지 전송 실패. 세션 강제 종료: {}, 오류: {}", session.getId(), e.getMessage());
+						session.close();
+					}
 				}
 			}
 		}
@@ -83,6 +87,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	 */
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+		super.afterConnectionClosed(session, status);
 		UUID chatId = getChatId(session);
 		chatRooms.get(chatId).remove(session);
 		log.info("연결 종료: {} (chatId={})", session.getId(), chatId);
