@@ -11,6 +11,11 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+/**
+ * ✅ Payment 관련 Kafka 이벤트를 수신하는 Consumer 클래스
+ * - 결제 성공, 실패, 취소 이벤트를 하나의 클래스에서 처리
+ * - 멱등성 체크, 서비스 계층 호출 포함
+ */
 @Slf4j
 @Component
 public class PaymentConsumer {
