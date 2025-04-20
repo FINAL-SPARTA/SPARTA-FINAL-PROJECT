@@ -27,7 +27,7 @@ public class PaymentCancelController {
 
     @Value("${toss.secret-key}")
     private String secretKey;
-    private OrderServiceClient orderServiceClient;
+    private final OrderServiceClient orderServiceClient;
 
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<TossCancelResponseDto> cancelPayment(
