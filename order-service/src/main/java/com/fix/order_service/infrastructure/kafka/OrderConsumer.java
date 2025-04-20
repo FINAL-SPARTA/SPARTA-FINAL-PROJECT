@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Component
 public class OrderConsumer {
 
-    private final OrderProducer orderProducer;
     private final TicketReservedConsumer ticketReservedConsumer;
     private final TicketUpdatedConsumer ticketUpdatedConsumer;
 
@@ -35,7 +34,6 @@ public class OrderConsumer {
     public OrderConsumer(RedisIdempotencyChecker idempotencyChecker,
                          OrderFeignService orderFeignService,
                          OrderProducer orderProducer) {
-        this.orderProducer = orderProducer;
         this.ticketReservedConsumer = new TicketReservedConsumer(idempotencyChecker, orderFeignService, orderProducer);
         this.ticketUpdatedConsumer = new TicketUpdatedConsumer(idempotencyChecker);
     }
