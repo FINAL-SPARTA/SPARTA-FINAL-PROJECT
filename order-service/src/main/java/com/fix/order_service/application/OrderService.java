@@ -124,6 +124,20 @@ public class OrderService {
 //        ticketClient.cancelTicketStatus(orderId);
     }
 
+    @Transactional
+    public void cancelOrderFromPayment(UUID orderId, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
+
+        order.cancel(); // 주문 상태 변경
+
+        OrderCancelledPayload payload = new OrderCancelledPayload(order.getOrderId());
+        orderProducer.sendOrderCancelledEvent(payload.getOrderId().toString(), payload);
+
+        // TicketClient 호출은 제외 (결제 실패로 인해 직접 예약 취소가 이미 됐다고 가정)
+        log.info("💬 [Order] 결제 실패/취소로 인한 주문 상태 변경 완료 - orderId={}, reason={}", orderId, reason);
+    }
+
 //    주문 삭제 (soft delete)
     @Transactional
     public void deleteOrder(UUID orderId, Long userId) {
