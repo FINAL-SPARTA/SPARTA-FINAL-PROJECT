@@ -153,8 +153,9 @@ public class UserController {
         ));
     }
 
-    @GetMapping("/{userId}/chat")
+    @GetMapping("/feign/{userId}/chat")
     public String getNickname(@PathVariable Long userId) {
+        log.info("채팅에서 받은 요청: {}" , userId);
         return userService.getNickname(userId);
     }
 

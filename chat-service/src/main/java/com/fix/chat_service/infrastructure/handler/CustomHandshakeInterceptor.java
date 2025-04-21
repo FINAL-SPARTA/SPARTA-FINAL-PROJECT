@@ -27,10 +27,12 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
 		if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
 			String userId = servletServerHttpRequest.getServletRequest().getHeader("x-user-id");
+			log.info("userID: {}" ,userId);
 
 			if (userId != null) {
 				try {
 					String nickname = userClient.getNickname(Long.valueOf(userId));
+					log.info(nickname);
 					attributes.put("nickname", nickname);
 				} catch (Exception e) {
 					attributes.put("nickname", "Anonymous");
