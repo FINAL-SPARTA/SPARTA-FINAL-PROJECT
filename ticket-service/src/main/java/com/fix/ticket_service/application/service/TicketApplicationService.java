@@ -50,7 +50,7 @@ public class TicketApplicationService {
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId, String token) {
         // 1) 큐 토큰 검증
-        validateQueueToken(token);
+        validateQueueToken(token,userId);
 
         List<TicketReserveResponseDto> responseDtoList = new ArrayList<>();
         List<UUID> seatIds = request.getSeatInfoList().stream()
@@ -270,14 +270,14 @@ public class TicketApplicationService {
         return "ticketStatus:" + seatId.toString();
     }
 
-    private void validateQueueToken(String token) {
+    private void validateQueueToken(String token,Long userId) {
         // 큐 토큰이 null 이거나 비어있는 경우 예외 처리
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("큐 토큰이 필요합니다.");
         }
 
         // 큐 토큰이 Redis 에 존재하는지 확인 (존재하지 않는다면 TTL 이 만료된 것)
-        String redisKey = WORKING_QUEUE_KEY_PREFIX + token;
+        String redisKey = WORKING_QUEUE_KEY_PREFIX + token +"|"+userId;
         if (!redisTemplate.hasKey(redisKey)) {
             throw new IllegalArgumentException("큐 토큰이 유효하지 않습니다.");
         }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class PaymentQueryController {
     @GetMapping("/{orderId}")
     @ValidateUser(roles = {"ROLE_USER", "ROLE_MANAGER", "ROLE_MASTER"}) // ✅ 권한 체크 AOP
     public ResponseEntity<TossPaymentStatusResponse> getPaymentStatus(
-            @PathVariable String orderId,
+            @PathVariable UUID orderId,
             @RequestHeader("x-user-id") Long userId,
             @RequestHeader("x-user-role") String userRole
     ) {
@@ -43,7 +44,7 @@ public class PaymentQueryController {
     }
 
     @GetMapping("/order-info/{orderId}")
-    public ResponseEntity<Map<String, Object>> getOrderAmountInfo(@PathVariable String orderId) {
+    public ResponseEntity<Map<String, Object>> getOrderAmountInfo(@PathVariable UUID orderId) {
         TossPayment payment = tossPaymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new RuntimeException("결제 정보가 존재하지 않습니다."));
 

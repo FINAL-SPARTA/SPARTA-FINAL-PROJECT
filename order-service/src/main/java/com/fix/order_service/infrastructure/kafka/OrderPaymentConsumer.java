@@ -85,24 +85,26 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
         orderService.cancelOrderFromPayment(orderId, "사용자 요청에 의한 결제 취소");
     }
 
-    @KafkaListener(topics = "${kafka-topics.payment.completed}", groupId = "order-service")
+    @KafkaListener(topics = "${kafka-topics.payment.completed}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
     public void listenCompleted(ConsumerRecord<String, EventKafkaMessage<Object>> record,
                                 @Payload EventKafkaMessage<Object> message,
                                 Acknowledgment ack) {
         super.consume(record, message, ack);
     }
 
-    @KafkaListener(topics = "${kafka-topics.payment.completion-failed}", groupId = "order-service")
+    @KafkaListener(topics = "${kafka-topics.payment.completion-failed}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
     public void listenFailed(ConsumerRecord<String, EventKafkaMessage<Object>> record,
                              @Payload EventKafkaMessage<Object> message,
                              Acknowledgment ack) {
         super.consume(record, message, ack);
     }
 
-    @KafkaListener(topics = "${kafka-topics.payment.cancelled}", groupId = "order-service")
+    @KafkaListener(topics = "${kafka-topics.payment.cancelled}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
     public void listenCancelled(ConsumerRecord<String, EventKafkaMessage<Object>> record,
                                 @Payload EventKafkaMessage<Object> message,
                                 Acknowledgment ack) {
         super.consume(record, message, ack);
     }
+
+
 }
