@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameRate;
 import com.fix.game_service.domain.model.GameStatus;
 import com.fix.game_service.domain.model.Team;
 
@@ -27,8 +28,9 @@ public class GameGetOneResponse {
 	private GameStatus gameStatus;
 	private LocalDateTime openDate;
 	private LocalDateTime closeDate;
+	private Double advanceReservation;
 
-	public static GameGetOneResponse fromGame(Game game) {
+	public static GameGetOneResponse fromGame(Game game, GameRate gameRate) {
 		return GameGetOneResponse.builder()
 			.gameId(game.getGameId())
 			.gameName(game.getGameName())
@@ -39,6 +41,7 @@ public class GameGetOneResponse {
 			.gameStatus(game.getGameStatus())
 			.openDate(game.getOpenDate())
 			.closeDate(game.getCloseDate())
+			.advanceReservation(gameRate.getAdvanceReservation() != null ? gameRate.getAdvanceReservation() : 0)
 			.build();
 	}
 }
