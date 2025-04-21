@@ -153,6 +153,11 @@ public class UserController {
         ));
     }
 
+    @GetMapping("/{userId}/chat")
+    public String getNickname(@PathVariable Long userId) {
+        return userService.getNickname(userId);
+    }
+
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
         List<Map<String, String>> errors = bindingResult.getFieldErrors().stream()
             .map(fieldError -> Map.of(

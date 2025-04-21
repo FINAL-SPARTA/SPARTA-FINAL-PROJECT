@@ -122,6 +122,12 @@ public class UserService {
         }
     }
 
+    // 닉네임 반환
+    public String getNickname(Long userId) {
+        User user = findUserById(userId);
+        return user.getNickname();
+    }
+    
     // 사용자 조회 공통 메서드
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

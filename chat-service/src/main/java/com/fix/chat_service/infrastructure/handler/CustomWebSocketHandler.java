@@ -53,8 +53,10 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		UUID chatId = getChatId(session);
 		ChatMessage chatMessage = objectMapper.readValue(message.getPayload(), ChatMessage.class);
+		String nickname = (String) session.getAttributes().get("nickname");
 		chatMessage.setMessageType("USER");
 		chatMessage.setChatId(chatId.toString());
+		chatMessage.setNickname(nickname);
 		producer.sendMessage("chat-message", chatMessage);
 	}
 

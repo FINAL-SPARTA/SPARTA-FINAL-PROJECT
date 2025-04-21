@@ -27,4 +27,7 @@ public class ChatMessage {
         this.chatId = chatId;
     }
 
+	public void setNickname(String nickname) {
+	    this.nickname = nickname;
+    }
 }
