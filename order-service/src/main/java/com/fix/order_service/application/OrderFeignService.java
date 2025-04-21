@@ -3,13 +3,11 @@ package com.fix.order_service.application;
 import com.fix.common_service.kafka.dto.*;
 import com.fix.order_service.application.dtos.request.FeignOrderCreateRequest;
 import com.fix.order_service.application.dtos.request.FeignTicketReserveDto;
-import com.fix.order_service.application.dtos.request.FeignTicketSoldRequest;
 import com.fix.order_service.application.dtos.request.OrderSummaryDto;
 import com.fix.order_service.application.exception.OrderException;
 import com.fix.order_service.domain.Order;
 import com.fix.order_service.domain.OrderStatus;
 import com.fix.order_service.domain.repository.OrderRepository;
-import com.fix.order_service.infrastructure.client.TicketClient;
 import com.fix.order_service.infrastructure.kafka.OrderProducer;
 
 import lombok.RequiredArgsConstructor;
