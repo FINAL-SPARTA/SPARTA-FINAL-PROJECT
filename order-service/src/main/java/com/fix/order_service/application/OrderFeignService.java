@@ -104,21 +104,31 @@ public class OrderFeignService {
         }
     }
 
+/**
+ * 결제 성공 기반 주문 완료 처리
+ * - 주문 상태 COMPLETED로 변경
+ * - Kafka로 주문 완료 이벤트 발행
+ * - 실패 시 주문 완료 실패 이벤트 발행
+ */
     @Transactional
     public void completeOrder(UUID orderId, List<UUID> ticketIds, int totalPrice) {
         log.info("🎯 주문 완료 처리 시작 - orderId={}, ticketCount={}", orderId, ticketIds.size());
         try {
+            // [1] 주문 조회
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
 
+            // [2] 주문 상태 변경 → COMPLETED
             order.complete();
 
-            OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds, totalPrice);
+            // [3] 주문 완료 Kafka 이벤트 발행
+            OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds);
             orderProducer.sendOrderCompletedEvent(orderId.toString(), payload);
 
         } catch (Exception e) {
+            // [4] 예외 발생 시 → 주문 정보 조회 (널 허용)
             Order order = orderRepository.findById(orderId).orElse(null);
-
+            // [5] 주문 완료 실패 Kafka 이벤트 발행
             OrderCompletionFailedPayload failedPayload = new OrderCompletionFailedPayload(
                     ticketIds,
                     order != null ? order.getUserId() : null,

@@ -83,7 +83,7 @@ public class PaymentConfirmController {
             tossPaymentRepository.save(payment);
 
             // ✅ Kafka 이벤트 발행
-            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+//            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
 
             try {
                 logger.info("주문 상태 COMPLETED 처리 성공: {}", orderId);

@@ -80,7 +80,7 @@ public class PaymentController {
                     .build();
             tossPaymentFailureRepository.save(failure);
         } else {
-            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+//            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
         }
 
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
@@ -146,7 +146,7 @@ public class PaymentController {
                     .build();
             tossPaymentFailureRepository.save(failure);
         } else {
-            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+//            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
         }
 
         return ResponseEntity.status(response.containsKey("error") ? 400 : 200).body(response);
