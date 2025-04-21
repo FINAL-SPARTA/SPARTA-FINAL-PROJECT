@@ -29,15 +29,15 @@ public class PaymentProducer {
     private <T> void send(String topic, String key, String type, T payload) {
         kafkaProducerHelper.send(topic, key, new EventKafkaMessage<>(type, payload));
     }
-
+//  결제 완료 이벤트를 Kafka로 발행
     public void sendPaymentCompletedEvent(PaymentCompletedPayload payload) {
         send(paymentCompletedTopic, payload.getOrderId().toString(), "PAYMENT_COMPLETED", payload);
     }
-
+//    결제 실패 이벤트를 Kafka로 발행
     public void sendPaymentCompletionFailedEvent(PaymentCompletionFailedPayload payload) {
         send(paymentCompletionFailedTopic, payload.getOrderId().toString(), "PAYMENT_COMPLETION_FAILED", payload);
     }
-
+//    결제 취소 이벤트를 Kafka로 발행
     public void sendPaymentCancelledEvent(PaymentCancelledPayload payload) {
         send(paymentCancelledTopic, payload.getOrderId().toString(), "PAYMENT_CANCELLED", payload);
     }

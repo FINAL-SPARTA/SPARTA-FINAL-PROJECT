@@ -5,7 +5,6 @@ import com.fix.payments_service.domain.TossPayment;
 import com.fix.payments_service.domain.TossPaymentFailure;
 import com.fix.payments_service.domain.repository.TossPaymentFailureRepository;
 import com.fix.payments_service.domain.repository.TossPaymentRepository;
-import com.fix.payments_service.infrastructure.client.OrderServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
@@ -36,7 +35,6 @@ public class PaymentConfirmController {
 
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final OrderServiceClient orderServiceClient;
     private final TossPaymentRepository tossPaymentRepository;
     private final TossPaymentFailureRepository tossPaymentFailureRepository;
     private final PaymentEventService paymentEventService;
@@ -48,6 +46,7 @@ public class PaymentConfirmController {
     @Value("${toss.secret-key}")
     private String apiSecretKey;
 
+    // 토스에서 응답을 받은 직후 처리
     // ✅ 기존 PaymentController에서 confirmPayment 메서드 분리
     @PostMapping(value = {"/widget", "/payment"}, consumes = "application/json")
     public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jsonBody) throws Exception {
@@ -71,7 +70,7 @@ public class PaymentConfirmController {
             // ✅  Toss 결제 내역 저장
             TossPayment payment = TossPayment.builder()
                     .paymentKey((String) response.get("paymentKey"))
-                    .orderId(orderId)
+                    .orderId(UUID.fromString(orderId))
                     .amount(Integer.parseInt(String.valueOf(response.get("amount"))))
                     .method(method)
                     .status(status)
@@ -87,7 +86,6 @@ public class PaymentConfirmController {
             paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
 
             try {
-                orderServiceClient.completeOrder(orderId);
                 logger.info("주문 상태 COMPLETED 처리 성공: {}", orderId);
             } catch (Exception e) {
                 logger.error("주문 상태 변경 실패: {}", e.getMessage());

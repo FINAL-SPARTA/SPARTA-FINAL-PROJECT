@@ -32,7 +32,7 @@ public class PaymentQueryController {
         // 👉 (선택) userId와 매칭 체크 가능: if (!payment.getUserId().equals(userId)) throw ...
 
         TossPaymentStatusResponse response = TossPaymentStatusResponse.builder()
-                .orderId(payment.getOrderId())
+                .orderId(payment.getOrderId().toString())
                 .method(payment.getMethod())
                 .status(payment.getStatus())
                 .amount(payment.getAmount())
