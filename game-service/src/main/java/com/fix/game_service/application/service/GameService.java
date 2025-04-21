@@ -21,6 +21,8 @@ import com.fix.game_service.application.dtos.response.GameStatusUpdateResponse;
 import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameRate;
+import com.fix.game_service.domain.repository.GameRateRepository;
 import com.fix.game_service.domain.repository.GameRepository;
 import com.fix.game_service.infrastructure.client.ChatClient;
 import com.fix.game_service.infrastructure.client.StadiumClient;
@@ -36,6 +38,7 @@ public class GameService {
 
 	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
+	private final GameRateRepository gameRateRepository;
 	private final StadiumClient stadiumClient;
 	private final ChatClient chatClient;
 
@@ -49,12 +52,18 @@ public class GameService {
 		StadiumFeignResponse responseDto = getStadiumInfo(request.getHomeTeam().toString());
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
-		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
+		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName());
 
 		// 3. 생성한 경기 Entity 저장
 		Game savedGame = gameRepository.save(game);
 
-		// 4. 경기 내용 chat으로 전송
+		// 4. 경기 예매 기록 Entity 생성
+		GameRate gameRate = GameRate.builder().gameRateId(savedGame.getGameId()).totalSeats(responseDto.getSeatQuantity()).build();
+
+		// 5. 생성한 경기 예매 기록 Entity 저장
+		gameRateRepository.save(gameRate);
+
+		// 6. 경기 내용 chat으로 전송
 		ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
 			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
@@ -71,7 +80,8 @@ public class GameService {
 	 */
 	public GameGetOneResponse getOneGame(UUID gameId) {
 		Game game = findGame(gameId);
-		return GameGetOneResponse.fromGame(game);
+		GameRate gameRate = findGameRate(gameId);
+		return GameGetOneResponse.fromGame(game, gameRate);
 	}
 
 	/**
@@ -100,7 +110,9 @@ public class GameService {
 		Game updateGameInfo;
 		if (request.getHomeTeam() != null) {
 			StadiumFeignResponse response = getStadiumInfo(request.getHomeTeam().toString());
-			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
+			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName());
+			GameRate gameRate = findGameRate(gameId);
+			gameRate.updateStatus(response.getSeatQuantity());
 		} else {
 			updateGameInfo = request.toGame();
 		}
@@ -135,19 +147,19 @@ public class GameService {
 	 */
 	@Transactional
 	public void updateGameSeats(UUID gameId, int quantity) {
-		Game game = findGame(gameId);
+		GameRate gameRate = findGameRate(gameId);
 
-		Integer totalSeats = game.getTotalSeats();
+		Integer totalSeats = gameRate.getTotalSeats();
 		Integer newRemainingSeats;
-		if (game.getRemainingSeats() == null) {
-			newRemainingSeats = game.getTotalSeats() + quantity;
+		if (gameRate.getRemainingSeats() == null) {
+			newRemainingSeats = gameRate.getTotalSeats() + quantity;
 		} else {
-			newRemainingSeats = game.getRemainingSeats() + quantity;
+			newRemainingSeats = gameRate.getRemainingSeats() + quantity;
 		}
 
 		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
 
-		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
+		gameRate.updateGameSeats(newRemainingSeats, newAdvanceReservation);
 	}
 
 	/**
@@ -185,5 +197,10 @@ public class GameService {
 	private Game findGame(UUID gameId) {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
+	}
+
+	private GameRate findGameRate(UUID gameId) {
+		return gameRateRepository.findById(gameId).orElseThrow(() -> new GameException(
+			GameException.GameErrorType.GAME_NOT_FOUND));
 	}
 }

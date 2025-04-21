@@ -62,15 +62,6 @@ public class Game extends Basic {
 	@Column(nullable = false)
 	private LocalDateTime closeDate;
 
-	@Column
-	private Double advanceReservation;  // 예매율
-
-	@Column
-	private Integer remainingSeats;        // 남은 좌석
-
-	@Column(nullable = false)
-	private Integer totalSeats;          // 총 좌석
-
 	/**
 	 * 경기 내용 수정
 	 * @param updateGameInfo : 수정할 경기 내용
@@ -82,7 +73,6 @@ public class Game extends Basic {
 		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
 		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
 		Optional.ofNullable(updateGameInfo.getStadiumName()).ifPresent(stadiumName -> this.stadiumName = stadiumName);
-		Optional.ofNullable(updateGameInfo.getTotalSeats()).ifPresent(totalSeats -> this.totalSeats = totalSeats);
 		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 		Optional.ofNullable(updateGameInfo.getOpenDate()).ifPresent(openDate -> this.openDate = openDate);
 		Optional.ofNullable(updateGameInfo.getCloseDate()).ifPresent(closeDate -> this.closeDate = closeDate);
@@ -94,16 +84,6 @@ public class Game extends Basic {
 	 */
 	public void updateGameStatus(Game updateGameStatusInfo) {
 		Optional.ofNullable(updateGameStatusInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
-	}
-
-	/**
-	 * 경기 잔여 좌석 및 예매율 수정
-	 * @param newRemainingSeats : 잔여 좌석
-	 * @param newAdvanceReservation : 예매율
-	 */
-	public void updateGameSeats(Integer newRemainingSeats, Double newAdvanceReservation) {
-		this.remainingSeats = newRemainingSeats;
-		this.advanceReservation = newAdvanceReservation;
 	}
 
 }
