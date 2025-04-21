@@ -87,7 +87,7 @@ public class OrderFeignService {
 //            ticketClient.updateTicketStatus(new FeignTicketSoldRequest(order.getOrderId(), ticketIds));
 
             // [7] (선택) Kafka OrderCreated 이벤트 발행 예정
-            OrderCreatedPayload payload = new OrderCreatedPayload(order.getOrderId(), ticketIds);
+            OrderCreatedPayload payload = new OrderCreatedPayload(order.getOrderId(), ticketIds, totalPrice);
             orderProducer.sendOrderCreatedEvent(payload.getOrderId().toString(), payload);
 
         } catch (Exception e) {
@@ -107,15 +107,16 @@ public class OrderFeignService {
     }
 
     @Transactional
-    public void completeOrder(UUID orderId, List<UUID> ticketIds) {
+    public void completeOrder(UUID orderId, List<UUID> ticketIds, int totalPrice) {
+        log.info("🎯 주문 완료 처리 시작 - orderId={}, ticketCount={}", orderId, ticketIds.size());
         try {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
 
             order.complete();
 
-            OrderCompletedPayload payload = new OrderCompletedPayload(order.getOrderId(), ticketIds);
-            orderProducer.sendOrderCompletedEvent(payload.getOrderId().toString(), payload);
+            OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds, totalPrice);
+            orderProducer.sendOrderCompletedEvent(orderId.toString(), payload);
 
         } catch (Exception e) {
             Order order = orderRepository.findById(orderId).orElse(null);

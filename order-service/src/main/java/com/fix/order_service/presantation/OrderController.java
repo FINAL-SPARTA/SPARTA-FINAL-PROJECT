@@ -50,7 +50,7 @@ public class OrderController {
     }
 
     // 주문 수정
-    @ValidateUser(roles = {"ROLE_CUSTOM"})
+    @ValidateUser(roles = {"ROLE_CUSTOMER"})
     @PutMapping("/{orderId}")
     public ResponseEntity<CommonResponse<Void>> updateOrder(
             @PathVariable UUID orderId,

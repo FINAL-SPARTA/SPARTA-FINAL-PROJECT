@@ -25,9 +25,10 @@ public class OrderFeignController {
     @PatchMapping("/{orderId}/complete")
     public ResponseEntity<CommonResponse<Void>> completeOrder(
             @PathVariable UUID orderId,
+            @RequestParam int totalPrice,
             @RequestBody List<UUID> ticketIds // 👈 전파 전략에 따라 request로 받는다
     ) {
-        orderFeignService.completeOrder(orderId, ticketIds);
+        orderFeignService.completeOrder(orderId, ticketIds, totalPrice);
         return ResponseEntity.ok(CommonResponse.success(null, "주문 상태가 COMPLETED로 변경되었습니다."));
     }
 
