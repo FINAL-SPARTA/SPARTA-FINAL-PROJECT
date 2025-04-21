@@ -1,9 +1,6 @@
 package com.fix.payments_service.infrastructure.kafka;
 
-import com.fix.common_service.kafka.dto.EventKafkaMessage;
-import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
-import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
-import com.fix.common_service.kafka.dto.PaymentCompletionFailedPayload;
+import com.fix.common_service.kafka.dto.*;
 import com.fix.common_service.kafka.producer.KafkaProducerHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,7 @@ public class PaymentProducer {
         kafkaProducerHelper.send(topic, key, new EventKafkaMessage<>(type, payload));
     }
 //  결제 완료 이벤트를 Kafka로 발행
-    public void sendPaymentCompletedEvent(PaymentCompletedPayload payload) {
+    public void sendPaymentCompletedEvent(PaymentSuccessEventPayload payload) {
         send(paymentCompletedTopic, payload.getOrderId().toString(), "PAYMENT_COMPLETED", payload);
     }
 //    결제 실패 이벤트를 Kafka로 발행

@@ -2,10 +2,7 @@ package com.fix.order_service.infrastructure.kafka;
 
 import com.fix.common_service.kafka.consumer.AbstractKafkaConsumer;
 import com.fix.common_service.kafka.consumer.RedisIdempotencyChecker;
-import com.fix.common_service.kafka.dto.EventKafkaMessage;
-import com.fix.common_service.kafka.dto.OrderCompletedPayload;
-import com.fix.common_service.kafka.dto.OrderCompletionFailedPayload;
-import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
+import com.fix.common_service.kafka.dto.*;
 import com.fix.order_service.application.OrderFeignService;
 import com.fix.order_service.application.OrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +12,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,8 +38,8 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
     @Override
     protected void processPayload(Object payload) {
         try {
-            if (payload instanceof OrderCompletedPayload completedPayload) {
-                handlePaymentCompleted(completedPayload);
+            if (payload instanceof PaymentSuccessEventPayload successPayload) {
+                handlePaymentCompleted(successPayload);
             } else if (payload instanceof OrderCompletionFailedPayload failedPayload) {
                 handlePaymentFailed(failedPayload);
             } else if (payload instanceof PaymentCancelledPayload cancelledPayload) {
@@ -51,19 +49,19 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
             }
         } catch (Exception e) {
             log.error("❌ Kafka 메시지 처리 중 예외 발생: {}", e.getMessage(), e);
-            // 필요 시 사후처리 로직 추가 (예: 알림, dead-letter queue 등)
-            throw e; // 또는 swallow if retry 원하지 않는다면
+            throw e;
         }
     }
 
     /**
      * ✅ 결제 완료 이벤트 처리
      */
-    private void handlePaymentCompleted(OrderCompletedPayload payload) {
+    private void handlePaymentCompleted(PaymentSuccessEventPayload payload) {
         UUID orderId = payload.getOrderId();
-        int totalPrice = payload.getTotalPrice();
-        log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}, totalPrice={}", orderId, totalPrice);
-        orderFeignService.completeOrder(orderId, payload.getTicketIds(), totalPrice);
+        int totalPrice = (int) payload.getAmount(); // 결제 금액
+        List<UUID> ticketIds = payload.getTicketIds();
+        log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}, amount={}", orderId, totalPrice);
+        orderFeignService.completeOrder(orderId, ticketIds, totalPrice);
     }
 
     /**

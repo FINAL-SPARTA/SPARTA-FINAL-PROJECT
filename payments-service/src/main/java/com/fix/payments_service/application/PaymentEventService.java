@@ -1,9 +1,6 @@
 package com.fix.payments_service.application;
 
-import com.fix.common_service.kafka.dto.OrderCreatedPayload;
-import com.fix.common_service.kafka.dto.PaymentCancelledPayload;
-import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
-import com.fix.common_service.kafka.dto.PaymentCompletionFailedPayload;
+import com.fix.common_service.kafka.dto.*;
 import com.fix.payments_service.domain.TossPayment;
 import com.fix.payments_service.domain.TossPaymentFailure;
 import com.fix.payments_service.domain.TossPaymentMethod;
@@ -28,8 +25,8 @@ public class PaymentEventService {
     /**
      * ✅ 결제 완료 → Kafka로 주문 상태 COMPLETED 이벤트 발행 (단순 이벤트 발행 헬퍼)
      */
-    public void sendPaymentCompleted(UUID orderId) {
-        PaymentCompletedPayload payload = new PaymentCompletedPayload(orderId);
+    public void sendPaymentCompleted(UUID orderId, List<UUID> ticketIds, int totalPrice) {
+        PaymentSuccessEventPayload payload = new PaymentSuccessEventPayload(orderId, ticketIds, totalPrice);
         paymentProducer.sendPaymentCompletedEvent(payload);
         log.info("✅ 주문 상태 COMPLETED 이벤트 발행 완료 - orderId: {}", orderId);
     }
@@ -74,12 +71,12 @@ public void processPaymentRequest(OrderCreatedPayload payload) {
         tossPaymentRepository.save(tossPayment);
 
         // ✅ (3) Kafka 이벤트 발행 (정상 흐름)
-        PaymentCompletedPayload completedPayload = new PaymentCompletedPayload(
+        PaymentSuccessEventPayload completedPayload = new PaymentSuccessEventPayload(
                 tossPayment.getOrderId(),
                 tossPayment.getPaymentKey(),
-                tossPayment.getAmount()
+                tossPayment.getAmount(),
+                payload.getTicketIds()
         );
-
         paymentProducer.sendPaymentCompletedEvent(completedPayload);
 
         log.info("✅ PaymentCompleted 이벤트 발행 완료: orderId={}", orderId);
