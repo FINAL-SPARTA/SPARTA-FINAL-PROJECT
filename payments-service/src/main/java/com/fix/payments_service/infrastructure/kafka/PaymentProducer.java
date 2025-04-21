@@ -27,7 +27,7 @@ public class PaymentProducer {
         kafkaProducerHelper.send(topic, key, new EventKafkaMessage<>(type, payload));
     }
 //  결제 완료 이벤트를 Kafka로 발행
-    public void sendPaymentCompletedEvent(PaymentSuccessEventPayload payload) {
+    public void sendPaymentCompletedEvent(PaymentCompletedPayload payload) {
         send(paymentCompletedTopic, payload.getOrderId().toString(), "PAYMENT_COMPLETED", payload);
     }
 //    결제 실패 이벤트를 Kafka로 발행

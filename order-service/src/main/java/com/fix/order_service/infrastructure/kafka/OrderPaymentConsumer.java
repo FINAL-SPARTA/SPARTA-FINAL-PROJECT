@@ -38,8 +38,8 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
     @Override
     protected void processPayload(Object payload) {
         try {
-            if (payload instanceof PaymentSuccessEventPayload successPayload) {
-                handlePaymentCompleted(successPayload);
+            if (payload instanceof PaymentCompletedPayload completedPayload) {
+                handlePaymentCompleted(completedPayload);
             } else if (payload instanceof OrderCompletionFailedPayload failedPayload) {
                 handlePaymentFailed(failedPayload);
             } else if (payload instanceof PaymentCancelledPayload cancelledPayload) {
@@ -56,11 +56,14 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
     /**
      * ✅ 결제 완료 이벤트 처리
      */
-    private void handlePaymentCompleted(PaymentSuccessEventPayload payload) {
+    private void handlePaymentCompleted(PaymentCompletedPayload payload) {
         UUID orderId = payload.getOrderId();
-        int totalPrice = (int) payload.getAmount(); // 결제 금액
+        int totalPrice = (int) payload.getAmount();
         List<UUID> ticketIds = payload.getTicketIds();
+
         log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}, amount={}", orderId, totalPrice);
+
+        // 주문 상태 COMPLETED로 전환 + Kafka 발행
         orderFeignService.completeOrder(orderId, ticketIds, totalPrice);
     }
 

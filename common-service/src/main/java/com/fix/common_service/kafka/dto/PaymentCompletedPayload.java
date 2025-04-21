@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -18,10 +19,13 @@ public class PaymentCompletedPayload {
     private UUID orderId;
     private String paymentKey;
     private long amount;
+    private List<UUID> ticketIds;
 
+    // 최소 정보만 포함한 생성자
     public PaymentCompletedPayload(UUID orderId) {
         this.orderId = orderId;
         this.paymentKey = "mock-key"; // 또는 null
         this.amount = 0L;
+        this.ticketIds = null;
     }
 }
