@@ -22,89 +22,128 @@ import java.util.UUID;
  */
 @Slf4j
 @Component
-public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
+public class OrderPaymentConsumer {
 
-    private final OrderService orderService;
-    private final OrderFeignService orderFeignService;
+    private final PaymentCompletedConsumer completedConsumer;
+    private final CompletionFailedConsumer failedConsumer;
+    private final PaymentCancelledConsumer cancelledConsumer;
 
     public OrderPaymentConsumer(RedisIdempotencyChecker idempotencyChecker,
                                 OrderService orderService,
                                 OrderFeignService orderFeignService) {
-        super(idempotencyChecker);
-        this.orderService = orderService;
-        this.orderFeignService = orderFeignService;
+        this.completedConsumer = new PaymentCompletedConsumer(idempotencyChecker, orderFeignService);
+        this.failedConsumer = new CompletionFailedConsumer(idempotencyChecker, orderService);
+        this.cancelledConsumer = new PaymentCancelledConsumer(idempotencyChecker, orderService);
     }
 
-    @Override
-    protected void processPayload(Object payload) {
-        try {
-            if (payload instanceof PaymentCompletedPayload completedPayload) {
-                handlePaymentCompleted(completedPayload);
-            } else if (payload instanceof OrderCompletionFailedPayload failedPayload) {
-                handlePaymentFailed(failedPayload);
-            } else if (payload instanceof PaymentCancelledPayload cancelledPayload) {
-                handlePaymentCancelled(cancelledPayload);
-            } else {
-                log.warn("❗️ 알 수 없는 payload 타입 수신됨: {}", payload.getClass().getSimpleName());
-            }
-        } catch (Exception e) {
-            log.error("❌ Kafka 메시지 처리 중 예외 발생: {}", e.getMessage(), e);
-            throw e;
+    @KafkaListener(topics = "${kafka-topics.payment.completed}", containerFactory = "kafkaListenerContainerFactory")
+    public void consumePaymentCompleted(
+            ConsumerRecord<String, EventKafkaMessage<PaymentCompletedPayload>> record,
+            @Payload EventKafkaMessage<PaymentCompletedPayload> message,
+            Acknowledgment ack
+    ) {
+        completedConsumer.consume(record, message, ack);
+    }
+
+    @KafkaListener(topics = "${kafka-topics.payment.completion-failed}", containerFactory = "kafkaListenerContainerFactory")
+    public void consumeCompletionFailed(
+            ConsumerRecord<String, EventKafkaMessage<OrderCompletionFailedPayload>> record,
+            @Payload EventKafkaMessage<OrderCompletionFailedPayload> message,
+            Acknowledgment ack
+    ) {
+        failedConsumer.consume(record, message, ack);
+    }
+
+    @KafkaListener(
+            topics = "${kafka-topics.payment.cancelled}",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void consumePaymentCancelled(
+            ConsumerRecord<String, EventKafkaMessage<PaymentCancelledPayload>> record,
+            @Payload EventKafkaMessage<PaymentCancelledPayload> message,
+            Acknowledgment ack
+    ) {
+        cancelledConsumer.consume(record, message, ack);
+    }
+
+    /**
+     * 결제 완료 이벤트 처리
+     */
+    static class PaymentCompletedConsumer extends AbstractKafkaConsumer<PaymentCompletedPayload> {
+        private final OrderFeignService orderFeignService;
+
+        public PaymentCompletedConsumer(RedisIdempotencyChecker idempotencyChecker,
+                                        OrderFeignService orderFeignService) {
+            super(idempotencyChecker);
+            this.orderFeignService = orderFeignService;
+        }
+
+        @Override
+        protected void processPayload(Object raw) {
+            PaymentCompletedPayload payload = mapPayload(raw, PaymentCompletedPayload.class);
+
+            log.info("[Kafka] 결제 완료 이벤트 처리 - orderId={}, amount={}",
+                    payload.getOrderId(), payload.getAmount());
+
+            // 주문 상태 COMPLETED로 전환 + 후속 처리 (Feign 호출)
+            orderFeignService.completeOrder(
+                    payload.getOrderId(),
+                    payload.getTicketIds(),
+                    (int) payload.getAmount()
+            );
         }
     }
 
     /**
-     * ✅ 결제 완료 이벤트 처리
+     * 결제 실패 이벤트 처리
      */
-    private void handlePaymentCompleted(PaymentCompletedPayload payload) {
-        UUID orderId = payload.getOrderId();
-        int totalPrice = (int) payload.getAmount();
-        List<UUID> ticketIds = payload.getTicketIds();
+    static class CompletionFailedConsumer extends AbstractKafkaConsumer<OrderCompletionFailedPayload> {
+        private final OrderService orderService;
 
-        log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}, amount={}", orderId, totalPrice);
+        public CompletionFailedConsumer(RedisIdempotencyChecker idempotencyChecker,
+                                        OrderService orderService) {
+            super(idempotencyChecker);
+            this.orderService = orderService;
+        }
 
-        // 주문 상태 COMPLETED로 전환 + Kafka 발행
-        orderFeignService.completeOrder(orderId, ticketIds, totalPrice);
+        @Override
+        protected void processPayload(Object raw) {
+            OrderCompletionFailedPayload payload = mapPayload(raw, OrderCompletionFailedPayload.class);
+
+            log.warn("[Kafka] 결제 실패 이벤트 처리 - orderId={}, reason={}",
+                    payload.getOrderId(), payload.getFailureReason());
+
+            // 주문 취소 처리
+            orderService.cancelOrderFromPayment(
+                    payload.getOrderId(),
+                    payload.getFailureReason()
+            );
+        }
     }
 
     /**
-     * ❌ 결제 실패 이벤트 처리
+     * 결제 취소 이벤트 처리
      */
-    private void handlePaymentFailed(OrderCompletionFailedPayload payload) {
-        UUID orderId = payload.getOrderId();
-        log.warn("❌ [Kafka] 결제 실패 이벤트 수신 - orderId={}, reason={}", orderId, payload.getFailureReason());
-        orderService.cancelOrderFromPayment(orderId, payload.getFailureReason());
+    static class PaymentCancelledConsumer extends AbstractKafkaConsumer<PaymentCancelledPayload> {
+        private final OrderService orderService;
+
+        public PaymentCancelledConsumer(RedisIdempotencyChecker idempotencyChecker,
+                                        OrderService orderService) {
+            super(idempotencyChecker);
+            this.orderService = orderService;
+        }
+
+        @Override
+        protected void processPayload(Object raw) {
+            PaymentCancelledPayload payload = mapPayload(raw, PaymentCancelledPayload.class);
+
+            log.info("[Kafka] 결제 취소 이벤트 처리 - orderId={}", payload.getOrderId());
+
+            // 주문 취소 처리 (사용자 요청)
+            orderService.cancelOrderFromPayment(
+                    payload.getOrderId(),
+                    "사용자 요청에 의한 결제 취소"
+            );
+        }
     }
-
-    /**
-     * 🔁 결제 취소 이벤트 처리
-     */
-    private void handlePaymentCancelled(PaymentCancelledPayload payload) {
-        UUID orderId = payload.getOrderId();
-        log.info("🔁 [Kafka] 결제 취소 이벤트 수신 - orderId={}", orderId);
-        orderService.cancelOrderFromPayment(orderId, "사용자 요청에 의한 결제 취소");
-    }
-
-    @KafkaListener(topics = "${kafka-topics.payment.completed}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
-    public void listenCompleted(ConsumerRecord<String, EventKafkaMessage<Object>> record,
-                                @Payload EventKafkaMessage<Object> message,
-                                Acknowledgment ack) {
-        super.consume(record, message, ack);
-    }
-
-    @KafkaListener(topics = "${kafka-topics.payment.completion-failed}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
-    public void listenFailed(ConsumerRecord<String, EventKafkaMessage<Object>> record,
-                             @Payload EventKafkaMessage<Object> message,
-                             Acknowledgment ack) {
-        super.consume(record, message, ack);
-    }
-
-    @KafkaListener(topics = "${kafka-topics.payment.cancelled}", groupId = "order-service", containerFactory = "kafkaListenerContainerFactory")
-    public void listenCancelled(ConsumerRecord<String, EventKafkaMessage<Object>> record,
-                                @Payload EventKafkaMessage<Object> message,
-                                Acknowledgment ack) {
-        super.consume(record, message, ack);
-    }
-
-
 }
