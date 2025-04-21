@@ -15,6 +15,4 @@ import java.util.UUID;
 public class OrderCompletedPayload {
     private UUID orderId;
     private List<UUID> ticketIds;
-    private int totalPrice;
-
 }
