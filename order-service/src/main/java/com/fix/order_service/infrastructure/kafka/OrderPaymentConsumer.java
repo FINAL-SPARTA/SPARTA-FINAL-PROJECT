@@ -61,8 +61,9 @@ public class OrderPaymentConsumer extends AbstractKafkaConsumer<Object> {
      */
     private void handlePaymentCompleted(OrderCompletedPayload payload) {
         UUID orderId = payload.getOrderId();
-        log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}", orderId);
-        orderFeignService.completeOrder(orderId, payload.getTicketIds());
+        int totalPrice = payload.getTotalPrice();
+        log.info("✅ [Kafka] 결제 완료 이벤트 수신 - orderId={}, totalPrice={}", orderId, totalPrice);
+        orderFeignService.completeOrder(orderId, payload.getTicketIds(), totalPrice);
     }
 
     /**
