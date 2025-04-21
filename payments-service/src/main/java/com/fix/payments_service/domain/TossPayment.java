@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -21,10 +22,10 @@ public class TossPayment extends Basic { // ✅ createdAt/updatedAt 포함됨
     private String paymentKey;
 
     @Column(nullable = false)
-    private String orderId;
+    private UUID orderId;
 
     @Column(nullable = false)
-    private int amount;
+    private int amount; // 결제 금액
 
     @Enumerated(EnumType.STRING)
     private TossPaymentMethod method;

@@ -20,4 +20,12 @@ public class PaymentCompletedPayload {
      * 주문 ID (Kafka 키 및 상태 변경 대상)
      */
     private UUID orderId;
+    private String paymentKey;  // 가짜 결제 키
+    private long amount;        // 결제 금액
+
+    public PaymentCompletedPayload(UUID orderId) {
+        this.orderId = orderId;
+        this.paymentKey = "mock-key"; // 또는 null
+        this.amount = 0L;
+    }
 }
