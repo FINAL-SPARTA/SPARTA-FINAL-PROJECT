@@ -124,7 +124,9 @@ public class UserService {
 
     // 닉네임 반환
     public String getNickname(Long userId) {
+        System.out.println("사용자 ID : " + userId);
         User user = findUserById(userId);
+        System.out.println("사용자 닉네임 : " + user.getNickname());
         return user.getNickname();
     }
     
