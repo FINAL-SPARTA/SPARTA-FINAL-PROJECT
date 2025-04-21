@@ -42,7 +42,7 @@ public class GameUpdateRequest {
 			.build();
 	}
 
-	public Game toGameWithStadium(Long stadiumId, String stadiumName, Integer seatQuantity) {
+	public Game toGameWithStadium(Long stadiumId, String stadiumName) {
 		return Game.builder()
 			.gameName(this.gameName)
 			.homeTeam(this.homeTeam)
@@ -50,7 +50,6 @@ public class GameUpdateRequest {
 			.gameDate(this.gameDate)
 			.stadiumId(stadiumId)
 			.stadiumName(stadiumName)
-			.totalSeats(seatQuantity)
 			.gameStatus(this.gameStatus)
 			.openDate(this.openDate)
 			.closeDate(this.closeDate)

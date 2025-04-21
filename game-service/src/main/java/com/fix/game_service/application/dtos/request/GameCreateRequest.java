@@ -3,6 +3,7 @@ package com.fix.game_service.application.dtos.request;
 import java.time.LocalDateTime;
 
 import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameRate;
 import com.fix.game_service.domain.model.GameStatus;
 import com.fix.game_service.domain.model.Team;
 
@@ -28,7 +29,7 @@ public class GameCreateRequest {
 	private LocalDateTime openDate;
 	private LocalDateTime closeDate;
 
-	public Game toGame(Long stadiumId, String stadiumName, Integer seatQuantity) {
+	public Game toGame(Long stadiumId, String stadiumName) {
 		return Game.builder()
 			.gameName(this.gameName)
 			.homeTeam(this.homeTeam)
@@ -36,7 +37,6 @@ public class GameCreateRequest {
 			.gameDate(this.gameDate)
 			.stadiumId(stadiumId)
 			.stadiumName(stadiumName)
-			.totalSeats(seatQuantity)
 			.gameStatus(this.gameStatus)
 			.openDate(this.openDate)
 			.closeDate(this.closeDate)

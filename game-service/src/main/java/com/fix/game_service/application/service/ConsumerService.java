@@ -7,7 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fix.common_service.kafka.dto.TicketUpdatedPayload;
 import com.fix.game_service.application.exception.GameException;
-import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameRate;
+import com.fix.game_service.domain.repository.GameRateRepository;
 import com.fix.game_service.domain.repository.GameRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -18,12 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ConsumerService {
 
-	private final GameRepository gameRepository;
+	private final GameRateRepository gameRateRepository;
 
 	@Transactional
 	public void updateGameSeatsByConsumer(TicketUpdatedPayload payload) {
 		// 해당 경기 탐색
-		Game game = findGame(payload.getGameId());
+		GameRate game = findGameRate(payload.getGameId());
 
 		// 전체 좌석
 		Integer totalSeats = game.getTotalSeats();
@@ -51,12 +52,10 @@ public class ConsumerService {
 	 * @param gameId : 찾을 경기 ID
 	 * @return : 찾은 경기 내용 반환
 	 */
-	private Game findGame(UUID gameId) {
-		Game game = gameRepository.findByIdWithLock(gameId);
-		if (game != null) {
-			return game;
-		} else {
-			throw new GameException(GameException.GameErrorType.GAME_NOT_FOUND);
-		}
+	private GameRate findGameRate(UUID gameId) {
+		GameRate gameRate = gameRateRepository.findById(gameId).orElseThrow(() -> new GameException(
+			GameException.GameErrorType.GAME_NOT_FOUND));
+
+		return gameRate;
 	}
 }
