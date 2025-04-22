@@ -25,7 +25,7 @@ public class ChatMessageConsumer {
 	 * 토픽으로 메시지 전송
 	 * @param message : 받은 메시지 해당 채팅방으로 전달
 	 */
-	@KafkaListener(topics = "chat-message", groupId = "${spring.kafka.consumer.group-id}")
+	@KafkaListener(topics = "${kafka-topics.chat.message}", groupId = "${spring.kafka.consumer.group-id}")
 	public void consumeMessage(ChatMessage message) throws IOException {
 		// 로그 저장 등의 로직이 필요하다면 ChatMessage로 캐스팅 과정 필요
 		// ChatMessage chatMessage = objectMapper.readValue(message, ChatMessage.class);
