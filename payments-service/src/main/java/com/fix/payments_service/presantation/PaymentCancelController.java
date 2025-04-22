@@ -57,7 +57,7 @@ public class PaymentCancelController {
 //        NPE 발생 문제 수정
         TossCancelResponseDto response = responseEntity.getBody();
         if (response == null) {
-            log.error("❌ Toss 결제 취소 응답이 null입니다 . paymentKey: {}, orderId: {}", paymentKey, orderId);
+            log.error("❌ Toss 결제 취소 응답이 null입니다. paymentKey: {}, orderId: {}", paymentKey, orderId);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build(); // 혹은 적절한 메시지와 함께 502
         }
         log.info("✅ Toss 환불 성공 - paymentKey: {}, status: {}", response.getPaymentKey(), response.getStatus());
