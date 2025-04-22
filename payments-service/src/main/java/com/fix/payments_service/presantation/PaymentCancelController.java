@@ -54,7 +54,6 @@ public class PaymentCancelController {
                 TossCancelResponseDto.class
         );
 
-
 //        NPE 발생 문제 수정
         TossCancelResponseDto response = responseEntity.getBody();
         if (response == null) {
