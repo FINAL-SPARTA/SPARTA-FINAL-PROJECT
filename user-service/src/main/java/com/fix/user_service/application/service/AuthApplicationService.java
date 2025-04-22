@@ -10,6 +10,7 @@ import com.fix.user_service.infrastructure.security.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ public class AuthApplicationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlackListService tokenBlackListService;
+
+    private static final String TRACE_ID = "traceId"; // MDC 키
 
     /**
      * 엑세스 토큰 생성
@@ -79,34 +82,32 @@ public class AuthApplicationService {
      * @return : 로그인 결과
      */
     public SignInResponseDTO signIn(SignInRequestDTO signInRequest) {
-        try {
-            User user = userRepository.findByUsername(signInRequest.getUsername())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        String traceId = MDC.get(TRACE_ID);
+        log.info("[{}] 로그인 요청 시작 : username={}", traceId, signInRequest.getUsername());
 
-            if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
-                throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
-            }
+        User user = userRepository.findByUsername(signInRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다. Username: " + signInRequest.getUsername()));
 
-            String token = createAccessToken(new CreateTokenDTO(
-                    user.getUserId(),
-                    user.getUsername(),
-                    user.getRoleName()
-            ));
-
-            log.info("✅ 로그인 성공: username={}, role={}, token={}",
-                    user.getUsername(), user.getRoleName(), token);
-
-            return SignInResponseDTO.builder()
-                    .token(token)
-                    .userId(user.getUserId())
-                    .username(user.getUsername())
-                    .role(user.getRoleName().name())
-                    .build();
-
-        } catch (Exception e) {
-            log.error("❌ 로그인 실패: {}", e.getMessage());
-            throw e;
+        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
+            log.warn("[{}] 로그인 실패 (비밀번호 불일치) : username={}", traceId, signInRequest.getUsername());
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
         }
+
+        String token = createAccessToken(new CreateTokenDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getRoleName()
+        ));
+
+        log.info("[{}] 로그인 성공 : userId={}, username={}", traceId, user.getUserId(), user.getUsername());
+
+        return SignInResponseDTO.builder()
+                .token(token)
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .role(user.getRoleName().name())
+                .build();
+
     }
 
 
