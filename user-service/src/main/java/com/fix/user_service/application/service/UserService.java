@@ -12,12 +12,15 @@ import com.fix.user_service.application.exception.UserException.UserErrorType;
 import com.fix.user_service.domain.User;
 import com.fix.user_service.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -25,9 +28,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String TRACE_ID = "traceId"; // MDC 키
+
     // ✅ CREATE
     @Transactional
     public UserDetailResponseDto createUser(UserCreateRequestDto requestDto) {
+        String traceId = MDC.get(TRACE_ID);
+        log.info("[{}] 회원가입 요청 시작 : username={}, email={}, phoneNumber={}",
+                traceId, requestDto.getUsername(), requestDto.getEmail(), requestDto.getPhoneNumber());
+
         validateDuplicateUser(requestDto.getUsername(), requestDto.getEmail(),requestDto.getPhoneNumber());
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
@@ -41,6 +50,7 @@ public class UserService {
             requestDto.getPhoneNumber()
         );
 
+        log.info("[{}] 회원가입 성공 : userId={}, username={}", traceId, user.getUserId(), user.getUsername());
         return UserDetailResponseDto.from(userRepository.save(user));
     }
 
@@ -84,9 +94,12 @@ public class UserService {
     // ✅ DELETE (soft delete)
     @Transactional
     public void deleteUser(Long userId) {
+        String traceId = MDC.get(TRACE_ID);
+        log.info("[{}] 사용자 삭제 요청 시작 : userId={}", traceId, userId);
+
         User user = findUserById(userId);
         user.softDelete(userId);
-        user.softDelete(0L); // TODO: 인증 적용 후 실제 로그인 유저 ID로 교체
+        log.info("[{}] 사용자 삭제 성공 (논리적 삭제) : userId={}", traceId, userId);
     }
 
     // ✅ POST (포인트 차감)
