@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -30,6 +31,9 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	// 채팅 생성
 	private final ChatMessageProducer producer;
 	private final ObjectMapper objectMapper;
+
+	@Value("${kafka-topics.chat.message}")
+	private String chatMessageTopic;
 
 	/**
 	 * 초반 WebSocket 세션 연결
@@ -57,7 +61,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 		chatMessage.setMessageType("USER");
 		chatMessage.setChatId(chatId.toString());
 		chatMessage.setNickname(nickname);
-		producer.sendMessage("chat-message", chatMessage);
+		producer.sendMessage(chatMessageTopic, chatMessage);
 	}
 
 	/**
@@ -105,4 +109,5 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 		String chatIdStr = path.substring(path.lastIndexOf("/") + 1);
 		return UUID.fromString(chatIdStr);
 	}
+
 }
