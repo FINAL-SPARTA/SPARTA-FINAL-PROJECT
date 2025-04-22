@@ -60,4 +60,18 @@ public class GlobalExceptionHandler {
                 "Illegal Argument", exception.getMessage(), HttpStatus.BAD_REQUEST.value()
         ));
     }
+
+    // 예상하지 못한 Exception 도 로깅
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CommonResponse<String>> handleGeneralException(
+            Exception exception, HttpServletRequest request) {
+        String traceId = MDC.get(TRACE_ID);
+
+        log.error("[{}] 예상하지 못한 Exception 발생 : URI={}, Method={}, ErrorMessage={}",
+                traceId, request.getRequestURI(), request.getMethod(), exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponse.fail(
+                "Internal Server Error", exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()
+        ));
+    }
 }
