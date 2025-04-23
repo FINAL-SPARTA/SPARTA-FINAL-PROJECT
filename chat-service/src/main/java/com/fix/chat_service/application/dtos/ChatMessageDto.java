@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.fix.chat_service.domain.model.ChatMessage;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -34,5 +36,16 @@ public class ChatMessageDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public ChatMessage toChatMessage() {
+        return ChatMessage.builder()
+            .chatId(this.chatId)
+            .userId(this.userId)
+            .nickname(this.nickname)
+            .message(this.message)
+            .time(this.time)
+            .type(this.type)
+            .build();
     }
 }
