@@ -14,7 +14,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fix.chat_service.application.dtos.ChatMessage;
+import com.fix.chat_service.application.dtos.ChatMessageDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +44,7 @@ public class KafkaChatProducerConfig {
 	private final ObjectMapper objectMapper;
 
 	@Bean
-	public ProducerFactory<String, ChatMessage> chatProducerConfig() {
+	public ProducerFactory<String, ChatMessageDto> chatProducerConfig() {
 		Map<String, Object> props = new HashMap<>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -56,12 +56,12 @@ public class KafkaChatProducerConfig {
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize); // 배치 사이즈
 		props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, requestTimeout); // 요청 타임아웃
 
-		JsonSerializer<ChatMessage> valueSerializer = new JsonSerializer<>(objectMapper);
+		JsonSerializer<ChatMessageDto> valueSerializer = new JsonSerializer<>(objectMapper);
 		return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), valueSerializer);
 	}
 
 	@Bean
-	public KafkaTemplate<String, ChatMessage> chatKafkaTemplate() {
+	public KafkaTemplate<String, ChatMessageDto> chatKafkaTemplate() {
 		return new KafkaTemplate<>(chatProducerConfig());
 	}
 
