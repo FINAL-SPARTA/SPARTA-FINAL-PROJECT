@@ -1,5 +1,6 @@
 package com.fix.ticket_service.domain.model;
 
+import com.fix.ticket_service.application.exception.TicketException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -76,7 +77,7 @@ public class Ticket {
 
     public void validateAuth(Long userId, String userRole) {
         if (!this.userId.equals(userId) && !(userRole.equals("MASTER") || userRole.equals("MANAGER"))) {
-            throw new IllegalArgumentException("조회, 수정 권한이 없습니다.");
+            throw new TicketException(TicketException.TicketErrorType.UNAUTHORIZED_ACCESS);
         }
     }
 }

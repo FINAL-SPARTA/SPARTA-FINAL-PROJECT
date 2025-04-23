@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         UserException exception, HttpServletRequest request) {
         String traceId = MDC.get(TRACE_ID);
 
-        log.error("[{}] UserException 발생 : URI={}, Method={}, ErrorCode={}, ErrorMessage={}",
+        log.warn("[{}] UserException 발생 : URI={}, Method={}, ErrorCode={}, ErrorMessage={}",
                 traceId, request.getRequestURI(), request.getMethod(),
                 exception.getErrorCode(), exception.getMessage());
 
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        log.error("[{}] ValidationException 발생 : URI={}, Method={}, ErrorMessages={}",
+        log.warn("[{}] ValidationException 발생 : URI={}, Method={}, ErrorMessages={}",
                 traceId, request.getRequestURI(), request.getMethod(), errorMessages);
 
         return ResponseEntity.badRequest().body(CommonResponse.fail(
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
             IllegalArgumentException exception, HttpServletRequest request) {
         String traceId = MDC.get(TRACE_ID);
 
-        log.error("[{}] IllegalArgumentException 발생 : URI={}, Method={}, ErrorMessage={}",
+        log.warn("[{}] IllegalArgumentException 발생 : URI={}, Method={}, ErrorMessage={}",
                 traceId, request.getRequestURI(), request.getMethod(), exception.getMessage());
 
         return ResponseEntity.badRequest().body(CommonResponse.fail(
