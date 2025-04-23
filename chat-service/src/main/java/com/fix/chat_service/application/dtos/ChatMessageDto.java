@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMessageDto {
 
     private String chatId;
+    private Long userId;
     private String nickname;
     private String message;
     private LocalDateTime time;
@@ -29,5 +30,9 @@ public class ChatMessage {
 
 	public void setNickname(String nickname) {
 	    this.nickname = nickname;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

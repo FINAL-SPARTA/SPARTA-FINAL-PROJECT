@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fix.chat_service.application.dtos.ChatMessage;
+import com.fix.chat_service.application.dtos.ChatMessageDto;
 import com.fix.chat_service.infrastructure.handler.CustomWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,9 @@ public class RedisConsumer implements MessageListener {
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		try {
-			ChatMessage chatMessage = (ChatMessage)redisTemplate.getValueSerializer().deserialize(message.getBody());
-			log.info("Redis Consumer로 메시지 넘어옴 : {}", chatMessage.getMessage());
-			webSocketHandler.broadcastMessage(UUID.fromString(chatMessage.getChatId()), chatMessage);
+			ChatMessageDto chatMessageDto = (ChatMessageDto)redisTemplate.getValueSerializer().deserialize(message.getBody());
+			log.info("Redis Consumer로 메시지 넘어옴 : {}", chatMessageDto.getMessage());
+			webSocketHandler.broadcastMessage(UUID.fromString(chatMessageDto.getChatId()), chatMessageDto);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
