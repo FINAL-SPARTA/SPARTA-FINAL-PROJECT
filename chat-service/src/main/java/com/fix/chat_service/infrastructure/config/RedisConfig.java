@@ -13,7 +13,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fix.chat_service.application.dtos.ChatMessage;
+import com.fix.chat_service.application.dtos.ChatMessageDto;
 import com.fix.chat_service.presenatation.consumer.RedisConsumer;
 
 import lombok.RequiredArgsConstructor;
@@ -55,12 +55,12 @@ public class RedisConfig {
 	 * redisTemplate 설정
 	 */
 	@Bean
-	public RedisTemplate<String, ChatMessage> redisTemplate() {
-		RedisTemplate<String, ChatMessage> redisTemplate = new RedisTemplate<>();
+	public RedisTemplate<String, ChatMessageDto> redisTemplate() {
+		RedisTemplate<String, ChatMessageDto> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory());
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		Jackson2JsonRedisSerializer<ChatMessage> serializer =
-			new Jackson2JsonRedisSerializer<>(objectMapper, ChatMessage.class);
+		Jackson2JsonRedisSerializer<ChatMessageDto> serializer =
+			new Jackson2JsonRedisSerializer<>(objectMapper, ChatMessageDto.class);
 		redisTemplate.setValueSerializer(serializer);
 		return redisTemplate;
 	}

@@ -18,7 +18,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fix.chat_service.application.dtos.ChatMessage;
+import com.fix.chat_service.application.dtos.ChatMessageDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,7 +57,7 @@ public class KafkaChatConsumerConfig {
 	 * @return : 기본 설정 반환
 	 */
 	@Bean
-	public ConsumerFactory<String, ChatMessage> chatConsumerConfig() {
+	public ConsumerFactory<String, ChatMessageDto> chatConsumerConfig() {
 		Map<String, Object> props = new HashMap<>();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);  // Kafka 서버 주소
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);  // Consumer Group ID
@@ -69,7 +69,7 @@ public class KafkaChatConsumerConfig {
 
 		// JsonDeserializer 설정
 		props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages);
-		props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ChatMessage.class.getName()); // 기본 역직렬화 타입
+		props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ChatMessageDto.class.getName()); // 기본 역직렬화 타입
 		props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, "true");
 
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // 처음 연결 시 가장 오래된 메시지부터 처리
@@ -80,14 +80,14 @@ public class KafkaChatConsumerConfig {
 		props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, requestTimeout); // 요청 타임아웃
 		props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollInterval); // 최대 폴링 간격
 
-		JsonDeserializer<ChatMessage> valueDeserializer = new JsonDeserializer<>(ChatMessage.class, objectMapper);
+		JsonDeserializer<ChatMessageDto> valueDeserializer = new JsonDeserializer<>(ChatMessageDto.class, objectMapper);
 
 		return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
 	}
 
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, ChatMessage> kafkaChatListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, ChatMessage> factory =
+	public ConcurrentKafkaListenerContainerFactory<String, ChatMessageDto> kafkaChatListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, ChatMessageDto> factory =
 			new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(chatConsumerConfig());
 		factory.setConcurrency(concurrency);

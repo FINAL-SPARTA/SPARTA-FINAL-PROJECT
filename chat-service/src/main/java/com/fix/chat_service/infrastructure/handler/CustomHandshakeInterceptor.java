@@ -30,12 +30,14 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 			log.info("userID: {}" ,userId);
 
 			if (userId != null) {
+				Long rawUserId = Long.valueOf(userId);
 				try {
-					String nickname = userClient.getNickname(Long.valueOf(userId));
-					log.info(nickname);
+					String nickname = userClient.getNickname(rawUserId);
 					attributes.put("nickname", nickname);
 				} catch (Exception e) {
 					attributes.put("nickname", "Anonymous");
+				} finally {
+					attributes.put("userId", rawUserId);
 				}
 			}
 		}
