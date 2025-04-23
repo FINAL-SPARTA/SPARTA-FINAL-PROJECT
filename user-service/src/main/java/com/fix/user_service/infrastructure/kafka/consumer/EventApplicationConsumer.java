@@ -41,7 +41,7 @@ public class EventApplicationConsumer extends AbstractKafkaConsumer<EventApplica
             userService.deductPoints(payload.getUserId(), payload.getPoints());
             log.info("[Kafka] 포인트 차감 성공: userId={}, points={}", payload.getUserId(), payload.getPoints());
         } catch (UserException e) {
-            log.error("[Kafka-SAGA] 포인트 차감 실패: eventId={}, userId={}, points={}, error={}",
+            log.warn("[Kafka-SAGA] 포인트 차감 실패: eventId={}, userId={}, points={}, error={}",
                 payload.getEventId(), payload.getUserId(), payload.getPoints(), e.getMessage());
 
             userProducer.sendPointDeductionFailed(payload.getEventId(), payload.getUserId(), payload.getEventEntryId(),
