@@ -1,5 +1,6 @@
 package com.fix.user_service.presentation.controller;
 
+import com.fix.common_service.aop.ApiLogging;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.common_service.entity.UserRole;
 import com.fix.user_service.application.dtos.request.UserCreateRequestDto;
@@ -32,6 +33,7 @@ public class UserController {
     private final UserService userService;
 
     // 회원가입 (POST /users)
+    @ApiLogging
     @PostMapping("/sign-up")
     public ResponseEntity<UserDetailResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto requestDto,
                                                             BindingResult bindingResult) {
@@ -51,6 +53,7 @@ public class UserController {
     }
 
     // 사용자 검색 (GET /users/search?keyword=xxx&role=MANAGER&page=0&size=10)
+    @ApiLogging
     @GetMapping("/search")
     public ResponseEntity<CommonResponse<UserListResponseDto>> searchUsers(
         @RequestParam(required = false) String keyword,
@@ -67,6 +70,7 @@ public class UserController {
     }
 
     // 관리자용 고급 검색
+    @ApiLogging
     @GetMapping("/admin/search")
     public ResponseEntity<CommonResponse<UserListResponseDto>> searchUsersByCondition(
         @ModelAttribute UserSearchCondition condition,
