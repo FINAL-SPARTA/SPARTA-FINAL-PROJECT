@@ -2,6 +2,7 @@ package com.fix.ticket_service.application.service;
 
 import com.fix.ticket_service.application.dtos.request.*;
 import com.fix.ticket_service.application.dtos.response.*;
+import com.fix.ticket_service.application.exception.TicketException;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
@@ -68,7 +69,7 @@ public class TicketApplicationService {
             acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (!acquired) {
                 log.warn("좌석 락 획득 실패: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
-                throw new IllegalArgumentException("다른 사용자가 좌석을 선택 중입니다.");
+                throw new TicketException(TicketException.TicketErrorType.SEAT_LOCK_ACQUIRE_FAILED);
             }
             log.info("좌석 락 획득 성공: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
 
@@ -77,7 +78,7 @@ public class TicketApplicationService {
                 String redisKey = getSeatKey(seatId);
                 String status = redisTemplate.opsForValue().get(redisKey);
                 if ("RESERVED".equals(status) || "SOLD".equals(status)) {
-                    throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+                    throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
                 }
             }
 
@@ -86,7 +87,7 @@ public class TicketApplicationService {
                     ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
                             seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
             if (!existingTickets.isEmpty()) {
-                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+                throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
             }
 
             // 5) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
@@ -111,7 +112,7 @@ public class TicketApplicationService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("락 대기 중 인터럽트 발생: userId={}, seatInfoList={}", userId, request.getSeatInfoList(), e);
-            throw new RuntimeException("락을 획득하는 동안 문제가 발생했습니다.", e);
+            throw new TicketException(TicketException.TicketErrorType.SEAT_LOCK_INTERRUPTED);
         } finally {
             if (acquired) {
                 multiLock.unlock();
@@ -125,7 +126,7 @@ public class TicketApplicationService {
     @Transactional(readOnly = true)
     public TicketDetailResponseDto getTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+            .orElseThrow(() -> new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND));
 
         ticket.validateAuth(userId, userRole);
 
@@ -241,7 +242,7 @@ public class TicketApplicationService {
     @Transactional
     public void deleteTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+            .orElseThrow(() -> new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND));
 
         ticket.validateAuth(userId, userRole);
 
@@ -254,7 +255,7 @@ public class TicketApplicationService {
 
         // 티켓이 존재하지 않거나, 요청한 게임 ID와 일치하지 않는 경우 예외 처리
         if (tickets.isEmpty()) {
-            throw new IllegalArgumentException("삭제할 수 있는 티켓이 없습니다.");
+            throw new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND);
         }
 
         // 티켓 삭제
@@ -273,13 +274,13 @@ public class TicketApplicationService {
     private void validateQueueToken(String token,Long userId) {
         // 큐 토큰이 null 이거나 비어있는 경우 예외 처리
         if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("큐 토큰이 필요합니다.");
+            throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_REQUIRED);
         }
 
         // 큐 토큰이 Redis 에 존재하는지 확인 (존재하지 않는다면 TTL 이 만료된 것)
         String redisKey = WORKING_QUEUE_KEY_PREFIX + token +"|"+userId;
         if (!redisTemplate.hasKey(redisKey)) {
-            throw new IllegalArgumentException("큐 토큰이 유효하지 않습니다.");
+            throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_INVALID);
         }
 
         redisTemplate.delete(redisKey); // 토큰 사용 후 Redis 에서 삭제
