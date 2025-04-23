@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fix.common_service.dto.StadiumFeignResponse;
+import com.fix.common_service.kafka.dto.GameCreatedInfoPayload;
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.request.GameStatusUpdateRequest;
@@ -27,6 +28,7 @@ import com.fix.game_service.domain.repository.GameRepository;
 import com.fix.game_service.infrastructure.client.ChatClient;
 import com.fix.game_service.infrastructure.client.StadiumClient;
 import com.fix.game_service.infrastructure.client.dto.ChatCreateRequest;
+import com.fix.game_service.presentation.controller.GameProducer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,7 @@ public class GameService {
 	private final GameRateRepository gameRateRepository;
 	private final StadiumClient stadiumClient;
 	private final ChatClient chatClient;
+	private final GameProducer gameProducer;
 
 	/**
 	 * 경기 생성
@@ -69,7 +72,11 @@ public class GameService {
 			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
 		chatClient.createChatRoom(requestDto);
 
-		// 4. 경기 내용 반환
+		// 7. 경기 내용 alarm으로 전송
+		gameProducer.sendGameInfoToAlarm(new GameCreatedInfoPayload(
+			savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString()));
+
+		// 8. 경기 내용 반환
 		return GameCreateResponse.fromGame(savedGame);
 	}
 
