@@ -14,9 +14,9 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 @Slf4j
 @Component
-public class TicketReservedConsumer extends AbstractKafkaConsumer<OrderCompletedPayload> {
+public class OrderCompleteConsumer extends AbstractKafkaConsumer<OrderCompletedPayload> {
     private final AlarmService alarmService;
-    public TicketReservedConsumer(RedisIdempotencyChecker idempotencyChecker, AlarmService alarmService) {
+    public OrderCompleteConsumer(RedisIdempotencyChecker idempotencyChecker, AlarmService alarmService) {
         super(idempotencyChecker);
         this.alarmService = alarmService;
     }
