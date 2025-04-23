@@ -1,6 +1,8 @@
 package com.fix.ticket_service.application.service;
 
-import com.fix.ticket_service.application.dtos.request.*;
+import com.fix.ticket_service.application.dtos.request.TicketInfoRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.*;
 import com.fix.ticket_service.application.exception.TicketException;
 import com.fix.ticket_service.domain.model.Ticket;
@@ -50,6 +52,7 @@ public class TicketApplicationService {
     private static final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId, String token) {
+        log.info("티켓 예약 요청: userId={}, gameId={}, seatCount={}", userId, request.getGameId(), request.getSeatInfoList().size());
         // 1) 큐 토큰 검증
         validateQueueToken(token,userId);
 
@@ -152,6 +155,7 @@ public class TicketApplicationService {
     @Transactional(readOnly = true)
     @Cacheable(value = "seatView", key = "#gameId.toString() + ':' + #stadiumId.toString() + ':' + #section")
     public List<SeatStatusResponseDto> getSeatView(UUID gameId, Long stadiumId, String section) {
+        log.info("좌석 뷰 조회 요청: gameId={}, stadiumId={}, section={}", gameId, stadiumId, section);
         // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
         SeatInfoListResponseDto seatInfoListResponseDto =
             stadiumClient.getSeatsBySection(stadiumId, section);
@@ -194,11 +198,14 @@ public class TicketApplicationService {
             })
             .toList();
 
+        log.info("좌석 뷰 조회 성공: gameId={}, stadiumId={}, section={}, resultSize={}", gameId, stadiumId, section, result.size());
         return result;
     }
 
     @Transactional
     public void updateTicketStatus(TicketSoldRequestDto requestDto) {
+        log.info("티켓 상태 업데이트 (SOLD) 시작: orderId={}, ticketIds={}", requestDto.getOrderId(), requestDto.getTicketIds());
+        long startTime = System.nanoTime();
         // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
         List<Ticket> tickets = ticketRepository.findAllById(requestDto.getTicketIds());
 
@@ -216,10 +223,15 @@ public class TicketApplicationService {
             String redisKey = getSeatKey(ticket.getSeatId());
             redisTemplate.opsForValue().set(redisKey, "SOLD", SOLD_TTL_SECONDS, TimeUnit.SECONDS);
         }
+        long endTime = System.nanoTime();
+        log.info("티켓 상태 업데이트 (SOLD) 완료: orderId={}, ticketIds={}, duration={}ms",
+            requestDto.getOrderId(), requestDto.getTicketIds(), TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
     }
 
     @Transactional
     public void cancelTicketStatus(UUID orderId) {
+        log.info("티켓 상태 업데이트 (CANCELLED) 시작: orderId={}", orderId);
+        long startTime = System.nanoTime();
         // 1) 주문 ID에 해당하는 티켓 목록 조회
         List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
 
@@ -237,6 +249,9 @@ public class TicketApplicationService {
             String redisKey = getSeatKey(ticket.getSeatId());
             redisTemplate.delete(redisKey);
         }
+        long endTime = System.nanoTime();
+        log.info("티켓 상태 업데이트 (CANCELLED) 완료: orderId={}, ticketIds={}, duration={}ms",
+            orderId, tickets.stream().map(Ticket::getTicketId).collect(Collectors.toList()), TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
     }
 
     @Transactional
@@ -278,7 +293,7 @@ public class TicketApplicationService {
         }
 
         // 큐 토큰이 Redis 에 존재하는지 확인 (존재하지 않는다면 TTL 이 만료된 것)
-        String redisKey = WORKING_QUEUE_KEY_PREFIX + token +"|"+userId;
+        String redisKey = WORKING_QUEUE_KEY_PREFIX + token + "|" + userId;
         if (!redisTemplate.hasKey(redisKey)) {
             throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_INVALID);
         }
