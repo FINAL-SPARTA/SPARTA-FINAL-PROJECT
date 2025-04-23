@@ -2,34 +2,16 @@ package com.fix.chat_service.application.exception;
 
 import org.springframework.http.HttpStatus;
 
+import com.fix.common_service.exception.CustomException;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class ChatException extends RuntimeException {
-
-	private final String errorCode;
-	private final String message;
-	private final HttpStatus status;
-
-	// ✅ getCode(), getMessage(), getStatus() 메서드 추가
-	public String getCode() {
-		return errorCode;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public HttpStatus getStatus() {
-		return status;
-	}
+public class ChatException extends CustomException {
 
 	public ChatException(ChatErrorType errorType) {
-		this.errorCode = errorType.getCode();
-		this.message = errorType.getMessage();
-		this.status = errorType.getStatus();
+		super(errorType.getCode(), errorType.getMessage(), errorType.getStatus());
 	}
 
 	@Getter

@@ -7,6 +7,9 @@ ext {
 }
 
 dependencies {
+    // ✅ Common
+    implementation project(':common-service')
+
     // ✅ Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
