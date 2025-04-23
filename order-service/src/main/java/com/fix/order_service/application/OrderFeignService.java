@@ -122,7 +122,7 @@ public class OrderFeignService {
             order.complete();
 
             // [3] 주문 완료 Kafka 이벤트 발행
-            OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds);
+            OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds, order.getUserId());
             orderProducer.sendOrderCompletedEvent(orderId.toString(), payload);
 
         } catch (Exception e) {
