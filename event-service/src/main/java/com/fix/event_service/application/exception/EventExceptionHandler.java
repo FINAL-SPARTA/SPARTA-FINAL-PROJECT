@@ -15,7 +15,7 @@ public class EventExceptionHandler {
 	@ExceptionHandler(exception = {EventException.class})
 	public ResponseEntity<CommonResponse<EventException>> errorResponse(
 		EventException exception, HttpServletRequest request) {
-		log.error("EventException 발생 : URI={}, Method={}, ErrorCode={}, ErrorMessage={}",
+		log.warn("EventException 발생 : URI={}, Method={}, ErrorCode={}, ErrorMessage={}",
 			request.getRequestURI(), request.getMethod(),
 			exception.getErrorCode(), exception.getMessage());
 
@@ -27,7 +27,7 @@ public class EventExceptionHandler {
 	@ExceptionHandler(exception = {IllegalArgumentException.class})
 	public ResponseEntity<CommonResponse<String>> illegalArgumentException(
 		IllegalArgumentException exception, HttpServletRequest request) {
-		log.error("IllegalArgumentException 발생 : URI={}, Method={}, ErrorMessage={}",
+		log.warn("IllegalArgumentException 발생 : URI={}, Method={}, ErrorMessage={}",
 			request.getRequestURI(), request.getMethod(), exception.getMessage());
 
 		return ResponseEntity.badRequest().body(CommonResponse.fail(
