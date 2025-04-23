@@ -1,5 +1,6 @@
 package com.fix.event_service.presentation.controller;
 
+import com.fix.common_service.aop.ApiLogging;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.event_service.application.aop.ValidateUser;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
@@ -29,6 +30,7 @@ public class EventController {
     }
 
     // ✅ 이벤트 응모 API
+    @ApiLogging
     @PostMapping("/{eventId}")
     public ResponseEntity<CommonResponse<Void>> applyEvent(
         @PathVariable("eventId") UUID eventId, @RequestHeader("x-user-id") Long userId) {
@@ -64,6 +66,7 @@ public class EventController {
     }
 
     // ✅ 이벤트 검색 API
+    @ApiLogging
     @GetMapping("/search")
     public ResponseEntity<CommonResponse<PageResponseDto<EventResponseDto>>> searchEvents(
             @RequestParam("status") EventStatus status,
@@ -85,6 +88,7 @@ public class EventController {
     }
 
     // ✅ 당첨자 선정 API
+    @ApiLogging
     @ValidateUser(roles = {"MASTER", "MANAGER"})
     @PatchMapping("/{eventId}/announce-winners")
     public ResponseEntity<CommonResponse<WinnerListResponseDto>> announceWinners(@PathVariable("eventId") UUID eventId) {
