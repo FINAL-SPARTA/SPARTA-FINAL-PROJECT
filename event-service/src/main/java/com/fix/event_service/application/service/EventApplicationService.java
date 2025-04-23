@@ -63,6 +63,8 @@ public class EventApplicationService {
 
     @Transactional
     public void applyEvent(UUID eventId, Long userId) {
+        log.info("이벤트 응모 신청 : eventId={}, userId={}", eventId, userId);
+
         Event event = findEventById(eventId);
 
         event.isEventOpenForApplication();
@@ -71,8 +73,10 @@ public class EventApplicationService {
 
         event.addEntry(entry);
 
+        log.info("Kafka 이벤트 발행 시도 (ApplyEvent): eventId={}, userId={}, entryId={}", eventId, userId, entry.getEntryId());
         // 기존의 Feign 호출 제거, 대신 Kafka 이벤트 발행
         eventProducer.sendEventApplyRequest(eventId, userId, event.getRequiredPoints(), entry.getEntryId());
+        log.info("이벤트 응모 신청 성공 : eventId={}, userId={}, entryId={}", eventId, userId, entry.getEntryId());
     }
 
     @Transactional(readOnly = true)
@@ -91,6 +95,7 @@ public class EventApplicationService {
     public PageResponseDto<EventResponseDto> searchEvents(EventStatus status, String keyword, int page, int size) {
         Page<EventResponseDto> mappedPage = eventRepository.searchEvents(status, keyword, page, size)
                 .map(EventResponseDto::new);
+
         return new PageResponseDto<>(mappedPage);
     }
 
@@ -135,17 +140,18 @@ public class EventApplicationService {
 
     @Transactional
     public WinnerListResponseDto announceWinners(UUID eventId) {
+        log.info("이벤트 당첨자 선정 시작 : eventId={}", eventId);
         Event event = findEventById(eventId);
 
         List<EventEntry> allEntries = event.getEntries();
-
         List<EventEntry> winners = eventDomainService.selectRandomWinners(event, allEntries);
-
         List<Long> winnerUserIds = winners.stream()
             .map(EventEntry::getUserId)
             .collect(Collectors.toList());
 
         int remaining = event.getReward().getQuantity();
+
+        log.info("이벤트 당첨자 선정 완료 : eventId={}, 당첨자 수={}, 당첨자 리스트={}", eventId, winners.size(), winnerUserIds);
 
         return new WinnerListResponseDto(
             event.getEventId(),
