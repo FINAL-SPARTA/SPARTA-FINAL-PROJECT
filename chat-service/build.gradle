@@ -10,6 +10,9 @@ dependencies {
     // ✅ Common
     implementation project(':common-service')
 
+    // ✅ Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
     // ✅ Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
