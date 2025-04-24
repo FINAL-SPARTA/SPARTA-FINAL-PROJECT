@@ -1,5 +1,6 @@
 package com.fix.ticket_service.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -63,5 +64,14 @@ public class RedisConfig {
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory))
             .withCacheConfiguration("seatViewCache", seatViewCacheConfig)
             .build();
+    }
+
+    @PostConstruct
+    public void enableKeyspaceEvents() {
+        // Redis Keyspace Notifications 활성화
+        RedisConnectionFactory factory = redisConnectionFactory();
+        factory.getConnection()
+               .serverCommands()
+               .setConfig("notify-keyspace-events", "Ex");
     }
 }
