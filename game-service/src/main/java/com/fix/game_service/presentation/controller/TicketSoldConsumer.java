@@ -15,12 +15,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class TicketGameConsumer extends AbstractKafkaConsumer<TicketUpdatedPayload> {
-
+public class TicketSoldConsumer extends AbstractKafkaConsumer<TicketUpdatedPayload> {
     private final ConsumerService consumerService;
 
-
-    public TicketGameConsumer(RedisIdempotencyChecker idempotencyChecker,
+    public TicketSoldConsumer(RedisIdempotencyChecker idempotencyChecker,
                               ConsumerService consumerService) {
         super(idempotencyChecker);
         this.consumerService = consumerService;
@@ -32,11 +30,11 @@ public class TicketGameConsumer extends AbstractKafkaConsumer<TicketUpdatedPaylo
      *
      * @param message : 이벤트에서 수신할 데이터
      */
-    @KafkaListener(topics = "ticket-updated-topic", groupId = "game-service-group")
+    @KafkaListener(topics = "ticket-sold-topic", groupId = "game-service-ticket-sold-consumer")
     public void updateGameSeatsByConsumer(ConsumerRecord<String, EventKafkaMessage<TicketUpdatedPayload>> record,
                                           EventKafkaMessage<TicketUpdatedPayload> message,
                                           Acknowledgment acknowledgment) {
-        log.info("[Kafka] 티켓 이벤트 수신 : {}", message.getEventType());
+        log.info("[Kafka] 티켓 판매 이벤트 수신 : {}", message.getEventType());
         super.consume(record, message, acknowledgment);
     }
 
@@ -45,12 +43,11 @@ public class TicketGameConsumer extends AbstractKafkaConsumer<TicketUpdatedPaylo
         TicketUpdatedPayload payload = mapPayload(rawPayload, TicketUpdatedPayload.class);
 
         consumerService.updateGameSeatsByConsumer(payload);
-
     }
 
     @Override
     protected String getConsumerGroupId() {
-        return "game-service-group";
+        return "game-service-ticket-sold-consumer";
     }
 }
 

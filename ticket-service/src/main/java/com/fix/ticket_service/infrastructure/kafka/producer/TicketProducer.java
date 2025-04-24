@@ -23,8 +23,10 @@ public class TicketProducer {
 
     @Value("${kafka-topics.ticket.reserved}")
     private String ticketReservedTopic;
-    @Value("${kafka-topics.ticket.updated}")
-    private String ticketUpdatedTopic;
+    @Value("${kafka-topics.ticket.sold}")
+    private String ticketSoldTopic;
+    @Value("${kafka-topics.ticket.cancelled}")
+    private String ticketCancelledTopic;
 
     public void sendTicketReservedEvent(List<Ticket> tickets, Long userId) {
         List<TicketReservedPayload.TicketDetail> ticketDetails = tickets.stream()
@@ -39,13 +41,23 @@ public class TicketProducer {
         kafkaProducerHelper.send(ticketReservedTopic, key, eventMessage);
     }
 
-    public void sendTicketUpdatedEvent(UUID gameId, int quantity) {
+    public void sendTicketSoldEvent(UUID gameId, int quantity) {
         TicketUpdatedPayload payload = new TicketUpdatedPayload(gameId, quantity);
 
-        EventKafkaMessage<TicketUpdatedPayload> eventMessage = new EventKafkaMessage<>("TICKET_UPDATED", payload);
+        EventKafkaMessage<TicketUpdatedPayload> eventMessage = new EventKafkaMessage<>("TICKET_SOLD", payload);
 
         String key = gameId.toString();
 
-        kafkaProducerHelper.send(ticketUpdatedTopic, key, eventMessage);
+        kafkaProducerHelper.send(ticketSoldTopic, key, eventMessage);
+    }
+
+    public void sendTicketCancelledEvent(UUID gameId, int quantity) {
+        TicketUpdatedPayload payload = new TicketUpdatedPayload(gameId, quantity);
+
+        EventKafkaMessage<TicketUpdatedPayload> eventMessage = new EventKafkaMessage<>("TICKET_CANCELLED", payload);
+
+        String key = gameId.toString();
+
+        kafkaProducerHelper.send(ticketCancelledTopic, key, eventMessage);
     }
 }
