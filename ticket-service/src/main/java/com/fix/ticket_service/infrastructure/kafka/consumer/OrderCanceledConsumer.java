@@ -42,6 +42,12 @@ public class OrderCanceledConsumer extends AbstractKafkaConsumer<OrderCancelledP
         } catch (IllegalArgumentException e) {
             // 에러 핸들러에 의한 재시도 처리, 보상 트랜잭션은 구현 X
             log.error("[Kafka] 티켓 취소 상태 업데이트 실패: orderId={}, error={}", orderId, e.getMessage());
+            throw e;
         }
+    }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "ticket-service-order-canceled-consumer";
     }
 }

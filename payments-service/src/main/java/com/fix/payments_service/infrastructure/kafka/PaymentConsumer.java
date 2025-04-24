@@ -33,7 +33,8 @@ public class PaymentConsumer {
         this.orderCompletionFailedEventConsumer = new OrderCompletionFailedEventConsumer(idempotencyChecker);
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.created}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.order.created}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "payment-service-order-created-consumer")
     public void consumeOrderCreated(
             ConsumerRecord<String, EventKafkaMessage<OrderCreatedPayload>> record,
             @Payload EventKafkaMessage<OrderCreatedPayload> message,
@@ -41,7 +42,8 @@ public class PaymentConsumer {
         orderCreatedEventConsumer.consume(record, message, ack);
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.canceled}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.order.canceled}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "payment-service-order-cancelled-consumer")
     public void consumeOrderCancelled(
             ConsumerRecord<String, EventKafkaMessage<OrderCancelledPayload>> record,
             @Payload EventKafkaMessage<OrderCancelledPayload> message,
@@ -49,7 +51,8 @@ public class PaymentConsumer {
         orderCancelledEventConsumer.consume(record, message, ack);
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.completed}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.order.completed}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "payment-service-order-completed-consumer")
     public void consumeOrderCompleted(
             ConsumerRecord<String, EventKafkaMessage<OrderCompletedPayload>> record,
             @Payload EventKafkaMessage<OrderCompletedPayload> message,
@@ -57,7 +60,8 @@ public class PaymentConsumer {
         orderCompletedEventConsumer.consume(record, message, ack);
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.completion-failed}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.order.completion-failed}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "payment-service-order-completion-failed-consumer")
     public void consumeOrderCompletionFailed(
             ConsumerRecord<String, EventKafkaMessage<OrderCompletionFailedPayload>> record,
             @Payload EventKafkaMessage<OrderCompletionFailedPayload> message,
@@ -82,6 +86,11 @@ public class PaymentConsumer {
             log.info("[Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId={}", order.getOrderId());
             paymentEventService.processPaymentRequest(order);
         }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "payment-service-order-created-consumer";
+        }
     }
 
     /**
@@ -101,6 +110,11 @@ public class PaymentConsumer {
             log.info("[Kafka] ORDER_CANCELED 수신 → 결제 취소 시작: orderId={}", cancelled.getOrderId());
             paymentEventService.sendPaymentCancelled(cancelled.getOrderId());
         }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "payment-service-order-cancelled-consumer";
+        }
     }
 
     /**
@@ -117,6 +131,11 @@ public class PaymentConsumer {
             OrderCompletedPayload completed = mapPayload(payload, OrderCompletedPayload.class);
             log.info("[Kafka] ORDER_COMPLETED 수신: orderId={}", completed.getOrderId());
         }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "payment-service-order-completed-consumer";
+        }
     }
 
     /**
@@ -131,6 +150,11 @@ public class PaymentConsumer {
         protected void processPayload(Object payload) {
             OrderCompletionFailedPayload failed = mapPayload(payload, OrderCompletionFailedPayload.class);
             log.warn("[Kafka] ORDER_COMPLETION_FAILED 수신: orderId={}, reason={}", failed.getOrderId(), failed.getFailureReason());
+        }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "payment-service-order-completion-failed-consumer";
         }
     }
 }

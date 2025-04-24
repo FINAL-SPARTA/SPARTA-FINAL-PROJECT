@@ -40,6 +40,12 @@ public class OrderCreationFailedConsumer extends AbstractKafkaConsumer<OrderCrea
         } catch (IllegalArgumentException e) {
             // 에러 핸들러에 의한 재시도 처리, 보상 트랜잭션은 구현 X
             log.error("[Kafka] 주문 생성에 실패한 티켓 삭제 실패:  error={}", e.getMessage());
+            throw e;
         }
+    }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "ticket-service-order-creation-failed-consumer";
     }
 }

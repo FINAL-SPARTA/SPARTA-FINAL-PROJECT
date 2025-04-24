@@ -48,4 +48,9 @@ public class EventApplicationConsumer extends AbstractKafkaConsumer<EventApplica
                 payload.getPoints(), e.getErrorCode());
         }
     }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "user-service-event-applied-consumer";
+    }
 }

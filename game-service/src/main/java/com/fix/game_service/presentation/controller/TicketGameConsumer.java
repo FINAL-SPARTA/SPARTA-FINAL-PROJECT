@@ -47,6 +47,11 @@ public class TicketGameConsumer extends AbstractKafkaConsumer<TicketUpdatedPaylo
         consumerService.updateGameSeatsByConsumer(payload);
 
     }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "game-service-group";
+    }
 }
 
 
