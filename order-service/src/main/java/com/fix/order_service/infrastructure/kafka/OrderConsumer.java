@@ -41,7 +41,8 @@ public class OrderConsumer {
     /**
      * Kafka로부터 TICKET_RESERVED 이벤트를 수신합니다.
      */
-    @KafkaListener(topics = "${kafka-topics.ticket.reserved}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.ticket.reserved}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "order-service-ticket-reserved-consumer")
     public void consumeTicketReserved(
             ConsumerRecord<String, EventKafkaMessage<TicketReservedPayload>> record,
             @Payload EventKafkaMessage<TicketReservedPayload> message,
@@ -114,6 +115,11 @@ public class OrderConsumer {
                 throw e; // 필요 시 생략 가능 (consume 종료 목적이면)
             }
         }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "order-service-ticket-reserved-consumer";
+        }
     }
 
     /**
@@ -135,6 +141,11 @@ public class OrderConsumer {
                     updated.getGameId(), updated.getQuantity());
 
             // TODO: 재고 상태 업데이트 로직 등 연결 가능
+        }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return null;
         }
     }
 }

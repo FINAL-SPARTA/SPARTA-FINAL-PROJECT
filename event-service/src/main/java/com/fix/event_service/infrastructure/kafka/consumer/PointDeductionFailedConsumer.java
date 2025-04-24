@@ -37,4 +37,9 @@ public class PointDeductionFailedConsumer extends AbstractKafkaConsumer<PointDed
         log.debug("[Kafka-SAGA] 포인트 차감 실패 이벤트 수신: {}", payload);
         eventApplicationService.cancelEventApply(payload);
     }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return CONSUMER_GROUP_ID;
+    }
 }
