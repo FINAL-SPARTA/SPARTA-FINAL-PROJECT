@@ -11,7 +11,7 @@
 
 <body>
 <div class="box_section" style="width: 600px">
-    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png"  alt=""/>
     <h2 id="title">빌링키 발급을 완료했어요</h2>
 
     <button id="confirm" class="button" onclick="confirm()">빌링키로 자동결제 실행하기</button>
@@ -33,12 +33,12 @@
     // 서버로 빌링키 발급을 위해 authKey 를 보내세요.
     // @docs https://docs.tosspayments.com/reference#authkey로-카드-빌링키-발급
     async function issueBillingKey() {
-      var requestData = {
-        customerKey: urlParams.get("customerKey"),
-        authKey: urlParams.get("authKey"),
-      };
+        const requestData = {
+            customerKey: urlParams.get("customerKey"),
+            authKey: urlParams.get("authKey"),
+        };
 
-      const response = await fetch("/issue-billing-key", {
+        const response = await fetch("/issue-billing-key", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,16 +67,18 @@
 
     // 일반적으로 정기결제는 특정 시점에 배치를 통해 구현하지만,
     // 이해를 돕기 위해 클라이언트에서 강제로 실행해볼 수 있도록 샘플 API 가 구현되어 있습니다.
+
     async function confirm() {
-      async function confirmBilling() {
-        const requestData = {
-          customerKey: urlParams.get("customerKey"),
-          amount: 4900,
-          orderId: generateRandomString(),
-          orderName: "토스 프라임 구독",
-          customerEmail: "customer123@gmail.com",
-          customerName: "김토스",
-        };
+        const customerKey = urlParams.get("customerKey");
+        const orderId = urlParams.get("orderId");
+        const amount = urlParams.get("amount");
+
+        async function confirmBilling() {
+            const requestData = {
+                customerKey,
+                amount,
+                orderId
+            };
 
         const response = await fetch("/confirm-billing", {
           method: "POST",
@@ -104,10 +106,6 @@
         .catch((err) => {
           window.location.href = `/fail.html?message=${err.message}&code=${err.code}`;
         });
-    }
-
-    function generateRandomString() {
-      return window.btoa(Math.random()).slice(0, 20);
     }
 </script>
 </body>

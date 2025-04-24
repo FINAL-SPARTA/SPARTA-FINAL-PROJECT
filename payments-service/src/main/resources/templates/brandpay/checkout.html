@@ -24,15 +24,14 @@
 
 <script>
   const clientKey = "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq";
-  const customerKey = generateRandomString();
+  const customerKey = generateUUID();
   const tossPayments = TossPayments(clientKey);
+  const orderId = generateUUID();     // ✅ 실제 UUID 생성
 
   const brandpay = tossPayments.brandpay({
     customerKey,
     redirectUrl: "http://localhost:4000/callback-auth",
   });
-
-  const orderId = "order_abc123"; // 실제 주문 ID로 동적으로 변경해야 함
 
   async function fetchOrderAmount(orderId) {
     const response = await fetch(`/api/v1/payments/order-info/${orderId}`);
@@ -53,11 +52,8 @@
           value: amount
         },
         orderId: orderId,
-        orderName: "티켓 예매",
         successUrl: window.location.origin + `/brandpay/success.html?customerKey=${customerKey}&`,
-        failUrl: window.location.origin + "/fail.html",
-        customerEmail: "customer123@gmail.com",
-        customerName: "김토스"
+        failUrl: window.location.origin + "/fail.html"
       });
     } catch (e) {
       console.error("❌ 결제 요청 실패:", e.message);
@@ -85,8 +81,13 @@
     await brandpay.openSettings();
   }
 
-  function generateRandomString() {
-    return window.btoa(Math.random()).slice(0, 20);
+  // ✅ UUID 생성기 (브라우저 호환)
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0,
+              v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 </script>
 </body>

@@ -33,7 +33,7 @@
     const payment = tossPayments.payment({ customerKey });
 
     let selectedPaymentMethod = null;
-    const orderId = "order_abc123"; // 실제 동적으로 설정 필요
+    const orderId = generateUUID();
 
     function selectPaymentMethod(method) {
         if (selectedPaymentMethod) {
@@ -67,16 +67,18 @@
                 value: amount
             },
             orderId: orderId,
-            orderName: "티켓 예매",
             successUrl: window.location.origin + "/payment/success.html",
             failUrl: window.location.origin + "/fail.html",
-            customerEmail: "customer123@gmail.com",
-            customerName: "김토스"
         });
     }
 
-    function generateRandomString() {
-        return window.btoa(Math.random()).slice(0, 20);
+    // ✅ UUID 생성 함수
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 </script>
 </body>

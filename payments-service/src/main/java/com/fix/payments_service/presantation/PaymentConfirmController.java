@@ -1,10 +1,13 @@
 package com.fix.payments_service.presantation;
 
-import com.fix.payments_service.application.PaymentEventService;
+import com.fix.common_service.kafka.dto.PaymentCompletedPayload;
+import com.fix.common_service.kafka.dto.PaymentCompletionFailedPayload;
+import com.fix.payments_service.application.PaymentEventProcessor;
 import com.fix.payments_service.domain.TossPayment;
 import com.fix.payments_service.domain.TossPaymentFailure;
 import com.fix.payments_service.domain.repository.TossPaymentFailureRepository;
 import com.fix.payments_service.domain.repository.TossPaymentRepository;
+import com.fix.payments_service.infrastructure.kafka.PaymentConsumer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
@@ -26,6 +29,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,7 +41,7 @@ public class PaymentConfirmController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final TossPaymentRepository tossPaymentRepository;
     private final TossPaymentFailureRepository tossPaymentFailureRepository;
-    private final PaymentEventService paymentEventService;
+    private final PaymentEventProcessor paymentEventProcessor;
 
     // ✅ application.yml 설정 기반으로 주입받음
     @Value("${api.key}")
@@ -58,7 +62,7 @@ public class PaymentConfirmController {
         // ✅ 요청 파싱
         JSONObject requestData = parseRequestData(jsonBody);
         // ✅ Toss 승인 요청
-        JSONObject response = sendRequest(requestData, secretKey, "https://api.tosspayments.com/v1/payments/confirm");
+        JSONObject response = sendRequest(requestData, secretKey);
         int statusCode = response.containsKey("error") ? 400 : 200;
 
         // ✅ Toss 결제 승인 성공 시 로직
@@ -82,8 +86,25 @@ public class PaymentConfirmController {
 
             tossPaymentRepository.save(payment);
 
-            // ✅ Kafka 이벤트 발행
-//            paymentEventService.sendPaymentCompleted(UUID.fromString(orderId));
+            // ✅ ticketIds 조회 추가
+            List<UUID> ticketIds = PaymentConsumer.getTicketIds(UUID.fromString(orderId));
+            if (ticketIds == null || ticketIds.isEmpty()) {
+                logger.error("❌ ticketIds not found for orderId={}", orderId);
+                throw new IllegalStateException("ticketIds 조회 실패");
+            }
+
+            // ✅ Kafka 이벤트 발행 (ticketIds 포함)
+            paymentEventProcessor.handlePaymentCompleted(
+                    new PaymentCompletedPayload(
+                            UUID.fromString(orderId),
+                            (String) response.get("paymentKey"),
+                            Long.parseLong(String.valueOf(response.get("amount"))),
+                            ticketIds
+                    )
+            );
+
+            // ✅ 결제 완료 후 캐시 제거 추가
+            PaymentConsumer.removeTicketIds(UUID.fromString(orderId));
 
             try {
                 logger.info("주문 상태 COMPLETED 처리 성공: {}", orderId);
@@ -100,7 +121,12 @@ public class PaymentConfirmController {
             String errorMessage = (String) response.get("message");
 
             // Kafka 이벤트 발행
-            paymentEventService.sendPaymentCompletionFailed(UUID.fromString(orderId), errorMessage);
+            paymentEventProcessor.handlePaymentCompletionFailed(
+                    new PaymentCompletionFailedPayload(
+                            UUID.fromString(orderId),
+                            errorMessage
+                    )
+            );
 
             // DB 저장
             TossPaymentFailure failure = TossPaymentFailure.builder()
@@ -117,7 +143,6 @@ public class PaymentConfirmController {
     }
 
 //    JSONObject 안에서 section → field로 들어가서 값을 String으로 꺼내오는 헬퍼 메서드
-    @SuppressWarnings("unchecked") // 실제 JSONObject는 타입 안정성이 떨어져서 unchecked가 자주 발생
     private String extract(JSONObject root, String section, String field) {
         JSONObject nested = (JSONObject) root.get(section);
         return nested != null ? (String) nested.get(field) : null;
@@ -134,8 +159,8 @@ public class PaymentConfirmController {
     }
 
     // PaymentController에서 가져온 유틸 메서드
-    private JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
-        HttpURLConnection connection = createConnection(secretKey, urlString);
+    private JSONObject sendRequest(JSONObject requestData, String secretKey) throws IOException {
+        HttpURLConnection connection = createConnection(secretKey);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(requestData.toString().getBytes(StandardCharsets.UTF_8));
         }
@@ -152,8 +177,8 @@ public class PaymentConfirmController {
     }
 
     // PaymentController에서 가져온 유틸 메서드
-    private HttpURLConnection createConnection(String secretKey, String urlString) throws IOException {
-        URL url = new URL(urlString);
+    private HttpURLConnection createConnection(String secretKey) throws IOException {
+        URL url = new URL("https://api.tosspayments.com/v1/payments/confirm");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8)));
         connection.setRequestProperty("Content-Type", "application/json");
