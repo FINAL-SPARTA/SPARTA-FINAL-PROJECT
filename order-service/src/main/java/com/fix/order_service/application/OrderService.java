@@ -110,6 +110,7 @@ public class OrderService {
 
     @Transactional
     public void cancelOrderFromPayment(UUID orderId, String reason) {
+        log.info("[Order] 결제 실패/취소로 인한 주문 취소 시작 - orderId={}, reason={}", orderId, reason);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(OrderException.OrderErrorType.ORDER_NOT_FOUND));
 
@@ -119,7 +120,7 @@ public class OrderService {
         orderProducer.sendOrderCancelledEvent(payload.getOrderId().toString(), payload);
 
         // TicketClient 호출은 제외 (결제 실패로 인해 직접 예약 취소가 이미 됐다고 가정)
-        log.info("💬 [Order] 결제 실패/취소로 인한 주문 상태 변경 완료 - orderId={}, reason={}", orderId, reason);
+        log.info("💬 [Order] 결제 실패/취소로 인한 주문 취소 완료 - orderId={}, reason={}", orderId, reason);
 //        ticketClient.cancelTicketStatus(orderId);
     }
 

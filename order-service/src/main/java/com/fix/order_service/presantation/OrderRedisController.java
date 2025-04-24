@@ -1,5 +1,6 @@
 package com.fix.order_service.presantation;
 
+import com.fix.common_service.aop.ApiLogging;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.order_service.application.OrderHistoryRedisService;
 import com.fix.order_service.application.dtos.request.OrderSummaryDto;
@@ -22,6 +23,7 @@ public class OrderRedisController {
      * @param userId 헤더로 전달되는 사용자 ID
      * @return 최근 주문 10건
      */
+    @ApiLogging
     @GetMapping("/history/recent")
     @ValidateUser(roles = {"ROLE_CUSTOMER"})
     public ResponseEntity<CommonResponse<List<OrderSummaryDto>>> getRecentOrders(

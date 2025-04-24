@@ -36,6 +36,12 @@ public class OrderFeignService {
     @Transactional
     public void createOrderFromTicket(FeignOrderCreateRequest request) {
         UUID orderId = UUID.randomUUID();
+        log.info("주문 생성 시작 - orderId={}, userId={}, gameId={}, ticketCount={}",
+                orderId,
+                request.getTicketDtoList().get(0).getUserId(),
+                request.getTicketDtoList().get(0).getGameId(),
+                request.getTicketDtoList().size()
+        );
 
         try {
             List<FeignTicketReserveDto> tickets = request.getTicketDtoList();
@@ -66,6 +72,8 @@ public class OrderFeignService {
 
             // [4] 주문 저장
             orderRepository.save(order);
+            log.info("주문 정보 DB 저장 완료 - orderId={}, userId={}, gameId={}, ticketCount={}",
+                    order.getOrderId(), order.getUserId(), order.getGameId(), tickets.size());
 
             // 유저별 최근 주문 내역 Redis에 저장
             orderHistoryRedisService.saveRecentOrder(userId, OrderSummaryDto.builder()
@@ -98,8 +106,9 @@ public class OrderFeignService {
                     tickets.get(0).getUserId(),
                     tickets.get(0).getGameId()
             );
-
+            log.error("주문 생성 처리 중 오류 발생 - orderId={}", orderId);
             orderProducer.sendOrderCreationFailedEvent(reservedPayload, e.getMessage());
+            log.info("주문 생성 실패 이벤트(보상 트랜잭션) 발행 완료 - orderId={}, reason={}", orderId, e.getMessage());
             throw e;
         }
     }
@@ -120,10 +129,12 @@ public class OrderFeignService {
 
             // [2] 주문 상태 변경 → COMPLETED
             order.complete();
+            log.info("주문 상태 변경(COMPLETED) 완료 - orderId={}, status={}", order.getOrderId(), order.getOrderStatus());
 
             // [3] 주문 완료 Kafka 이벤트 발행
             OrderCompletedPayload payload = new OrderCompletedPayload(orderId, ticketIds, order.getUserId());
             orderProducer.sendOrderCompletedEvent(orderId.toString(), payload);
+            log.info("주문 완료 처리 성공, Kafka 이벤트 발행 완료 - orderId={}", orderId);
 
         } catch (Exception e) {
             // [4] 예외 발생 시 → 주문 정보 조회 (널 허용)
@@ -136,7 +147,9 @@ public class OrderFeignService {
                     orderId,
                     e.getMessage()
             );
+            log.error("주문 완료 처리 중 오류 발생 - orderId={}, reason={}", orderId, e.getMessage());
             orderProducer.sendOrderCompletionFailedEvent(orderId.toString(), failedPayload);
+            log.info("주문 완료 실패 이벤트(보상 트랜잭션) 발행 완료 - orderId={}, reason={}", orderId, e.getMessage());
             throw e;
         }
     }
