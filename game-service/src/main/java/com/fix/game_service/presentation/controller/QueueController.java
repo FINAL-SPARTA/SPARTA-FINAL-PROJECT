@@ -1,5 +1,6 @@
 package com.fix.game_service.presentation.controller;
 
+import com.fix.common_service.aop.ApiLogging;
 import com.fix.game_service.application.service.QueueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class QueueController {
 
 	private final QueueService queueService;
 
+	@ApiLogging
 	@PostMapping("/{gameId}/enter")
 	public ResponseEntity<Map<String, Object>> enterQueue(@PathVariable UUID gameId, @RequestHeader("x-user-id") Long userId) {
 		Map<String, Object> response = queueService.enterQueue(gameId, userId);

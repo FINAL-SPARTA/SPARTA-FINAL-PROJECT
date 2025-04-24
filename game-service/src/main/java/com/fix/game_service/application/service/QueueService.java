@@ -38,6 +38,7 @@ public class QueueService {
 	private final String ACTIVE_GAMES_KEY = "active-game";
 
 	public Map<String, Object> enterQueue(UUID gameId, Long userId) {
+		log.info("대기열 진입 시도: gameId={}, userId={}", gameId, userId);
 		// 1. 해당 경기를 찾아서 예매 가능 시간인지 확인
 		Game game = findGame(gameId);
 		if (game.getOpenDate().isAfter(LocalDateTime.now()) ||
@@ -57,6 +58,7 @@ public class QueueService {
 		// 4. 발급한 토큰 Redis에 추가 (대기열)
 		long timestamp = Instant.now().toEpochMilli();
 		redisTemplate.opsForZSet().add(queueKey, token,  timestamp);
+		log.info("Redis 대기열에 추가 완료: key={}, value={}", queueKey, token);
 
 		// 5. Sorted Set에 추가된 후 순위(대기번호)를 조회하여 반환
 		Long rank = redisTemplate.opsForZSet().rank(queueKey, token);
@@ -66,7 +68,7 @@ public class QueueService {
 
 		// 7. 대기열에서의 순위 반환
 		response.put("position", rank);
-		log.info("token: {}, rank : {}, userId: {} ", token, rank, userId);
+		log.info("대기열 진입 완료: gameId={}, userId={}, token={}, position={}", gameId, userId, rawToken, rank);
 		return response;
 	}
 
@@ -129,11 +131,14 @@ public class QueueService {
 	 */
 	@Async("queueExecutor")
 	public void moveToWorkingQueue(UUID gameId, String token) {
+		log.info("대기열에서 작업열로 이동 시작: gameId={}, token={}", gameId, token);
+		long startTime = System.nanoTime();
 		// 1. token 만료 시간 설정 (1시간 30분)
 		long ttlInSeconds = 1 * 60 * 60 + 30 * 60;
 
 		// 2. 해당 token 작업열에 저장 (token이 key가 됨)
 		redisTemplate.opsForValue().set(WORKING_QUEUE_KEY_PREFIX + token, gameId.toString(), ttlInSeconds, TimeUnit.SECONDS);
+		log.info("Redis 작업열에 저장 완료: key={}, value={}", WORKING_QUEUE_KEY_PREFIX + token, gameId);
 
 		// 3. 대기 번호 전송 및 헤더에 token 삽입
 		String userToken = token.split("\\|")[0];
@@ -144,9 +149,12 @@ public class QueueService {
 		} catch (InterruptedException e) {
 			throw new GameException(GAME_WAITING_ERROR);
 		} finally {
+			long endTime = System.nanoTime();
 			// 토큰(substring 된 상태)을 헤더에 담기
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("QueueToken", userToken);
+			log.info("대기열에서 작업열로 이동 완료: gameId={}, token={}, duration={}",
+				gameId, token, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
 		}
 	}
 
