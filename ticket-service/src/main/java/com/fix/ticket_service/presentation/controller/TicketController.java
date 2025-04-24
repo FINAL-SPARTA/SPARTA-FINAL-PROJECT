@@ -99,11 +99,4 @@ public class TicketController {
         ticketApplicationService.deleteTicket(ticketId, userId, userRole);
         return ResponseEntity.ok(CommonResponse.success(null, "티켓 삭제 성공"));
     }
-
-    // ✅ 예약 상태인 티켓 일괄 삭제 API (스케쥴링용 API)
-    @DeleteMapping("/delete-reserved")
-    public ResponseEntity<CommonResponse<Void>> deleteReservedTickets() {
-        ticketApplicationService.deleteReservedTickets();
-        return ResponseEntity.ok(CommonResponse.success(null, "예약 상태인 티켓 일괄 삭제 성공"));
-    }
 }

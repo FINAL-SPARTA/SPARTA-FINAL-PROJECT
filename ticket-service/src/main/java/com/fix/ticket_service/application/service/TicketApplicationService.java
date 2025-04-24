@@ -100,9 +100,14 @@ public class TicketApplicationService {
             ticketRepository.saveAll(ticketsToSave);
 
             // 7) Redis 캐시에 예약 상태 저장 (TTL = 3분)
-            for (UUID seatId : seatIds) {
-                String redisKey = getSeatKey(seatId);
+            for (Ticket ticket : ticketsToSave) {
+                // Redis 캐시 키 생성 (티켓 상태 저장)
+                String redisKey = getSeatKey(ticket.getSeatId());
                 redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
+
+                // 예약 만료 전용 키
+                String reservationKey = "reservation:" + ticket.getTicketId();
+                redisTemplate.opsForValue().set(reservationKey, "", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
             }
 
             // 8) 티켓 예매 이벤트 발행 (주문 생성 요청)
@@ -262,8 +267,15 @@ public class TicketApplicationService {
     }
 
     @Transactional
-    public void deleteReservedTickets() {
-        ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
+    public void handleReservationExpiry(UUID ticketId) {
+        ticketRepository.findById(ticketId).ifPresent(ticket -> {
+            if (ticket.getStatus() == TicketStatus.RESERVED) {
+                ticketRepository.delete(ticket); // 예약 만료된 티켓 삭제
+                log.info("키스페이스 알림에 의해 예약 만료 티켓 삭제: ticketId={}", ticketId);
+                // 보상 트랜잭션 처리 (필요 할까?)
+            }
+        });
+
     }
 
     private String getSeatKey(UUID seatId) {
