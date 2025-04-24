@@ -51,14 +51,20 @@ public class GameService {
 	 * @return : 반환
 	 */
 	public GameCreateResponse createGame(GameCreateRequest request) {
+		log.info("경기 생성 시작: {}", request);
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
+		log.debug("Stadium 정보 조회 요청 전송: homeTeam={}", request.getHomeTeam());
 		StadiumFeignResponse responseDto = getStadiumInfo(request.getHomeTeam().toString());
+		log.info("Stadium 정보 조회 완료: stadiumId={}, stadiumName={}, seatQuantity={}",
+			responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
 		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName());
 
 		// 3. 생성한 경기 Entity 저장
 		Game savedGame = gameRepository.save(game);
+		log.info("경기 저장 완료: gameId={}, gameName={}, gameDate={}",
+			savedGame.getGameId(), savedGame.getGameName(), savedGame.getGameDate());
 
 		// 4. 경기 예매 기록 Entity 생성
 		GameRate gameRate = GameRate.builder().gameRateId(savedGame.getGameId()).totalSeats(responseDto.getSeatQuantity()).build();
@@ -70,13 +76,16 @@ public class GameService {
 		ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
 			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
+		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", requestDto);
 		chatClient.createChatRoom(requestDto);
+		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
 
 		// 7. 경기 내용 alarm으로 전송
 		gameProducer.sendGameInfoToAlarm(new GameCreatedInfoPayload(
 			savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString()));
 
 		// 8. 경기 내용 반환
+        log.info("경기 생성 완료: gameId={}, gameName={}", savedGame.getGameId(), savedGame.getGameName());
 		return GameCreateResponse.fromGame(savedGame);
 	}
 
@@ -154,6 +163,7 @@ public class GameService {
 	 */
 	@Transactional
 	public void updateGameSeats(UUID gameId, int quantity) {
+        log.info("경기 잔여 좌석 업데이트 시작: gameId={}, quantity={}", gameId, quantity);
 		GameRate gameRate = findGameRate(gameId);
 
 		Integer totalSeats = gameRate.getTotalSeats();
@@ -167,6 +177,8 @@ public class GameService {
 		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
 
 		gameRate.updateGameSeats(newRemainingSeats, newAdvanceReservation);
+        log.info("경기 잔여 좌석 업데이트 완료: gameId={}, newRemainingSeats={}, newAdvanceReservation={}",
+            gameId, newRemainingSeats, newAdvanceReservation);
 	}
 
 	/**
