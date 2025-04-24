@@ -1,12 +1,12 @@
 package com.fix.ticket_service.application.service;
 
-import com.fix.ticket_service.application.dtos.request.*;
+import com.fix.ticket_service.application.dtos.request.TicketInfoRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.*;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
-import com.fix.ticket_service.infrastructure.client.GameClient;
-import com.fix.ticket_service.infrastructure.client.OrderClient;
 import com.fix.ticket_service.infrastructure.client.StadiumClient;
 import com.fix.ticket_service.infrastructure.kafka.producer.TicketProducer;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
 public class TicketApplicationService {
 
     private final TicketRepository ticketRepository;
-    private final OrderClient orderClient;
-    private final GameClient gameClient;
     private final StadiumClient stadiumClient;
     private final RedissonClient redissonClient;
     private final TicketProducer ticketProducer;
@@ -208,7 +206,7 @@ public class TicketApplicationService {
 
         // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 차감 요청)
         int quantity = tickets.size();
-        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), -quantity);
+        ticketProducer.sendTicketSoldEvent(tickets.get(0).getGameId(), -quantity);
 
         // 4) Redis 캐시에 SOLD 상태 저장 (TTL = 24시간)
         for (Ticket ticket : tickets) {
@@ -229,7 +227,7 @@ public class TicketApplicationService {
 
         // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 증가 요청)
         int quantity = tickets.size();
-        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), quantity);
+        ticketProducer.sendTicketCancelledEvent(tickets.get(0).getGameId(), quantity);
 
         // 4) Redis 캐시에서 해당 좌석 키 삭제
         for (Ticket ticket : tickets) {

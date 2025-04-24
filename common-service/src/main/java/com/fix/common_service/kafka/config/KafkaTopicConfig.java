@@ -11,7 +11,8 @@ public class KafkaTopicConfig {
 
     // Ticket 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.ticket.reserved}") private String ticketReservedTopic;
-    @Value("${kafka-topics.ticket.updated}") private String ticketUpdatedTopic;
+    @Value("${kafka-topics.ticket.sold}") private String ticketSoldTopic;
+    @Value("${kafka-topics.ticket.cancelled}") private String ticketCancelledTopic;
 
     // Order 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.order.created}") private String orderCreatedTopic;
@@ -47,8 +48,16 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic ticketUpdated() {
-        return TopicBuilder.name(ticketUpdatedTopic)
+    public NewTopic ticketSold() {
+        return TopicBuilder.name(ticketSoldTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ticketCancelled() {
+        return TopicBuilder.name(ticketCancelledTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
