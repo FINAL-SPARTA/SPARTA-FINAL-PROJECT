@@ -98,6 +98,15 @@ public class PaymentEventService {
             paymentProducer.sendPaymentCompletionFailedEvent(failedPayload);
 
             log.info("📤 PaymentCompletionFailed 이벤트 발행 완료: orderId={}", orderId);
+        }
     }
 }
-}
+
+///**
+// * ✅ 결제 완료 → Kafka로 주문 상태 COMPLETED 이벤트 발행 (단순 이벤트 발행 헬퍼)
+// */
+//public void sendPaymentCompleted(UUID orderId, List<UUID> ticketIds, int totalPrice) {
+//    PaymentCompletedPayload payload = new PaymentCompletedPayload(orderId, "mock-key", totalPrice, ticketIds);
+//    paymentProducer.sendPaymentCompletedEvent(payload);
+//    log.info("✅ 주문 상태 COMPLETED 이벤트 발행 완료 - orderId: {}", orderId);
+//}

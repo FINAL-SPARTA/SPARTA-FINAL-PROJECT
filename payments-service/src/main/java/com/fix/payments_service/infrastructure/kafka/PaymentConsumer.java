@@ -11,6 +11,11 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * ✅ Payment 관련 Kafka 이벤트를 수신하는 Consumer 클래스
  * - 결제 성공, 실패, 취소 이벤트를 하나의 클래스에서 처리
@@ -19,6 +24,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class PaymentConsumer {
+
+    // ✅ ticketIds를 orderId 기준으로 보관하는 캐시
+    private static final Map<UUID, List<UUID>> ticketIdCache = new ConcurrentHashMap<>();
+
+    public static void cacheTicketIds(UUID orderId, List<UUID> ticketIds) {
+        ticketIdCache.put(orderId, ticketIds);
+    }
+
+    public static List<UUID> getTicketIds(UUID orderId) {
+        return ticketIdCache.get(orderId);
+    }
+
+    public static void removeTicketIds(UUID orderId) {
+        ticketIdCache.remove(orderId);
+    }
 
     private final OrderCreatedEventConsumer orderCreatedEventConsumer;
     private final OrderCancelledEventConsumer orderCancelledEventConsumer;
@@ -80,6 +100,9 @@ public class PaymentConsumer {
         protected void processPayload(Object payload) {
             OrderCreatedPayload order = mapPayload(payload, OrderCreatedPayload.class);
             log.info("[Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId={}", order.getOrderId());
+
+            // ✅ ticketIds 캐시 저장
+            cacheTicketIds(order.getOrderId(), order.getTicketIds());
             paymentEventService.processPaymentRequest(order);
         }
     }
