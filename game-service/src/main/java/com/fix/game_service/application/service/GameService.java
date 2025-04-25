@@ -50,6 +50,7 @@ public class GameService {
 	 * @param request : 생성할 경기 내용
 	 * @return : 반환
 	 */
+	@Transactional
 	public GameCreateResponse createGame(GameCreateRequest request) {
 		log.info("경기 생성 시작: {}", request);
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
@@ -67,10 +68,11 @@ public class GameService {
 			savedGame.getGameId(), savedGame.getGameName(), savedGame.getGameDate());
 
 		// 4. 경기 예매 기록 Entity 생성
-		GameRate gameRate = GameRate.builder().gameRateId(savedGame.getGameId()).totalSeats(responseDto.getSeatQuantity()).build();
+		GameRate gameRate = GameRate.builder().totalSeats(responseDto.getSeatQuantity()).build();
 
 		// 5. 생성한 경기 예매 기록 Entity 저장
 		gameRateRepository.save(gameRate);
+		savedGame.updateGameRate(gameRate);
 
 		// 6. 경기 내용 chat으로 전송
 		ChatCreateRequest requestDto = ChatCreateRequest.builder()
