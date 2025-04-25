@@ -55,6 +55,9 @@ public class QueueService {
 		Map<String, Object> response = new HashMap<>();
 		response.put("token", rawToken);
 
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("QueueToken", rawToken);
+
 		// 4. 발급한 토큰 Redis에 추가 (대기열)
 		long timestamp = Instant.now().toEpochMilli();
 		redisTemplate.opsForZSet().add(queueKey, token,  timestamp);
@@ -142,20 +145,14 @@ public class QueueService {
 
 		// 3. 대기 번호 전송 및 헤더에 token 삽입
 		String userToken = token.split("\\|")[0];
-		try {
-			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
-			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			throw new GameException(GAME_WAITING_ERROR);
-		} finally {
-			long endTime = System.nanoTime();
-			// 토큰(substring 된 상태)을 헤더에 담기
-			HttpHeaders headers = new HttpHeaders();
-			headers.set("QueueToken", userToken);
-			log.info("대기열에서 작업열로 이동 완료: gameId={}, token={}, duration={}",
-				gameId, token, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
-		}
+		messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
+
+		long endTime = System.nanoTime();
+		// 토큰(substring 된 상태)을 헤더에 담기
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("QueueToken", userToken);
+		log.info("대기열에서 작업열로 이동 완료: gameId={}, token={}, duration={}",
+			gameId, token, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
 	}
 
 	/**
