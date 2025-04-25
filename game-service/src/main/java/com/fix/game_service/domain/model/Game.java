@@ -6,13 +6,16 @@ import java.util.UUID;
 
 import com.fix.common_service.entity.Basic;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
@@ -62,6 +65,9 @@ public class Game extends Basic {
 	@Column(nullable = false)
 	private LocalDateTime closeDate;
 
+	@OneToOne(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private GameRate gameRate;
+
 	/**
 	 * 경기 내용 수정
 	 * @param updateGameInfo : 수정할 경기 내용
@@ -86,4 +92,11 @@ public class Game extends Basic {
 		Optional.ofNullable(updateGameStatusInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 	}
 
+	/**
+	 * 경기 기록 수정
+	 * @param gameRate : 경기 기록
+	 */
+	public void updateGameRate(GameRate gameRate) {
+		this.gameRate = gameRate;
+	}
 }
