@@ -87,15 +87,6 @@ public class EventController {
         return ResponseEntity.ok(CommonResponse.success(responseDto, "이벤트 정보 수정 성공"));
     }
 
-    // ✅ 당첨자 선정 API
-    @ApiLogging
-    @ValidateUser(roles = {"MASTER", "MANAGER"})
-    @PatchMapping("/{eventId}/announce-winners")
-    public ResponseEntity<CommonResponse<WinnerListResponseDto>> announceWinners(@PathVariable("eventId") UUID eventId) {
-        WinnerListResponseDto responseDto = eventApplicationService.announceWinners(eventId);
-        return ResponseEntity.ok(CommonResponse.success(responseDto, "당첨자 선정 성공"));
-    }
-
     // ✅ 이벤트 논리적 삭제 API
     @ValidateUser(roles = {"MASTER", "MANAGER"})
     @DeleteMapping("/{eventId}")
