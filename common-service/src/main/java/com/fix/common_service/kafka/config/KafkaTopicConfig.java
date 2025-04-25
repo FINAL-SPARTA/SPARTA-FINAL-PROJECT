@@ -27,6 +27,7 @@ public class KafkaTopicConfig {
     @Value("${kafka-topics.payment.cancelled}") private String paymentCancelledTopic;
     // Event 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.event.applied}") private String eventAppliedTopic;
+    @Value("${kafka-topics.event.winners-announced}") private String eventWinnersAnnouncedTopic;
 
     // User 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.user.point-deduction-failed}") private String userPointDeductionFailedTopic; // SAGA
@@ -130,6 +131,14 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic eventApplied() {
         return TopicBuilder.name(eventAppliedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic eventWinnersAnnounced() {
+        return TopicBuilder.name(eventWinnersAnnouncedTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();

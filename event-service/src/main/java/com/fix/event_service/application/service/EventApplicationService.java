@@ -3,7 +3,10 @@ package com.fix.event_service.application.service;
 import com.fix.common_service.kafka.dto.PointDeductionFailedPayload;
 import com.fix.event_service.application.dtos.request.EventCreateRequestDto;
 import com.fix.event_service.application.dtos.request.EventUpdateRequestDto;
-import com.fix.event_service.application.dtos.response.*;
+import com.fix.event_service.application.dtos.response.EventDetailResponseDto;
+import com.fix.event_service.application.dtos.response.EventEntryResponseDto;
+import com.fix.event_service.application.dtos.response.EventResponseDto;
+import com.fix.event_service.application.dtos.response.PageResponseDto;
 import com.fix.event_service.application.exception.EventException;
 import com.fix.event_service.domain.model.Event;
 import com.fix.event_service.domain.model.EventEntry;
@@ -26,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -147,29 +149,6 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public WinnerListResponseDto announceWinners(UUID eventId) {
-        log.info("이벤트 당첨자 선정 시작 : eventId={}", eventId);
-        Event event = findEventById(eventId);
-
-        List<EventEntry> allEntries = event.getEntries();
-        List<EventEntry> winners = eventDomainService.selectRandomWinners(event, allEntries);
-        List<Long> winnerUserIds = winners.stream()
-            .map(EventEntry::getUserId)
-            .collect(Collectors.toList());
-
-        int remaining = event.getReward().getQuantity();
-
-        log.info("이벤트 당첨자 선정 완료 : eventId={}, 당첨자 수={}, 당첨자 리스트={}", eventId, winners.size(), winnerUserIds);
-
-        return new WinnerListResponseDto(
-            event.getEventId(),
-            winnerUserIds,
-            winners.size(),
-            remaining
-        );
-    }
-
-    @Transactional
     public void cancelEventApply(PointDeductionFailedPayload payload) {
         Event event = findEventById(payload.getEventId());
 
@@ -206,10 +185,9 @@ public class EventApplicationService {
         // 당첨자 선정
         List<EventEntry> winners = eventDomainService.selectRandomWinners(event, event.getEntries());
         List<Long> winnerIds = winners.stream().map(EventEntry::getUserId).toList();
-
-        // 알림 발송 요청
-        // ...
         log.info("Quartz 스케쥴러에 의해 이벤트 종료 및 당첨자 선정 완료: eventId={}", eventId);
+        // 알림 발송 요청
+        eventProducer.sendEventWinnersNotification(eventId, winnerIds);
     }
 
     private Event findEventById(UUID eventId) {
