@@ -1,11 +1,14 @@
 package com.fix.alarm_service.application.service;
 
 import com.fix.alarm_service.application.dtos.response.PhoneNumberResponseDto;
+import com.fix.alarm_service.domain.model.GameAlarmSchedule;
+import com.fix.alarm_service.domain.repository.GameAlarmScheduleRepository;
 import com.fix.alarm_service.infrastructure.UserClient;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishResponse;
@@ -16,6 +19,7 @@ import software.amazon.awssdk.services.sns.model.SnsException;
 @RequiredArgsConstructor
 public class AlarmService {
 
+    private final GameAlarmScheduleRepository scheduleRepository;
     private final UserClient userClient;
     private final SnsClient snsClient;
 
@@ -46,6 +50,13 @@ public class AlarmService {
 
         }
     }
+
+    @Transactional
+    public void saveSchedule(GameAlarmSchedule schedule){
+        scheduleRepository.save(schedule);
+    }
+
+
 
 
     private String formatPhoneNumber(String rawPhoneNumber){
