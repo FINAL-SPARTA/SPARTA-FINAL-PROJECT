@@ -30,7 +30,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	private final Map<UUID, List<WebSocketSession>> chatRooms = new ConcurrentHashMap<>();
 	// 채팅 생성
 	private final ChatMessageProducer producer;
-	private final ObjectMapper objectMapper;
+	private final ObjectMapper chatObjectMapper;
 
 	@Value("${kafka-topics.chat.message}")
 	private String chatMessageTopic;
@@ -56,7 +56,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		UUID chatId = getChatId(session);
-		ChatMessageDto chatMessageDto = objectMapper.readValue(message.getPayload(), ChatMessageDto.class);
+		ChatMessageDto chatMessageDto = chatObjectMapper.readValue(message.getPayload(), ChatMessageDto.class);
 		String nickname = (String) session.getAttributes().get("nickname");
 		Long userId = (Long) session.getAttributes().get("userId");
 		chatMessageDto.setMessageType("USER");
@@ -73,7 +73,7 @@ public class CustomWebSocketHandler extends TextWebSocketHandler {
 	 */
 	public void broadcastMessage(UUID chatId, ChatMessageDto message) throws IOException {
 		List<WebSocketSession> sessions = chatRooms.get(chatId);
-		String chatMessage = objectMapper.writeValueAsString(message);
+		String chatMessage = chatObjectMapper.writeValueAsString(message);
 		if (sessions != null) {
 			for (WebSocketSession session : sessions) {
 				if (session.isOpen()) {
