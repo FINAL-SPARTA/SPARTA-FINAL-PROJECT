@@ -11,7 +11,6 @@ import com.fix.event_service.domain.model.EventStatus;
 import com.fix.event_service.domain.model.Reward;
 import com.fix.event_service.domain.repository.EventRepository;
 import com.fix.event_service.domain.service.EventDomainService;
-import com.fix.event_service.infrastructure.client.UserClient;
 import com.fix.event_service.infrastructure.kafka.producer.EventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,8 +35,8 @@ public class EventApplicationService {
 
     private final EventRepository eventRepository;
     private final EventDomainService eventDomainService;
-    private final UserClient userClient;
     private final EventProducer eventProducer;
+    private final QuartzSchedulerService schedulerService;
 
     @Transactional
     public EventDetailResponseDto createEvent(EventCreateRequestDto requestDto) {
@@ -57,6 +58,9 @@ public class EventApplicationService {
         event.addReward(reward);
 
         eventRepository.save(event);
+
+        // 이벤트 시작과 종료 시점에 Quartz Job 등록
+        enrollQuartzJob(event);
 
         return new EventDetailResponseDto(event);
     }
@@ -135,6 +139,10 @@ public class EventApplicationService {
                 newReward
         );
 
+        // 기존 Quartz Job 삭제 후 재등록
+        schedulerService.removeEventJobs(eventId);
+        enrollQuartzJob(event);
+
         return new EventDetailResponseDto(event);
     }
 
@@ -178,11 +186,42 @@ public class EventApplicationService {
 
         event.checkDeletable();
 
+        schedulerService.removeEventJobs(eventId);
+
         event.softDelete(userId);
+    }
+
+    @Transactional
+    public void startEventByScheduler(UUID eventId) {
+        Event event = findEventById(eventId);
+        event.startEvent();
+        log.info("Quartz 스케줄러에 의해 이벤트 시작됨 : eventId={}", eventId);
+    }
+
+    @Transactional
+    public void endEventAndAnnounceByScheduler(UUID eventId) {
+        Event event = findEventById(eventId);
+        event.endEvent();
+
+        // 당첨자 선정
+        List<EventEntry> winners = eventDomainService.selectRandomWinners(event, event.getEntries());
+        List<Long> winnerIds = winners.stream().map(EventEntry::getUserId).toList();
+
+        // 알림 발송 요청
+        // ...
+        log.info("Quartz 스케쥴러에 의해 이벤트 종료 및 당첨자 선정 완료: eventId={}", eventId);
     }
 
     private Event findEventById(UUID eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventException(EventException.EventErrorType.EVENT_NOT_FOUND));
+    }
+
+    private void enrollQuartzJob(Event event) {
+        Date startAt = Date.from(event.getEventPeriod().getEventStartAt().atZone(ZoneId.systemDefault()).toInstant());
+        Date endAt = Date.from(event.getEventPeriod().getEventEndAt().atZone(ZoneId.systemDefault()).toInstant());
+
+        schedulerService.scheduleEventJob(event.getEventId(), startAt, "START");
+        schedulerService.scheduleEventJob(event.getEventId(), endAt, "END");
     }
 }
