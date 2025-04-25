@@ -12,26 +12,35 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+
 @Slf4j
 @Component
 public class OrderCompleteConsumer extends AbstractKafkaConsumer<OrderCompletedPayload> {
+
     private final AlarmService alarmService;
+
+
     public OrderCompleteConsumer(RedisIdempotencyChecker idempotencyChecker, AlarmService alarmService) {
         super(idempotencyChecker);
         this.alarmService = alarmService;
     }
+
+
     @KafkaListener(
             topics = "${kafka-topics.order.completed}",
-            groupId = "alarm-service-ticket-reserved-consumer"
+            groupId = "alarm-service-order-completed-consumer"
     )
+
     public void listen(ConsumerRecord<String, EventKafkaMessage<OrderCompletedPayload>> record,
                        EventKafkaMessage<OrderCompletedPayload> message,
                        Acknowledgment ack) {
         super.consume(record, message, ack);
     }
+
+
     @Override
     protected void processPayload(Object rawPayload) {
-        OrderCompletedPayload payload = mapPayload(rawPayload,OrderCompletedPayload.class);
+        OrderCompletedPayload payload = mapPayload(rawPayload, OrderCompletedPayload.class);
         try {
             // 유저 전화번호 조회
             PhoneNumberResponseDto phone = alarmService.getPhoneNumber(payload.getUserId());
@@ -46,6 +55,11 @@ public class OrderCompleteConsumer extends AbstractKafkaConsumer<OrderCompletedP
             log.error("[Kafka][Alarm] 예매 완료 알림 전송 실패 - userId: {}, error: {}", payload.getUserId(), e.getMessage());
             throw new RuntimeException("예매 완료 알림 실패");
         }
+    }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "alarm-service-order-completed-consumer";
     }
 }
 

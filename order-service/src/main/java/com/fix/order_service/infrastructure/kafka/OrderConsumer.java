@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class OrderConsumer {
 
     private final TicketReservedConsumer ticketReservedConsumer;
-    private final TicketUpdatedConsumer ticketUpdatedConsumer;
 
     /**
      * OrderConsumer 생성자에서 두 개의 이벤트 consumer를 초기화합니다.
@@ -35,7 +34,6 @@ public class OrderConsumer {
                          OrderFeignService orderFeignService,
                          OrderProducer orderProducer) {
         this.ticketReservedConsumer = new TicketReservedConsumer(idempotencyChecker, orderFeignService, orderProducer);
-        this.ticketUpdatedConsumer = new TicketUpdatedConsumer(idempotencyChecker);
     }
 
     /**
@@ -49,18 +47,6 @@ public class OrderConsumer {
             Acknowledgment ack) {
 
         ticketReservedConsumer.consume(record, message, ack);
-    }
-
-    /**
-     * Kafka로부터 TICKET_UPDATED 이벤트를 수신합니다.
-     */
-    @KafkaListener(topics = "${kafka-topics.ticket.updated}", containerFactory = "kafkaListenerContainerFactory")
-    public void consumeTicketUpdated(
-            ConsumerRecord<String, EventKafkaMessage<TicketUpdatedPayload>> record,
-            @Payload EventKafkaMessage<TicketUpdatedPayload> message,
-            Acknowledgment ack) {
-
-        ticketUpdatedConsumer.consume(record, message, ack);
     }
 
     /**
