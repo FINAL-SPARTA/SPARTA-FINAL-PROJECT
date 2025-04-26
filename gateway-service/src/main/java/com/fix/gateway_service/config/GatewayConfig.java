@@ -41,9 +41,13 @@ public class GatewayConfig {
 				.filters(this::applyFilters)
 				.uri("lb://ticket-service"))
 
-			.route("game-service", r -> r.path("/api/v1/games/**")
+			.route("game-service-http", r -> r.path("/api/v1/games/**")
 				.filters(this::applyFilters)
 				.uri("lb://game-service"))
+
+			.route("game-service-ws", r -> r.path("/ticketing/**")
+				.filters(f -> f.filter(webSocketJwtAuthFilter))
+				.uri("lb:ws://game-service"))
 
 			.route("stadium-service", r -> r.path("/api/v1/stadiums/**")
 				.filters(this::applyFilters)
