@@ -41,6 +41,9 @@ dependencies {
 	// ✅ PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
+	// ✅ MongoDB
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 	// ✅ Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'

@@ -2,6 +2,9 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.game_service.domain.model.GameEvent;
+import com.fix.game_service.domain.repository.GameEventRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +44,11 @@ public class GameService {
 	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
 	private final GameRateRepository gameRateRepository;
+	private final GameEventRepository gameEventRepository;
 	private final StadiumClient stadiumClient;
 	private final ChatClient chatClient;
 	private final GameProducer gameProducer;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * 경기 생성
@@ -74,7 +79,13 @@ public class GameService {
 		gameRateRepository.save(gameRate);
 		savedGame.updateGameRate(gameRate);
 
-		// 6. 경기 내용 chat으로 전송
+		// 6. 경기 내용 alarm으로 전송
+		GameCreatedInfoPayload alarmPayload = new GameCreatedInfoPayload(
+				savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString());
+		saveGameAlarmEvent(alarmPayload);
+		// gameProducer.sendGameInfoToAlarm(alarmPayload);
+
+		// 7. 경기 내용 chat으로 전송
 		ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
 			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
@@ -82,13 +93,26 @@ public class GameService {
 		chatClient.createChatRoom(requestDto);
 		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
 
-		// 7. 경기 내용 alarm으로 전송
-		gameProducer.sendGameInfoToAlarm(new GameCreatedInfoPayload(
-			savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString()));
-
 		// 8. 경기 내용 반환
         log.info("경기 생성 완료: gameId={}, gameName={}", savedGame.getGameId(), savedGame.getGameName());
 		return GameCreateResponse.fromGame(savedGame);
+	}
+
+	private void saveGameAlarmEvent(GameCreatedInfoPayload alarmPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(alarmPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_CREATED")
+					.aggregateId(alarmPayload.getGameId())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
 	}
 
 	/**
