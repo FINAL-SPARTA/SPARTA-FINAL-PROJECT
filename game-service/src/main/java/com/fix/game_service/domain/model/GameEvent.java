@@ -19,7 +19,7 @@ public class GameEvent {
 
     private String eventType;
 
-    private UUID aggregateId;
+    private String aggregateId;
 
     private String payload;
 
@@ -31,4 +31,7 @@ public class GameEvent {
         this.status = status;
     }
 
+    public void markAsCompleted() {
+        this.status = "COMPLETED";
+    }
 }

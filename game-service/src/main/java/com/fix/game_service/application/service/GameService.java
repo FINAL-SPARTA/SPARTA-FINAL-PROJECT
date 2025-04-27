@@ -104,7 +104,7 @@ public class GameService {
 
 			GameEvent gameEvent = GameEvent.builder()
 					.eventType("GAME_CREATED")
-					.aggregateId(alarmPayload.getGameId())
+					.aggregateId(alarmPayload.getGameId().toString())
 					.payload(payload)
 					.status("PENDING")
 					.build();
