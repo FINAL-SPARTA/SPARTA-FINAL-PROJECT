@@ -3,6 +3,7 @@ package com.fix.game_service.application.service;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.common_service.kafka.dto.GameChatPayload;
 import com.fix.game_service.domain.model.GameEvent;
 import com.fix.game_service.domain.repository.GameEventRepository;
 import org.springframework.cache.Cache;
@@ -86,11 +87,15 @@ public class GameService {
 		// gameProducer.sendGameInfoToAlarm(alarmPayload);
 
 		// 7. 경기 내용 chat으로 전송
-		ChatCreateRequest requestDto = ChatCreateRequest.builder()
+		/*ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
-			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
-		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", requestDto);
-		chatClient.createChatRoom(requestDto);
+			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();*/
+		GameChatPayload chatPayload = new GameChatPayload(
+				savedGame.getGameId(), savedGame.getGameName(),
+				savedGame.getGameDate().toString(), savedGame.getGameStatus().toString());
+		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", chatPayload);
+		// chatClient.createChatRoom(requestDto);
+		gameProducer.sendGameInfoToChat(chatPayload);
 		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
 
 		// 8. 경기 내용 반환
