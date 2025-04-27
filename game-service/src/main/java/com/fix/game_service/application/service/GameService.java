@@ -95,7 +95,8 @@ public class GameService {
 				savedGame.getGameDate().toString(), savedGame.getGameStatus().toString());
 		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", chatPayload);
 		// chatClient.createChatRoom(requestDto);
-		gameProducer.sendGameInfoToChat(chatPayload);
+		// gameProducer.sendGameInfoToChat(chatPayload);
+		saveGameChatEvent(chatPayload);
 		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
 
 		// 8. 경기 내용 반환
@@ -103,12 +104,29 @@ public class GameService {
 		return GameCreateResponse.fromGame(savedGame);
 	}
 
+	private void saveGameChatEvent(GameChatPayload chatPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(chatPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_CHAT_CREATED")
+					.aggregateId(chatPayload.getGameId().toString())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
+	}
+
 	private void saveGameAlarmEvent(GameCreatedInfoPayload alarmPayload) {
 		try {
 			String payload = objectMapper.writeValueAsString(alarmPayload);
 
 			GameEvent gameEvent = GameEvent.builder()
-					.eventType("GAME_CREATED")
+					.eventType("GAME_ALARM_CREATED")
 					.aggregateId(alarmPayload.getGameId().toString())
 					.payload(payload)
 					.status("PENDING")
