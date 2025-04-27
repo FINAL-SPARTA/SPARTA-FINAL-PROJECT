@@ -1,6 +1,7 @@
 package com.fix.game_service.presentation.scheduler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.common_service.kafka.dto.GameChatPayload;
 import com.fix.common_service.kafka.dto.GameCreatedInfoPayload;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.GameEvent;
@@ -28,8 +29,8 @@ public class GameEventScheduler {
 
         for (GameEvent event : pendingGameEvents) {
             try {
-                GameCreatedInfoPayload payload = convertPayload(event.getEventType(), event.getPayload());
-                gameProducer.sendGameInfoToAlarm(payload);
+                // 이벤트 전송
+                convertPayload(event.getEventType(), event.getPayload());
 
                 // 성공하면 상태 변경
                 event.markAsCompleted();
@@ -43,12 +44,20 @@ public class GameEventScheduler {
         }
     }
 
-    private GameCreatedInfoPayload convertPayload(String eventType, String payload) throws Exception {
+    private void convertPayload(String eventType, String payload) throws Exception {
         switch (eventType) {
-            case "GAME_CREATED":
-                return objectMapper.readValue(payload, GameCreatedInfoPayload.class);
+            case "GAME_ALARM_CREATED":
+                GameCreatedInfoPayload alarmPayload = objectMapper.readValue(payload, GameCreatedInfoPayload.class);
+                gameProducer.sendGameInfoToAlarm(alarmPayload);
+                break;
+
+            case "GAME_CHAT_CREATED":
+                GameChatPayload chatPayload = objectMapper.readValue(payload, GameChatPayload.class);
+                gameProducer.sendGameInfoToChat(chatPayload);
+                break;
+
             default:
-                throw new IllegalArgumentException("Unknown eventType: " + eventType);
+                throw new IllegalArgumentException("알 수 없는 이벤트 타입: " + eventType);
         }
     }
 
