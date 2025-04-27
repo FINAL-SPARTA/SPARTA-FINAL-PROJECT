@@ -1,12 +1,11 @@
 package com.fix.common_service.kafka.dto;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,9 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GameChatPayload {
 
-	private UUID gameId;
-	private String gameName;
-	private LocalDateTime gameDate;
-	private String gameStatus;
+    private UUID gameId;
+    private String gameName;
+    private String gameDate;
+    private String gameStatus;
 
 }

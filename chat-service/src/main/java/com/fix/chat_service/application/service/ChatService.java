@@ -1,8 +1,11 @@
 package com.fix.chat_service.application.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import com.fix.common_service.kafka.dto.GameChatPayload;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -42,6 +45,23 @@ public class ChatService {
 			.chatCloseDate(request.getGameDate().plusDays(1))
 			.gameStatus(request.getGameStatus())
 			.build();
+
+		ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+		log.info(savedChatRoom.getGameDate().toString());
+	}
+
+	public void createChatRoomByGame(GameChatPayload payload) {
+		log.info("[Kafka Event] 서비스로 요청 들어옴");
+		LocalDateTime time = LocalDateTime.parse(payload.getGameDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]"));
+		ChatRoom chatRoom = ChatRoom.builder()
+				.chatRoomId(payload.getGameId())
+				.gameId(payload.getGameId())
+				.gameDate(time)
+				.gameName(payload.getGameName())
+				.chatOpenDate(time.minusMinutes(10))
+				.chatCloseDate(time.plusDays(1))
+				.gameStatus(payload.getGameStatus())
+				.build();
 
 		ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 		log.info(savedChatRoom.getGameDate().toString());
@@ -136,5 +156,4 @@ public class ChatService {
 		return chatRoomRepository.findById(chatId)
 			.orElseThrow(() -> new ChatException(ChatException.ChatErrorType.CHATROOM_NOT_FOUND));
 	}
-
 }
