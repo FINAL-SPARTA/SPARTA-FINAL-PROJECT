@@ -37,6 +37,12 @@ public class QueueService {
 	private final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 	private final String ACTIVE_GAMES_KEY = "active-game";
 
+	/**
+	 * 대기열 입장
+	 * @param gameId : 입장할 경기 ID
+	 * @param userId : 입장 요청한 사용자 ID
+	 * @return : 토큰 반환
+	 */
 	public Map<String, Object> enterQueue(UUID gameId, Long userId) {
 		log.info("대기열 진입 시도: gameId={}, userId={}", gameId, userId);
 		// 1. 해당 경기를 찾아서 예매 가능 시간인지 확인
@@ -156,6 +162,16 @@ public class QueueService {
 	}
 
 	/**
+	 * 작업열로 이동한 토큰을 대기열에서 제거
+	 * @param gameId : 경기 ID
+	 * @param tokens : 제거할 토큰들
+	 */
+	public void deleteTokensFromQueue(UUID gameId, Set<String> tokens) {
+		String queueKey = QUEUE_KEY_PREFIX + gameId;
+		redisTemplate.opsForZSet().remove(queueKey, tokens.toArray());
+	}
+
+	/**
 	 * 외부 요청에 의해 대기열을 떠나는 경우
 	 * @param gameId : 경기 ID
 	 * @param userId : 떠나는 사용자 ID
@@ -169,9 +185,8 @@ public class QueueService {
 
 	/**
 	 * 해당 사용자가 작업 대기열에 존재하는지 확인
-	 *
 	 * @param gameId : 작업 대기열에 있는지 확인할 경기 ID
-	 * @param userId
+	 * @param userId : 사용자 ID
 	 * @param token  : 확인할 토큰
 	 * @return : 토큰 존재 여부 반환
 	 */
