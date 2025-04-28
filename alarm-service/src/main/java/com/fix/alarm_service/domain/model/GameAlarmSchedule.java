@@ -24,15 +24,19 @@ public class GameAlarmSchedule {
     @Column(nullable = false)
     private LocalDateTime gameDate;
 
-    private boolean isSent;
+    private boolean sent;
 
 
     public static GameAlarmSchedule of (UUID gameId, LocalDateTime gameDate){
         return GameAlarmSchedule.builder()
                 .gameId(gameId)
                 .gameDate(gameDate)
-                .isSent(false)
+                .sent(false)
                 .build();
+    }
+
+    public void markAsSent(){
+        this.sent = true;
     }
 
 
