@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +35,10 @@ public class OrderProducer {
     @Value("${kafka-topics.order.canceled}")
     private String orderCanceledTopic;
 
+
     @Value("${kafka-topics.order.send-alarm-userIds}")
     private String orderSendAlarmUserIdsTopic;
+
 
     /**
      * 주문 생성 이벤트 발행
