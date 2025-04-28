@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class OrderConsumer {
 
     private final TicketReservedConsumer ticketReservedConsumer;
-    private final TicketUpdatedConsumer ticketUpdatedConsumer;
 
     /**
      * OrderConsumer 생성자에서 두 개의 이벤트 consumer를 초기화합니다.
@@ -35,31 +34,19 @@ public class OrderConsumer {
                          OrderFeignService orderFeignService,
                          OrderProducer orderProducer) {
         this.ticketReservedConsumer = new TicketReservedConsumer(idempotencyChecker, orderFeignService, orderProducer);
-        this.ticketUpdatedConsumer = new TicketUpdatedConsumer(idempotencyChecker);
     }
 
     /**
      * Kafka로부터 TICKET_RESERVED 이벤트를 수신합니다.
      */
-    @KafkaListener(topics = "${kafka-topics.ticket.reserved}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka-topics.ticket.reserved}", containerFactory = "kafkaListenerContainerFactory",
+            groupId = "order-service-ticket-reserved-consumer")
     public void consumeTicketReserved(
             ConsumerRecord<String, EventKafkaMessage<TicketReservedPayload>> record,
             @Payload EventKafkaMessage<TicketReservedPayload> message,
             Acknowledgment ack) {
 
         ticketReservedConsumer.consume(record, message, ack);
-    }
-
-    /**
-     * Kafka로부터 TICKET_UPDATED 이벤트를 수신합니다.
-     */
-    @KafkaListener(topics = "${kafka-topics.ticket.updated}", containerFactory = "kafkaListenerContainerFactory")
-    public void consumeTicketUpdated(
-            ConsumerRecord<String, EventKafkaMessage<TicketUpdatedPayload>> record,
-            @Payload EventKafkaMessage<TicketUpdatedPayload> message,
-            Acknowledgment ack) {
-
-        ticketUpdatedConsumer.consume(record, message, ack);
     }
 
     /**
@@ -114,6 +101,11 @@ public class OrderConsumer {
                 throw e; // 필요 시 생략 가능 (consume 종료 목적이면)
             }
         }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return "order-service-ticket-reserved-consumer";
+        }
     }
 
     /**
@@ -135,6 +127,11 @@ public class OrderConsumer {
                     updated.getGameId(), updated.getQuantity());
 
             // TODO: 재고 상태 업데이트 로직 등 연결 가능
+        }
+
+        @Override
+        protected String getConsumerGroupId() {
+            return null;
         }
     }
 }

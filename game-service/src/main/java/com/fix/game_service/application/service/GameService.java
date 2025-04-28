@@ -2,6 +2,10 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.common_service.kafka.dto.GameChatPayload;
+import com.fix.game_service.domain.model.GameEvent;
+import com.fix.game_service.domain.repository.GameEventRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fix.common_service.dto.StadiumFeignResponse;
+import com.fix.common_service.kafka.dto.GameCreatedInfoPayload;
 import com.fix.game_service.application.dtos.request.GameCreateRequest;
 import com.fix.game_service.application.dtos.request.GameSearchRequest;
 import com.fix.game_service.application.dtos.request.GameStatusUpdateRequest;
@@ -21,10 +26,13 @@ import com.fix.game_service.application.dtos.response.GameStatusUpdateResponse;
 import com.fix.game_service.application.dtos.response.GameUpdateResponse;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
+import com.fix.game_service.domain.model.GameRate;
+import com.fix.game_service.domain.repository.GameRateRepository;
 import com.fix.game_service.domain.repository.GameRepository;
 import com.fix.game_service.infrastructure.client.ChatClient;
 import com.fix.game_service.infrastructure.client.StadiumClient;
 import com.fix.game_service.infrastructure.client.dto.ChatCreateRequest;
+import com.fix.game_service.presentation.controller.GameProducer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,32 +44,98 @@ public class GameService {
 
 	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
+	private final GameRateRepository gameRateRepository;
+	private final GameEventRepository gameEventRepository;
 	private final StadiumClient stadiumClient;
 	private final ChatClient chatClient;
+	private final GameProducer gameProducer;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * 경기 생성
 	 * @param request : 생성할 경기 내용
 	 * @return : 반환
 	 */
+	@Transactional
 	public GameCreateResponse createGame(GameCreateRequest request) {
+		log.info("경기 생성 시작: {}", request);
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
+		log.debug("Stadium 정보 조회 요청 전송: homeTeam={}", request.getHomeTeam());
 		StadiumFeignResponse responseDto = getStadiumInfo(request.getHomeTeam().toString());
+		log.info("Stadium 정보 조회 완료: stadiumId={}, stadiumName={}, seatQuantity={}",
+			responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
 
 		// 2. 받아온 경기장 정보를 기반으로 경기 Entity 생성
-		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
+		Game game = request.toGame(responseDto.getStadiumId(), responseDto.getStadiumName());
 
 		// 3. 생성한 경기 Entity 저장
 		Game savedGame = gameRepository.save(game);
+		log.info("경기 저장 완료: gameId={}, gameName={}, gameDate={}",
+			savedGame.getGameId(), savedGame.getGameName(), savedGame.getGameDate());
 
-		// 4. 경기 내용 chat으로 전송
-		ChatCreateRequest requestDto = ChatCreateRequest.builder()
+		// 4. 경기 예매 기록 Entity 생성
+		GameRate gameRate = GameRate.builder().totalSeats(responseDto.getSeatQuantity()).build();
+
+		// 5. 생성한 경기 예매 기록 Entity 저장
+		gameRateRepository.save(gameRate);
+		savedGame.updateGameRate(gameRate);
+
+		// 6. 경기 내용 alarm으로 전송
+		GameCreatedInfoPayload alarmPayload = new GameCreatedInfoPayload(
+				savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString());
+		saveGameAlarmEvent(alarmPayload);
+		// gameProducer.sendGameInfoToAlarm(alarmPayload);
+
+		// 7. 경기 내용 chat으로 전송
+		/*ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
-			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
-		chatClient.createChatRoom(requestDto);
+			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();*/
+		GameChatPayload chatPayload = new GameChatPayload(
+				savedGame.getGameId(), savedGame.getGameName(),
+				savedGame.getGameDate().toString(), savedGame.getGameStatus().toString());
+		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", chatPayload);
+		// chatClient.createChatRoom(requestDto);
+		// gameProducer.sendGameInfoToChat(chatPayload);
+		saveGameChatEvent(chatPayload);
+		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
 
-		// 4. 경기 내용 반환
+		// 8. 경기 내용 반환
+        log.info("경기 생성 완료: gameId={}, gameName={}", savedGame.getGameId(), savedGame.getGameName());
 		return GameCreateResponse.fromGame(savedGame);
+	}
+
+	private void saveGameChatEvent(GameChatPayload chatPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(chatPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_CHAT_CREATED")
+					.aggregateId(chatPayload.getGameId().toString())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
+	}
+
+	private void saveGameAlarmEvent(GameCreatedInfoPayload alarmPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(alarmPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_ALARM_CREATED")
+					.aggregateId(alarmPayload.getGameId().toString())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
 	}
 
 	/**
@@ -71,7 +145,8 @@ public class GameService {
 	 */
 	public GameGetOneResponse getOneGame(UUID gameId) {
 		Game game = findGame(gameId);
-		return GameGetOneResponse.fromGame(game);
+		GameRate gameRate = findGameRate(gameId);
+		return GameGetOneResponse.fromGame(game, gameRate);
 	}
 
 	/**
@@ -100,7 +175,9 @@ public class GameService {
 		Game updateGameInfo;
 		if (request.getHomeTeam() != null) {
 			StadiumFeignResponse response = getStadiumInfo(request.getHomeTeam().toString());
-			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName(), response.getSeatQuantity());
+			updateGameInfo = request.toGameWithStadium(response.getStadiumId(), response.getStadiumName());
+			GameRate gameRate = findGameRate(gameId);
+			gameRate.updateStatus(response.getSeatQuantity());
 		} else {
 			updateGameInfo = request.toGame();
 		}
@@ -135,19 +212,22 @@ public class GameService {
 	 */
 	@Transactional
 	public void updateGameSeats(UUID gameId, int quantity) {
-		Game game = findGame(gameId);
+        log.info("경기 잔여 좌석 업데이트 시작: gameId={}, quantity={}", gameId, quantity);
+		GameRate gameRate = findGameRate(gameId);
 
-		Integer totalSeats = game.getTotalSeats();
+		Integer totalSeats = gameRate.getTotalSeats();
 		Integer newRemainingSeats;
-		if (game.getRemainingSeats() == null) {
-			newRemainingSeats = game.getTotalSeats() + quantity;
+		if (gameRate.getRemainingSeats() == null) {
+			newRemainingSeats = gameRate.getTotalSeats() + quantity;
 		} else {
-			newRemainingSeats = game.getRemainingSeats() + quantity;
+			newRemainingSeats = gameRate.getRemainingSeats() + quantity;
 		}
 
 		Double newAdvanceReservation = (double) (newRemainingSeats / totalSeats);
 
-		game.updateGameSeats(newRemainingSeats, newAdvanceReservation);
+		gameRate.updateGameSeats(newRemainingSeats, newAdvanceReservation);
+        log.info("경기 잔여 좌석 업데이트 완료: gameId={}, newRemainingSeats={}, newAdvanceReservation={}",
+            gameId, newRemainingSeats, newAdvanceReservation);
 	}
 
 	/**
@@ -185,5 +265,10 @@ public class GameService {
 	private Game findGame(UUID gameId) {
 		return gameRepository.findById(gameId)
 			.orElseThrow(() -> new GameException(GameException.GameErrorType.GAME_NOT_FOUND));
+	}
+
+	private GameRate findGameRate(UUID gameId) {
+		return gameRateRepository.findById(gameId).orElseThrow(() -> new GameException(
+			GameException.GameErrorType.GAME_NOT_FOUND));
 	}
 }

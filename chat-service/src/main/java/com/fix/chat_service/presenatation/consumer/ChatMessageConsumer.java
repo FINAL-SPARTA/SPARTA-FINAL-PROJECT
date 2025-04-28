@@ -7,8 +7,10 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fix.chat_service.application.dtos.ChatMessage;
+import com.fix.chat_service.application.dtos.ChatMessageDto;
+import com.fix.chat_service.domain.model.ChatMessage;
 import com.fix.chat_service.infrastructure.handler.CustomWebSocketHandler;
+import com.fix.chat_service.infrastructure.repository.ChatMessageRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,17 +21,18 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatMessageConsumer {
 
 	private final CustomWebSocketHandler webSocketHandler;
-	private final ObjectMapper objectMapper;
+	private final ChatMessageRepository chatMessageRepository;
 
 	/**
 	 * 토픽으로 메시지 전송
 	 * @param message : 받은 메시지 해당 채팅방으로 전달
 	 */
-	@KafkaListener(topics = "chat-message", groupId = "${spring.kafka.consumer.group-id}")
-	public void consumeMessage(ChatMessage message) throws IOException {
+	@KafkaListener(topics = "${kafka-topics.chat.message}", groupId = "${spring.kafka.consumer.group-id}")
+	public void consumeMessage(ChatMessageDto message) throws IOException {
 		// 로그 저장 등의 로직이 필요하다면 ChatMessage로 캐스팅 과정 필요
 		// ChatMessage chatMessage = objectMapper.readValue(message, ChatMessage.class);
-
+		ChatMessage chatMessage = message.toChatMessage();
+		chatMessageRepository.save(chatMessage);
 		// 메시지 브로드캐스트
 		webSocketHandler.broadcastMessage(UUID.fromString(message.getChatId()), message);
 	}

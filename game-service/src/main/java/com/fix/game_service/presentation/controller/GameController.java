@@ -2,6 +2,7 @@ package com.fix.game_service.presentation.controller;
 
 import java.util.UUID;
 
+import com.fix.common_service.aop.ApiLogging;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ public class GameController {
 	 * @param request : 생성할 경기 내용
 	 * @return : 생성한 경기
 	 */
+	@ApiLogging
 	@ValidateUser(roles = {"MASTER", "MANAGER"})
 	@PostMapping
 	public ResponseEntity<CommonResponse<GameCreateResponse>> createGame(

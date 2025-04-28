@@ -1,12 +1,13 @@
 package com.fix.ticket_service.application.service;
 
-import com.fix.ticket_service.application.dtos.request.*;
+import com.fix.ticket_service.application.dtos.request.TicketInfoRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
+import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
 import com.fix.ticket_service.application.dtos.response.*;
+import com.fix.ticket_service.application.exception.TicketException;
 import com.fix.ticket_service.domain.model.Ticket;
 import com.fix.ticket_service.domain.model.TicketStatus;
 import com.fix.ticket_service.domain.repository.TicketRepository;
-import com.fix.ticket_service.infrastructure.client.GameClient;
-import com.fix.ticket_service.infrastructure.client.OrderClient;
 import com.fix.ticket_service.infrastructure.client.StadiumClient;
 import com.fix.ticket_service.infrastructure.kafka.producer.TicketProducer;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,6 @@ import java.util.stream.Collectors;
 public class TicketApplicationService {
 
     private final TicketRepository ticketRepository;
-    private final OrderClient orderClient;
-    private final GameClient gameClient;
     private final StadiumClient stadiumClient;
     private final RedissonClient redissonClient;
     private final TicketProducer ticketProducer;
@@ -49,6 +48,7 @@ public class TicketApplicationService {
     private static final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId, String token) {
+        log.info("티켓 예약 요청: userId={}, gameId={}, seatCount={}", userId, request.getGameId(), request.getSeatInfoList().size());
         // 1) 큐 토큰 검증
         validateQueueToken(token,userId);
 
@@ -68,7 +68,7 @@ public class TicketApplicationService {
             acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (!acquired) {
                 log.warn("좌석 락 획득 실패: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
-                throw new IllegalArgumentException("다른 사용자가 좌석을 선택 중입니다.");
+                throw new TicketException(TicketException.TicketErrorType.SEAT_LOCK_ACQUIRE_FAILED);
             }
             log.info("좌석 락 획득 성공: userId={}, seatInfoList={}", userId, request.getSeatInfoList());
 
@@ -77,7 +77,7 @@ public class TicketApplicationService {
                 String redisKey = getSeatKey(seatId);
                 String status = redisTemplate.opsForValue().get(redisKey);
                 if ("RESERVED".equals(status) || "SOLD".equals(status)) {
-                    throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+                    throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
                 }
             }
 
@@ -86,7 +86,7 @@ public class TicketApplicationService {
                     ticketRepository.findByGameIdAndSeatIdInAndStatusIn(request.getGameId(),
                             seatIds, List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
             if (!existingTickets.isEmpty()) {
-                throw new IllegalArgumentException("이미 예약되었거나 판매된 좌석이 포함되어 있습니다");
+                throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
             }
 
             // 5) 티켓 예약 처리 (엔티티 생성 및 리스트에 저장)
@@ -100,9 +100,14 @@ public class TicketApplicationService {
             ticketRepository.saveAll(ticketsToSave);
 
             // 7) Redis 캐시에 예약 상태 저장 (TTL = 3분)
-            for (UUID seatId : seatIds) {
-                String redisKey = getSeatKey(seatId);
+            for (Ticket ticket : ticketsToSave) {
+                // Redis 캐시 키 생성 (티켓 상태 저장)
+                String redisKey = getSeatKey(ticket.getSeatId());
                 redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
+
+                // 예약 만료 전용 키
+                String reservationKey = "reservation:" + ticket.getTicketId();
+                redisTemplate.opsForValue().set(reservationKey, "", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
             }
 
             // 8) 티켓 예매 이벤트 발행 (주문 생성 요청)
@@ -111,7 +116,7 @@ public class TicketApplicationService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("락 대기 중 인터럽트 발생: userId={}, seatInfoList={}", userId, request.getSeatInfoList(), e);
-            throw new RuntimeException("락을 획득하는 동안 문제가 발생했습니다.", e);
+            throw new TicketException(TicketException.TicketErrorType.SEAT_LOCK_INTERRUPTED);
         } finally {
             if (acquired) {
                 multiLock.unlock();
@@ -125,7 +130,7 @@ public class TicketApplicationService {
     @Transactional(readOnly = true)
     public TicketDetailResponseDto getTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+            .orElseThrow(() -> new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND));
 
         ticket.validateAuth(userId, userRole);
 
@@ -151,6 +156,7 @@ public class TicketApplicationService {
     @Transactional(readOnly = true)
     @Cacheable(value = "seatView", key = "#gameId.toString() + ':' + #stadiumId.toString() + ':' + #section")
     public List<SeatStatusResponseDto> getSeatView(UUID gameId, Long stadiumId, String section) {
+        log.info("좌석 뷰 조회 요청: gameId={}, stadiumId={}, section={}", gameId, stadiumId, section);
         // 1) Stadium 서버를 호출하여 구역 내 좌석 정보 조회
         SeatInfoListResponseDto seatInfoListResponseDto =
             stadiumClient.getSeatsBySection(stadiumId, section);
@@ -193,11 +199,14 @@ public class TicketApplicationService {
             })
             .toList();
 
+        log.info("좌석 뷰 조회 성공: gameId={}, stadiumId={}, section={}, resultSize={}", gameId, stadiumId, section, result.size());
         return result;
     }
 
     @Transactional
     public void updateTicketStatus(TicketSoldRequestDto requestDto) {
+        log.info("티켓 상태 업데이트 (SOLD) 시작: orderId={}, ticketIds={}", requestDto.getOrderId(), requestDto.getTicketIds());
+        long startTime = System.nanoTime();
         // 1) 입력된 ticketIds 에 해당하는 티켓 목록 조회
         List<Ticket> tickets = ticketRepository.findAllById(requestDto.getTicketIds());
 
@@ -208,17 +217,22 @@ public class TicketApplicationService {
 
         // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 차감 요청)
         int quantity = tickets.size();
-        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), -quantity);
+        ticketProducer.sendTicketSoldEvent(tickets.get(0).getGameId(), -quantity);
 
         // 4) Redis 캐시에 SOLD 상태 저장 (TTL = 24시간)
         for (Ticket ticket : tickets) {
             String redisKey = getSeatKey(ticket.getSeatId());
             redisTemplate.opsForValue().set(redisKey, "SOLD", SOLD_TTL_SECONDS, TimeUnit.SECONDS);
         }
+        long endTime = System.nanoTime();
+        log.info("티켓 상태 업데이트 (SOLD) 완료: orderId={}, ticketIds={}, duration={}ms",
+            requestDto.getOrderId(), requestDto.getTicketIds(), TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
     }
 
     @Transactional
     public void cancelTicketStatus(UUID orderId) {
+        log.info("티켓 상태 업데이트 (CANCELLED) 시작: orderId={}", orderId);
+        long startTime = System.nanoTime();
         // 1) 주문 ID에 해당하는 티켓 목록 조회
         List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
 
@@ -229,19 +243,22 @@ public class TicketApplicationService {
 
         // 3) 티켓 업데이트 이벤트 발행 (경기 서버에 잔여 좌석 증가 요청)
         int quantity = tickets.size();
-        ticketProducer.sendTicketUpdatedEvent(tickets.get(0).getGameId(), quantity);
+        ticketProducer.sendTicketCancelledEvent(tickets.get(0).getGameId(), quantity);
 
         // 4) Redis 캐시에서 해당 좌석 키 삭제
         for (Ticket ticket : tickets) {
             String redisKey = getSeatKey(ticket.getSeatId());
             redisTemplate.delete(redisKey);
         }
+        long endTime = System.nanoTime();
+        log.info("티켓 상태 업데이트 (CANCELLED) 완료: orderId={}, ticketIds={}, duration={}ms",
+            orderId, tickets.stream().map(Ticket::getTicketId).collect(Collectors.toList()), TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
     }
 
     @Transactional
     public void deleteTicket(UUID ticketId, Long userId, String userRole) {
         Ticket ticket = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new IllegalArgumentException("티켓을 찾을 수 없습니다."));
+            .orElseThrow(() -> new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND));
 
         ticket.validateAuth(userId, userRole);
 
@@ -254,7 +271,7 @@ public class TicketApplicationService {
 
         // 티켓이 존재하지 않거나, 요청한 게임 ID와 일치하지 않는 경우 예외 처리
         if (tickets.isEmpty()) {
-            throw new IllegalArgumentException("삭제할 수 있는 티켓이 없습니다.");
+            throw new TicketException(TicketException.TicketErrorType.TICKET_NOT_FOUND);
         }
 
         // 티켓 삭제
@@ -262,8 +279,15 @@ public class TicketApplicationService {
     }
 
     @Transactional
-    public void deleteReservedTickets() {
-        ticketRepository.deleteAllByStatus(TicketStatus.RESERVED);
+    public void handleReservationExpiry(UUID ticketId) {
+        ticketRepository.findById(ticketId).ifPresent(ticket -> {
+            if (ticket.getStatus() == TicketStatus.RESERVED) {
+                ticketRepository.delete(ticket); // 예약 만료된 티켓 삭제
+                log.info("키스페이스 알림에 의해 예약 만료 티켓 삭제: ticketId={}", ticketId);
+                // 보상 트랜잭션 처리 (필요 할까?)
+            }
+        });
+
     }
 
     private String getSeatKey(UUID seatId) {
@@ -273,13 +297,13 @@ public class TicketApplicationService {
     private void validateQueueToken(String token,Long userId) {
         // 큐 토큰이 null 이거나 비어있는 경우 예외 처리
         if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("큐 토큰이 필요합니다.");
+            throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_REQUIRED);
         }
 
         // 큐 토큰이 Redis 에 존재하는지 확인 (존재하지 않는다면 TTL 이 만료된 것)
-        String redisKey = WORKING_QUEUE_KEY_PREFIX + token +"|"+userId;
+        String redisKey = WORKING_QUEUE_KEY_PREFIX + token + "|" + userId;
         if (!redisTemplate.hasKey(redisKey)) {
-            throw new IllegalArgumentException("큐 토큰이 유효하지 않습니다.");
+            throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_INVALID);
         }
 
         redisTemplate.delete(redisKey); // 토큰 사용 후 Redis 에서 삭제

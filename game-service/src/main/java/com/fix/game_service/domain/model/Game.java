@@ -6,13 +6,16 @@ import java.util.UUID;
 
 import com.fix.common_service.entity.Basic;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
@@ -62,14 +65,8 @@ public class Game extends Basic {
 	@Column(nullable = false)
 	private LocalDateTime closeDate;
 
-	@Column
-	private Double advanceReservation;  // 예매율
-
-	@Column
-	private Integer remainingSeats;        // 남은 좌석
-
-	@Column(nullable = false)
-	private Integer totalSeats;          // 총 좌석
+	@OneToOne(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private GameRate gameRate;
 
 	/**
 	 * 경기 내용 수정
@@ -82,7 +79,6 @@ public class Game extends Basic {
 		Optional.ofNullable(updateGameInfo.getGameDate()).ifPresent(gameDate -> this.gameDate = gameDate);
 		Optional.ofNullable(updateGameInfo.getStadiumId()).ifPresent(stadiumId -> this.stadiumId = stadiumId);
 		Optional.ofNullable(updateGameInfo.getStadiumName()).ifPresent(stadiumName -> this.stadiumName = stadiumName);
-		Optional.ofNullable(updateGameInfo.getTotalSeats()).ifPresent(totalSeats -> this.totalSeats = totalSeats);
 		Optional.ofNullable(updateGameInfo.getGameStatus()).ifPresent(gameStatus -> this.gameStatus = gameStatus);
 		Optional.ofNullable(updateGameInfo.getOpenDate()).ifPresent(openDate -> this.openDate = openDate);
 		Optional.ofNullable(updateGameInfo.getCloseDate()).ifPresent(closeDate -> this.closeDate = closeDate);
@@ -97,13 +93,10 @@ public class Game extends Basic {
 	}
 
 	/**
-	 * 경기 잔여 좌석 및 예매율 수정
-	 * @param newRemainingSeats : 잔여 좌석
-	 * @param newAdvanceReservation : 예매율
+	 * 경기 기록 수정
+	 * @param gameRate : 경기 기록
 	 */
-	public void updateGameSeats(Integer newRemainingSeats, Double newAdvanceReservation) {
-		this.remainingSeats = newRemainingSeats;
-		this.advanceReservation = newAdvanceReservation;
+	public void updateGameRate(GameRate gameRate) {
+		this.gameRate = gameRate;
 	}
-
 }

@@ -11,7 +11,8 @@ public class KafkaTopicConfig {
 
     // Ticket 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.ticket.reserved}") private String ticketReservedTopic;
-    @Value("${kafka-topics.ticket.updated}") private String ticketUpdatedTopic;
+    @Value("${kafka-topics.ticket.sold}") private String ticketSoldTopic;
+    @Value("${kafka-topics.ticket.cancelled}") private String ticketCancelledTopic;
 
     // Order 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.order.created}") private String orderCreatedTopic;
@@ -26,9 +27,17 @@ public class KafkaTopicConfig {
     @Value("${kafka-topics.payment.cancelled}") private String paymentCancelledTopic;
     // Event 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.event.applied}") private String eventAppliedTopic;
+    @Value("${kafka-topics.event.winners-announced}") private String eventWinnersAnnouncedTopic;
 
     // User 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.user.point-deduction-failed}") private String userPointDeductionFailedTopic; // SAGA
+
+    // Game 에서 발행하는 이벤트 토픽
+    @Value("${kafka-topics.game.created}") private String gameCreatedTopic;
+    @Value("${kafka-topics.game.chat}") private String gameChatTopic;
+
+    //alarm 에서 발행하는 이벤트 토픽
+    @Value("${kafka-topics.alarm.game-started}") private String alarmGameStartedTopic;
 
     @Value("${default-topic.partitions}") private int defaultPartitions;
     @Value("${default-topic.replicas}") private int defaultReplicas;
@@ -44,8 +53,16 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic ticketUpdated() {
-        return TopicBuilder.name(ticketUpdatedTopic)
+    public NewTopic ticketSold() {
+        return TopicBuilder.name(ticketSoldTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ticketCancelled() {
+        return TopicBuilder.name(ticketCancelledTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
@@ -124,10 +141,44 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic eventWinnersAnnounced() {
+        return TopicBuilder.name(eventWinnersAnnouncedTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
     public NewTopic userPointDeductionFailed() {
         return TopicBuilder.name(userPointDeductionFailedTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
     }
+
+    @Bean
+    public NewTopic gameCreatedTopic() {
+        return TopicBuilder.name(gameCreatedTopic)
+            .partitions(1)
+            .replicas(defaultReplicas)
+            .build();
+    }
+
+    @Bean
+    public NewTopic gameChatTopic() {
+        return TopicBuilder.name(gameChatTopic)
+                .partitions(1)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic alarmGameStartedTopic() {
+        return TopicBuilder.name(alarmGameStartedTopic)
+                .partitions(1)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+
 }

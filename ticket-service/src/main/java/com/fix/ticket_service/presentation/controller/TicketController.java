@@ -1,5 +1,6 @@
 package com.fix.ticket_service.presentation.controller;
 
+import com.fix.common_service.aop.ApiLogging;
 import com.fix.common_service.dto.CommonResponse;
 import com.fix.ticket_service.application.aop.ValidateUser;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
@@ -21,6 +22,7 @@ public class TicketController {
     private final TicketApplicationService ticketApplicationService;
 
     // ✅ 티켓 예약 API
+    @ApiLogging
     @PostMapping("/reserve")
     public ResponseEntity<CommonResponse<List<TicketReserveResponseDto>>> reserveTicket(
         @RequestBody TicketReserveRequestDto request,
@@ -64,6 +66,7 @@ public class TicketController {
     }
 
     // ✅ 좌석 뷰 조회 API (동적 뷰 생성)
+    @ApiLogging
     @GetMapping("/seat-view/{gameId}")
     public ResponseEntity<CommonResponse<List<SeatStatusResponseDto>>> getSeatView(
         @PathVariable("gameId") UUID gameId,
@@ -74,6 +77,7 @@ public class TicketController {
     }
 
     // ✅ 주문 생성 및 결제 처리가 완료된 티켓 목록 업데이트 API
+    @ApiLogging
     @PostMapping("/sold")
     public ResponseEntity<CommonResponse<Void>> updateTicketStatus(
         @RequestBody TicketSoldRequestDto requestDto) {
@@ -82,6 +86,7 @@ public class TicketController {
     }
 
     // ✅ 주문이 취소된 티켓(List) 상태 업데이트 API
+    @ApiLogging
     @PostMapping("/cancel/{orderId}")
     public ResponseEntity<CommonResponse<Void>> cancelTicketStatus(
         @PathVariable("orderId") UUID orderId) {
@@ -98,12 +103,5 @@ public class TicketController {
         @RequestHeader("x-user-role") String userRole) {
         ticketApplicationService.deleteTicket(ticketId, userId, userRole);
         return ResponseEntity.ok(CommonResponse.success(null, "티켓 삭제 성공"));
-    }
-
-    // ✅ 예약 상태인 티켓 일괄 삭제 API (스케쥴링용 API)
-    @DeleteMapping("/delete-reserved")
-    public ResponseEntity<CommonResponse<Void>> deleteReservedTickets() {
-        ticketApplicationService.deleteReservedTickets();
-        return ResponseEntity.ok(CommonResponse.success(null, "예약 상태인 티켓 일괄 삭제 성공"));
     }
 }

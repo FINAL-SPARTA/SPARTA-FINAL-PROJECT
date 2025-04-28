@@ -7,13 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.fix.chat_service.domain.model.ChatMessage;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMessageDto {
 
     private String chatId;
+    private Long userId;
     private String nickname;
     private String message;
     private LocalDateTime time;
@@ -29,5 +32,20 @@ public class ChatMessage {
 
 	public void setNickname(String nickname) {
 	    this.nickname = nickname;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public ChatMessage toChatMessage() {
+        return ChatMessage.builder()
+            .chatId(this.chatId)
+            .userId(this.userId)
+            .nickname(this.nickname)
+            .message(this.message)
+            .time(this.time)
+            .type(this.type)
+            .build();
     }
 }

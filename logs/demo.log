@@ -40,12 +40,12 @@
 [20250424 15:42:54:495][INFO ][o.s.b.a.h2.H2ConsoleAutoConfiguration] H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
 [20250424 15:42:54:570][INFO ][o.s.c.n.e.c.DiscoveryClientOptionalArgsConfiguration] Eureka HTTP Client uses RestTemplate.
 [20250424 15:42:54:588][WARN ][o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger] Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
-[20250424 15:42:54:629][INFO ][o.a.k.clients.admin.AdminClientConfig] AdminClientConfig values: 
+[20250424 15:42:54:629][INFO ][o.a.k.clients.admin.AdminClientConfig] AdminClientConfig values:
 	auto.include.jmx.reporter = true
 	bootstrap.controllers = []
 	bootstrap.servers = [localhost:9092]
 	client.dns.lookup = use_all_dns_ips
-	client.id = 
+	client.id =
 	connections.max.idle.ms = 300000
 	default.api.timeout.ms = 60000
 	enable.metrics.push = true
@@ -263,7 +263,7 @@ Caused by: java.util.concurrent.TimeoutException: null
 [20250424 15:43:29:395][INFO ][o.s.b.a.h2.H2ConsoleAutoConfiguration] H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
 [20250424 15:43:29:469][INFO ][o.s.c.n.e.c.DiscoveryClientOptionalArgsConfiguration] Eureka HTTP Client uses RestTemplate.
 [20250424 15:43:29:488][WARN ][o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger] Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
-[20250424 15:43:29:528][INFO ][o.a.k.clients.admin.AdminClientConfig] AdminClientConfig values: 
+[20250424 15:43:29:528][INFO ][o.a.k.clients.admin.AdminClientConfig] AdminClientConfig values:
 	auto.include.jmx.reporter = true
 	bootstrap.controllers = []
 	bootstrap.servers = [localhost:9092]
@@ -766,7 +766,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:840)
-[20250424 15:44:09:880][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values: 
+[20250424 15:44:09:880][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
 	allow.auto.create.topics = true
 	auto.commit.interval.ms = 5000
 	auto.include.jmx.reporter = true
@@ -775,7 +775,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 	check.crcs = true
 	client.dns.lookup = use_all_dns_ips
 	client.id = consumer-payment-service-group-1
-	client.rack = 
+	client.rack =
 	connections.max.idle.ms = 540000
 	default.api.timeout.ms = 60000
 	enable.auto.commit = false
@@ -870,7 +870,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 [20250424 15:44:09:924][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
 [20250424 15:44:09:924][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745477049923
 [20250424 15:44:09:925][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-group-1, groupId=payment-service-group] Subscribed to topic(s): order-completed-topic
-[20250424 15:44:09:927][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values: 
+[20250424 15:44:09:927][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
 	allow.auto.create.topics = true
 	auto.commit.interval.ms = 5000
 	auto.include.jmx.reporter = true
@@ -879,7 +879,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 	check.crcs = true
 	client.dns.lookup = use_all_dns_ips
 	client.id = consumer-payment-service-group-2
-	client.rack = 
+	client.rack =
 	connections.max.idle.ms = 540000
 	default.api.timeout.ms = 60000
 	enable.auto.commit = false
@@ -974,7 +974,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 [20250424 15:44:09:930][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
 [20250424 15:44:09:930][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745477049930
 [20250424 15:44:09:930][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-group-2, groupId=payment-service-group] Subscribed to topic(s): order-completion-failed-topic
-[20250424 15:44:09:930][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values: 
+[20250424 15:44:09:930][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
 	allow.auto.create.topics = true
 	auto.commit.interval.ms = 5000
 	auto.include.jmx.reporter = true
@@ -983,7 +983,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 	check.crcs = true
 	client.dns.lookup = use_all_dns_ips
 	client.id = consumer-payment-service-group-3
-	client.rack = 
+	client.rack =
 	connections.max.idle.ms = 540000
 	default.api.timeout.ms = 60000
 	enable.auto.commit = false
@@ -1078,7 +1078,7 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 [20250424 15:44:09:933][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
 [20250424 15:44:09:933][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745477049933
 [20250424 15:44:09:933][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-group-3, groupId=payment-service-group] Subscribed to topic(s): order-created-topic
-[20250424 15:44:09:933][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values: 
+[20250424 15:44:09:933][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
 	allow.auto.create.topics = true
 	auto.commit.interval.ms = 5000
 	auto.include.jmx.reporter = true
@@ -1461,3 +1461,1080 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
 	at java.base/java.lang.Thread.run(Thread.java:840)
 [20250424 15:44:13:069][INFO ][com.netflix.discovery.DiscoveryClient] Completed shut down of DiscoveryClient
+[20250425 12:52:05:720][INFO ][c.f.p.PaymentsServiceApplication] Starting PaymentsServiceApplication using Java 17.0.14 with PID 9399 (/Users/t2023-m0031/Desktop/SPARTA-FINAL-PROJECT/payments-service/build/classes/java/main started by t2023-m0031 in /Users/t2023-m0031/Desktop/SPARTA-FINAL-PROJECT)
+[20250425 12:52:05:721][INFO ][c.f.p.PaymentsServiceApplication] No active profile set, falling back to 1 default profile: "default"
+[20250425 12:52:05:739][INFO ][o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor] Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+[20250425 12:52:05:739][INFO ][o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor] For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+[20250425 12:52:06:151][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Multiple Spring Data modules found, entering strict repository configuration mode
+[20250425 12:52:06:152][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[20250425 12:52:06:220][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Finished Spring Data repository scanning in 63 ms. Found 2 JPA repository interfaces.
+[20250425 12:52:06:228][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Multiple Spring Data modules found, entering strict repository configuration mode
+[20250425 12:52:06:228][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+[20250425 12:52:06:236][INFO ][o.s.d.r.c.RepositoryConfigurationExtensionSupport] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.fix.payments_service.domain.repository.TossPaymentFailureRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+[20250425 12:52:06:236][INFO ][o.s.d.r.c.RepositoryConfigurationExtensionSupport] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.fix.payments_service.domain.repository.TossPaymentRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+[20250425 12:52:06:236][INFO ][o.s.d.r.c.RepositoryConfigurationDelegate] Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+[20250425 12:52:06:402][INFO ][o.s.cloud.context.scope.GenericScope] BeanFactory id=d77d88d4-d668-3d91-9291-0beebd3649e0
+[20250425 12:52:06:712][INFO ][o.s.b.w.embedded.tomcat.TomcatWebServer] Tomcat initialized with port 19100 (http)
+[20250425 12:52:06:718][INFO ][o.apache.coyote.http11.Http11NioProtocol] Initializing ProtocolHandler ["http-nio-19100"]
+[20250425 12:52:06:718][INFO ][o.apache.catalina.core.StandardService] Starting service [Tomcat]
+[20250425 12:52:06:718][INFO ][org.apache.catalina.core.StandardEngine] Starting Servlet engine: [Apache Tomcat/10.1.36]
+[20250425 12:52:06:741][INFO ][o.a.c.c.C.[Tomcat].[localhost].[/]] Initializing Spring embedded WebApplicationContext
+[20250425 12:52:06:741][INFO ][o.s.b.w.s.c.ServletWebServerApplicationContext] Root WebApplicationContext: initialization completed in 1002 ms
+[20250425 12:52:06:850][INFO ][o.hibernate.jpa.internal.util.LogHelper] HHH000204: Processing PersistenceUnitInfo [name: default]
+[20250425 12:52:06:882][INFO ][org.hibernate.Version] HHH000412: Hibernate ORM core version 6.6.8.Final
+[20250425 12:52:06:898][INFO ][o.h.c.internal.RegionFactoryInitiator] HHH000026: Second-level cache disabled
+[20250425 12:52:07:050][INFO ][o.s.o.j.p.SpringPersistenceUnitInfo] No LoadTimeWeaver setup: ignoring JPA class transformer
+[20250425 12:52:07:063][INFO ][com.zaxxer.hikari.HikariDataSource] HikariPool-1 - Starting...
+[20250425 12:52:07:129][INFO ][com.zaxxer.hikari.pool.HikariPool] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@35fb436e
+[20250425 12:52:07:130][INFO ][com.zaxxer.hikari.HikariDataSource] HikariPool-1 - Start completed.
+[20250425 12:52:07:199][INFO ][org.hibernate.orm.connections.pooling] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.17
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[20250425 12:52:07:605][INFO ][o.h.e.t.j.p.i.JtaPlatformInitiator] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[20250425 12:52:07:660][INFO ][o.s.o.j.LocalContainerEntityManagerFactoryBean] Initialized JPA EntityManagerFactory for persistence unit 'default'
+[20250425 12:52:07:765][ERROR][i.n.r.d.DnsServerAddressStreamProviders] Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS. Check whether you have a dependency on 'io.netty:netty-resolver-dns-native-macos'. Use DEBUG level to see the full stack: java.lang.UnsatisfiedLinkError: failed to load the required native library
+[20250425 12:52:08:091][WARN ][o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[20250425 12:52:08:119][INFO ][o.s.b.d.a.OptionalLiveReloadServer] LiveReload server is running on port 35729
+[20250425 12:52:08:443][INFO ][o.s.b.a.h2.H2ConsoleAutoConfiguration] H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://localhost:5432/payment_db'
+[20250425 12:52:08:517][INFO ][o.s.c.n.e.c.DiscoveryClientOptionalArgsConfiguration] Eureka HTTP Client uses RestTemplate.
+[20250425 12:52:08:540][WARN ][o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger] Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+[20250425 12:52:08:583][INFO ][o.a.k.clients.admin.AdminClientConfig] AdminClientConfig values:
+	auto.include.jmx.reporter = true
+	bootstrap.controllers = []
+	bootstrap.servers = [localhost:9092]
+	client.dns.lookup = use_all_dns_ips
+	client.id = 
+	connections.max.idle.ms = 300000
+	default.api.timeout.ms = 60000
+	enable.metrics.push = true
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retries = 2147483647
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+
+[20250425 12:52:08:608][INFO ][o.a.k.clients.admin.AdminClientConfig] These configurations '[spring.json.add.type.headers]' were supplied but are not used yet.
+[20250425 12:52:08:609][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:08:609][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:08:609][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553128608
+[20250425 12:52:08:762][WARN ][o.a.kafka.clients.admin.KafkaAdminClient] [AdminClient clientId=adminclient-1] The DescribeTopicPartitions API is not supported, using Metadata API to describe topics.
+[20250425 12:52:08:767][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.admin.client for adminclient-1 unregistered
+[20250425 12:52:08:769][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 12:52:08:769][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 12:52:08:769][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 12:52:08:780][INFO ][o.s.c.netflix.eureka.InstanceInfoFactory] Setting initial instance status as: STARTING
+[20250425 12:52:08:791][INFO ][com.netflix.discovery.DiscoveryClient] Initializing Eureka in region us-east-1
+[20250425 12:52:08:793][INFO ][c.n.d.s.r.aws.ConfigClusterResolver] Resolving eureka endpoints via configuration
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Disable delta property : false
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Single vip registry refresh property : null
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Force full registry fetch : false
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Application is null : false
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Registered Applications size is zero : true
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Application version is -1: true
+[20250425 12:52:08:796][INFO ][com.netflix.discovery.DiscoveryClient] Getting all instance registry info from the eureka server
+[20250425 12:52:08:989][INFO ][com.netflix.discovery.DiscoveryClient] The response status is 200
+[20250425 12:52:08:990][INFO ][com.netflix.discovery.DiscoveryClient] Starting heartbeat executor: renew interval is: 30
+[20250425 12:52:08:990][INFO ][c.n.discovery.InstanceInfoReplicator] InstanceInfoReplicator onDemand update allowed rate per min is 4
+[20250425 12:52:08:991][INFO ][com.netflix.discovery.DiscoveryClient] Discovery Client initialized at timestamp 1745553128991 with initial instances count: 8
+[20250425 12:52:08:995][INFO ][o.s.c.n.e.s.EurekaServiceRegistry] Registering application UNKNOWN with eureka with status UP
+[20250425 12:52:08:995][INFO ][com.netflix.discovery.DiscoveryClient] Saw local status change event StatusChangeEvent [timestamp=1745553128995, current=UP, previous=STARTING]
+[20250425 12:52:08:995][INFO ][com.netflix.discovery.DiscoveryClient] DiscoveryClient_UNKNOWN/192.168.123.101:19100: registering service...
+[20250425 12:52:08:996][INFO ][o.apache.coyote.http11.Http11NioProtocol] Starting ProtocolHandler ["http-nio-19100"]
+[20250425 12:52:09:001][INFO ][o.s.b.w.embedded.tomcat.TomcatWebServer] Tomcat started on port 19100 (http) with context path '/'
+[20250425 12:52:09:001][INFO ][o.s.c.n.e.s.EurekaAutoServiceRegistration] Updating port to 19100
+[20250425 12:52:09:014][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-payment-service-order-completed-consumer-1
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = payment-service-order-completed-consumer
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+[20250425 12:52:09:015][INFO ][com.netflix.discovery.DiscoveryClient] DiscoveryClient_UNKNOWN/192.168.123.101:19100 - registration status: 204
+[20250425 12:52:09:034][INFO ][o.a.k.c.t.i.KafkaMetricsCollector] initializing Kafka metrics collector
+[20250425 12:52:09:061][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:09:061][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:09:061][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553129061
+[20250425 12:52:09:063][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Subscribed to topic(s): order-completed-topic
+[20250425 12:52:09:065][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-payment-service-order-completion-failed-consumer-2
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = payment-service-order-completion-failed-consumer
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+[20250425 12:52:09:066][INFO ][o.a.k.c.t.i.KafkaMetricsCollector] initializing Kafka metrics collector
+[20250425 12:52:09:073][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:09:073][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:09:073][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553129073
+[20250425 12:52:09:073][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Subscribed to topic(s): order-completion-failed-topic
+[20250425 12:52:09:074][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-payment-service-order-created-consumer-3
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = payment-service-order-created-consumer
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+[20250425 12:52:09:074][INFO ][o.a.k.c.t.i.KafkaMetricsCollector] initializing Kafka metrics collector
+[20250425 12:52:09:076][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:09:077][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:09:077][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553129076
+[20250425 12:52:09:077][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Subscribed to topic(s): order-created-topic
+[20250425 12:52:09:078][INFO ][o.a.k.clients.consumer.ConsumerConfig] ConsumerConfig values:
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-payment-service-order-cancelled-consumer-4
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = payment-service-order-cancelled-consumer
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+[20250425 12:52:09:078][INFO ][o.a.k.c.t.i.KafkaMetricsCollector] initializing Kafka metrics collector
+[20250425 12:52:09:079][INFO ][org.apache.kafka.clients.Metadata] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Cluster ID: 7xYnNWU5RmSJ7DGh8HB2dg
+[20250425 12:52:09:079][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Discovered group coordinator localhost:9092 (id: 2147482646 rack: null)
+[20250425 12:52:09:080][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] (Re-)joining group
+[20250425 12:52:09:081][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:09:081][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:09:081][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553129081
+[20250425 12:52:09:081][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Subscribed to topic(s): order-cancelled-topic
+[20250425 12:52:09:082][INFO ][org.apache.kafka.clients.Metadata] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Cluster ID: 7xYnNWU5RmSJ7DGh8HB2dg
+[20250425 12:52:09:082][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Discovered group coordinator localhost:9092 (id: 2147482646 rack: null)
+[20250425 12:52:09:082][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] (Re-)joining group
+[20250425 12:52:09:083][INFO ][org.apache.kafka.clients.Metadata] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Cluster ID: 7xYnNWU5RmSJ7DGh8HB2dg
+[20250425 12:52:09:084][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Discovered group coordinator localhost:9092 (id: 2147482646 rack: null)
+[20250425 12:52:09:085][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] (Re-)joining group
+[20250425 12:52:09:088][INFO ][org.apache.kafka.clients.Metadata] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Cluster ID: 7xYnNWU5RmSJ7DGh8HB2dg
+[20250425 12:52:09:088][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Discovered group coordinator localhost:9092 (id: 2147482646 rack: null)
+[20250425 12:52:09:089][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] (Re-)joining group
+[20250425 12:52:09:091][INFO ][c.f.p.PaymentsServiceApplication] Started PaymentsServiceApplication in 3.59 seconds (process running for 8.979)
+[20250425 12:52:09:093][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Request joining group due to: need to re-join with the given member-id: consumer-payment-service-order-completion-failed-consumer-2-163ba232-06fd-4707-b8ca-5b345e16d327
+[20250425 12:52:09:093][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Request joining group due to: need to re-join with the given member-id: consumer-payment-service-order-created-consumer-3-7bf61f92-c666-460a-ab41-6a72087da9db
+[20250425 12:52:09:093][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Request joining group due to: need to re-join with the given member-id: consumer-payment-service-order-completed-consumer-1-eef968cf-53be-4035-8bf1-9c36bab55cd7
+[20250425 12:52:09:093][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] (Re-)joining group
+[20250425 12:52:09:094][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] (Re-)joining group
+[20250425 12:52:09:094][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] (Re-)joining group
+[20250425 12:52:09:095][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Request joining group due to: need to re-join with the given member-id: consumer-payment-service-order-cancelled-consumer-4-de3fed15-c977-464e-97b1-29541b9daf4b
+[20250425 12:52:09:096][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] (Re-)joining group
+[20250425 12:52:09:133][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Successfully joined group with generation Generation{generationId=1, memberId='consumer-payment-service-order-completion-failed-consumer-2-163ba232-06fd-4707-b8ca-5b345e16d327', protocol='range'}
+[20250425 12:52:09:136][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Successfully joined group with generation Generation{generationId=1, memberId='consumer-payment-service-order-created-consumer-3-7bf61f92-c666-460a-ab41-6a72087da9db', protocol='range'}
+[20250425 12:52:09:137][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Finished assignment for group at generation 1: {consumer-payment-service-order-completion-failed-consumer-2-163ba232-06fd-4707-b8ca-5b345e16d327=Assignment(partitions=[order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2])}
+[20250425 12:52:09:137][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Finished assignment for group at generation 1: {consumer-payment-service-order-created-consumer-3-7bf61f92-c666-460a-ab41-6a72087da9db=Assignment(partitions=[order-created-topic-0, order-created-topic-1, order-created-topic-2])}
+[20250425 12:52:09:144][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Successfully joined group with generation Generation{generationId=1, memberId='consumer-payment-service-order-completed-consumer-1-eef968cf-53be-4035-8bf1-9c36bab55cd7', protocol='range'}
+[20250425 12:52:09:145][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Finished assignment for group at generation 1: {consumer-payment-service-order-completed-consumer-1-eef968cf-53be-4035-8bf1-9c36bab55cd7=Assignment(partitions=[order-completed-topic-0, order-completed-topic-1, order-completed-topic-2])}
+[20250425 12:52:09:158][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Successfully joined group with generation Generation{generationId=1, memberId='consumer-payment-service-order-cancelled-consumer-4-de3fed15-c977-464e-97b1-29541b9daf4b', protocol='range'}
+[20250425 12:52:09:158][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Finished assignment for group at generation 1: {consumer-payment-service-order-cancelled-consumer-4-de3fed15-c977-464e-97b1-29541b9daf4b=Assignment(partitions=[order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2])}
+[20250425 12:52:09:175][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Successfully synced group in generation Generation{generationId=1, memberId='consumer-payment-service-order-created-consumer-3-7bf61f92-c666-460a-ab41-6a72087da9db', protocol='range'}
+[20250425 12:52:09:176][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Notifying assignor about the new Assignment(partitions=[order-created-topic-0, order-created-topic-1, order-created-topic-2])
+[20250425 12:52:09:177][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Adding newly assigned partitions: order-created-topic-0, order-created-topic-1, order-created-topic-2
+[20250425 12:52:09:182][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Successfully synced group in generation Generation{generationId=1, memberId='consumer-payment-service-order-completion-failed-consumer-2-163ba232-06fd-4707-b8ca-5b345e16d327', protocol='range'}
+[20250425 12:52:09:182][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Notifying assignor about the new Assignment(partitions=[order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2])
+[20250425 12:52:09:182][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Adding newly assigned partitions: order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2
+[20250425 12:52:09:184][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Successfully synced group in generation Generation{generationId=1, memberId='consumer-payment-service-order-completed-consumer-1-eef968cf-53be-4035-8bf1-9c36bab55cd7', protocol='range'}
+[20250425 12:52:09:184][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Notifying assignor about the new Assignment(partitions=[order-completed-topic-0, order-completed-topic-1, order-completed-topic-2])
+[20250425 12:52:09:184][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Adding newly assigned partitions: order-completed-topic-0, order-completed-topic-1, order-completed-topic-2
+[20250425 12:52:09:189][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Found no committed offset for partition order-completed-topic-2
+[20250425 12:52:09:189][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Found no committed offset for partition order-completed-topic-0
+[20250425 12:52:09:189][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Found no committed offset for partition order-completion-failed-topic-0
+[20250425 12:52:09:189][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Found no committed offset for partition order-created-topic-0
+[20250425 12:52:09:189][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Found no committed offset for partition order-completed-topic-1
+[20250425 12:52:09:190][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Found no committed offset for partition order-created-topic-2
+[20250425 12:52:09:190][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Found no committed offset for partition order-completion-failed-topic-1
+[20250425 12:52:09:190][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Found no committed offset for partition order-completion-failed-topic-2
+[20250425 12:52:09:190][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Found no committed offset for partition order-created-topic-1
+[20250425 12:52:09:191][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Successfully synced group in generation Generation{generationId=1, memberId='consumer-payment-service-order-cancelled-consumer-4-de3fed15-c977-464e-97b1-29541b9daf4b', protocol='range'}
+[20250425 12:52:09:191][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Notifying assignor about the new Assignment(partitions=[order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2])
+[20250425 12:52:09:191][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Adding newly assigned partitions: order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2
+[20250425 12:52:09:193][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Found no committed offset for partition order-cancelled-topic-2
+[20250425 12:52:09:193][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Found no committed offset for partition order-cancelled-topic-1
+[20250425 12:52:09:193][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Found no committed offset for partition order-cancelled-topic-0
+[20250425 12:52:09:199][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Resetting offset for partition order-created-topic-0 to position FetchPosition{offset=3, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:199][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Resetting offset for partition order-cancelled-topic-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Resetting offset for partition order-completed-topic-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Resetting offset for partition order-completion-failed-topic-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Resetting offset for partition order-created-topic-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Resetting offset for partition order-created-topic-1 to position FetchPosition{offset=2, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Resetting offset for partition order-completed-topic-0 to position FetchPosition{offset=3, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Resetting offset for partition order-completed-topic-1 to position FetchPosition{offset=2, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Resetting offset for partition order-cancelled-topic-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Resetting offset for partition order-cancelled-topic-0 to position FetchPosition{offset=3, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Resetting offset for partition order-completion-failed-topic-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.a.k.c.c.internals.SubscriptionState] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Resetting offset for partition order-completion-failed-topic-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1001 rack: null)], epoch=0}}.
+[20250425 12:52:09:200][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completed-consumer: partitions assigned: [order-completed-topic-0, order-completed-topic-1, order-completed-topic-2]
+[20250425 12:52:09:200][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completion-failed-consumer: partitions assigned: [order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2]
+[20250425 12:52:09:200][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-created-consumer: partitions assigned: [order-created-topic-0, order-created-topic-1, order-created-topic-2]
+[20250425 12:52:09:200][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-cancelled-consumer: partitions assigned: [order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2]
+[20250425 12:52:09:426][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: 99c827b5-5675-466e-a5c7-e70ed660c73f, Partition: 0, Offset: 3, EventType: ORDER_CREATED, Payload: {orderId=99c827b5-5675-466e-a5c7-e70ed660c73f, ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], totalPrice=1000000}
+[20250425 12:52:09:426][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completion-failed-topic, Key: 33289ed3-3f5a-42c3-8825-1923a6b73385, Partition: 1, Offset: 0, EventType: ORDER_COMPLETION_FAILED, Payload: {ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], userId=null, gameId=null, orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, failureReason=주문을 찾을 수 없습니다}
+[20250425 12:52:09:426][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 373a7744-17a3-42a0-9dc7-152bd44e6d3b, Partition: 2, Offset: 0, EventType: ORDER_COMPLETED, Payload: {orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], userId=3}
+[20250425 12:52:09:429][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b
+[20250425 12:52:09:429][WARN ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETION_FAILED 수신: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, reason=주문을 찾을 수 없습니다
+[20250425 12:52:09:429][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=99c827b5-5675-466e-a5c7-e70ed660c73f
+[20250425 12:52:09:429][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=99c827b5-5675-466e-a5c7-e70ed660c73f, ticketCount=1
+[20250425 12:52:09:455][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completion-failed-topic-payment-service-order-completion-failed-consumer-1-0
+[20250425 12:52:09:455][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-2-0
+[20250425 12:52:09:457][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 373a7744-17a3-42a0-9dc7-152bd44e6d3b, Partition: 2, Offset: 1, EventType: ORDER_COMPLETED, Payload: {orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], userId=3}
+[20250425 12:52:09:458][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b
+[20250425 12:52:09:462][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-2-1
+[20250425 12:52:09:464][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 33289ed3-3f5a-42c3-8825-1923a6b73385, Partition: 1, Offset: 2, EventType: ORDER_COMPLETED, Payload: {orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], userId=3}
+[20250425 12:52:09:464][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385
+[20250425 12:52:09:468][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-1-2
+[20250425 12:52:09:489][INFO ][o.a.k.clients.producer.ProducerConfig] ProducerConfig values:
+	acks = -1
+	auto.include.jmx.reporter = true
+	batch.size = 16384
+	bootstrap.servers = [localhost:9092]
+	buffer.memory = 33554432
+	client.dns.lookup = use_all_dns_ips
+	client.id = producer-1
+	compression.gzip.level = -1
+	compression.lz4.level = 9
+	compression.type = none
+	compression.zstd.level = 3
+	connections.max.idle.ms = 540000
+	delivery.timeout.ms = 120000
+	enable.idempotence = true
+	enable.metrics.push = true
+	interceptor.classes = []
+	key.serializer = class org.apache.kafka.common.serialization.StringSerializer
+	linger.ms = 0
+	max.block.ms = 60000
+	max.in.flight.requests.per.connection = 5
+	max.request.size = 1048576
+	metadata.max.age.ms = 300000
+	metadata.max.idle.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partitioner.adaptive.partitioning.enable = true
+	partitioner.availability.timeout.ms = 0
+	partitioner.class = null
+	partitioner.ignore.keys = false
+	receive.buffer.bytes = 32768
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retries = 2147483647
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	transaction.timeout.ms = 60000
+	transactional.id = null
+	value.serializer = class org.springframework.kafka.support.serializer.JsonSerializer
+
+[20250425 12:52:09:490][INFO ][o.a.k.c.t.i.KafkaMetricsCollector] initializing Kafka metrics collector
+[20250425 12:52:09:493][INFO ][o.a.kafka.clients.producer.KafkaProducer] [Producer clientId=producer-1] Instantiated an idempotent producer.
+[20250425 12:52:09:498][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka version: 3.8.1
+[20250425 12:52:09:499][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka commitId: 70d6ff42debf7e17
+[20250425 12:52:09:499][INFO ][o.a.kafka.common.utils.AppInfoParser] Kafka startTimeMs: 1745553129498
+[20250425 12:52:09:507][INFO ][org.apache.kafka.clients.Metadata] [Producer clientId=producer-1] Cluster ID: 7xYnNWU5RmSJ7DGh8HB2dg
+[20250425 12:52:09:507][INFO ][o.a.k.c.p.internals.TransactionManager] [Producer clientId=producer-1] ProducerId set to 5003 with epoch 0
+[20250425 12:52:09:513][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=99c827b5-5675-466e-a5c7-e70ed660c73f
+[20250425 12:52:09:521][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-0-3
+[20250425 12:52:09:522][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: 373a7744-17a3-42a0-9dc7-152bd44e6d3b, Partition: 2, Offset: 0, EventType: ORDER_CREATED, Payload: {orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], totalPrice=1000000}
+[20250425 12:52:09:522][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b
+[20250425 12:52:09:522][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b, ticketCount=1
+[20250425 12:52:09:525][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b
+[20250425 12:52:09:537][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-2-0
+[20250425 12:52:09:539][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: 8ce2c1fe-1154-4036-8b5b-83a156dc3e54, Partition: 2, Offset: 1, EventType: ORDER_CREATED, Payload: {orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], totalPrice=1000000}
+[20250425 12:52:09:540][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54
+[20250425 12:52:09:540][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54, ticketCount=1
+[20250425 12:52:09:540][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : 99c827b5-5675-466e-a5c7-e70ed660c73f, Partition : 0, Offset : 3, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@187832eb
+[20250425 12:52:09:542][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54
+[20250425 12:52:09:547][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : 373a7744-17a3-42a0-9dc7-152bd44e6d3b, Partition : 2, Offset : 1, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@2c9f7971
+[20250425 12:52:09:552][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-2-1
+[20250425 12:52:09:552][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : 8ce2c1fe-1154-4036-8b5b-83a156dc3e54, Partition : 2, Offset : 2, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@7529e963
+[20250425 12:52:09:553][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: 33289ed3-3f5a-42c3-8825-1923a6b73385, Partition: 1, Offset: 2, EventType: ORDER_CREATED, Payload: {orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], totalPrice=1000000}
+[20250425 12:52:09:553][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385
+[20250425 12:52:09:553][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, ticketCount=1
+[20250425 12:52:09:555][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385
+[20250425 12:52:09:560][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : 33289ed3-3f5a-42c3-8825-1923a6b73385, Partition : 1, Offset : 3, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@666abff4
+[20250425 12:52:09:561][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-1-2
+[20250425 12:52:09:575][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 99c827b5-5675-466e-a5c7-e70ed660c73f, Partition: 0, Offset: 3, EventType: ORDER_COMPLETED, Payload: {orderId=99c827b5-5675-466e-a5c7-e70ed660c73f, ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], userId=3}
+[20250425 12:52:09:576][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=99c827b5-5675-466e-a5c7-e70ed660c73f
+[20250425 12:52:09:592][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-0-3
+[20250425 12:52:09:615][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 373a7744-17a3-42a0-9dc7-152bd44e6d3b, Partition: 2, Offset: 2, EventType: ORDER_COMPLETED, Payload: {orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], userId=3}
+[20250425 12:52:09:617][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=373a7744-17a3-42a0-9dc7-152bd44e6d3b
+[20250425 12:52:09:631][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-2-2
+[20250425 12:52:09:645][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: 8ce2c1fe-1154-4036-8b5b-83a156dc3e54, Partition: 2, Offset: 3, EventType: ORDER_COMPLETED, Payload: {orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54, ticketIds=[3a312b8d-8a9f-4b9d-bd7a-11ab28904d09], userId=3}
+[20250425 12:52:09:646][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=8ce2c1fe-1154-4036-8b5b-83a156dc3e54
+[20250425 12:52:09:652][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-2-3
+[20250425 12:52:09:657][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completion-failed-topic, Key: 33289ed3-3f5a-42c3-8825-1923a6b73385, Partition: 1, Offset: 1, EventType: ORDER_COMPLETION_FAILED, Payload: {ticketIds=[e78283c0-2a1a-49bc-9b92-db22efc91c1f], userId=null, gameId=null, orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, failureReason=주문을 찾을 수 없습니다}
+[20250425 12:52:09:658][WARN ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETION_FAILED 수신: orderId=33289ed3-3f5a-42c3-8825-1923a6b73385, reason=주문을 찾을 수 없습니다
+[20250425 12:52:09:663][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completion-failed-topic-payment-service-order-completion-failed-consumer-1-1
+[20250425 12:57:08:793][INFO ][c.n.d.s.r.aws.ConfigClusterResolver] Resolving eureka endpoints via configuration
+[20250425 12:58:02:166][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: e275bc83-6645-4465-bed2-620b121b1d76, Partition: 2, Offset: 2, EventType: ORDER_CREATED, Payload: {orderId=e275bc83-6645-4465-bed2-620b121b1d76, ticketIds=[d40cf5ab-0258-4dd7-a839-a01039b5277e], totalPrice=1000000}
+[20250425 12:58:02:174][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=e275bc83-6645-4465-bed2-620b121b1d76
+[20250425 12:58:02:175][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=e275bc83-6645-4465-bed2-620b121b1d76, ticketCount=1
+[20250425 12:58:02:193][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=e275bc83-6645-4465-bed2-620b121b1d76
+[20250425 12:58:02:196][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-2-2
+[20250425 12:58:02:196][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : e275bc83-6645-4465-bed2-620b121b1d76, Partition : 2, Offset : 3, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@635dbcfe
+[20250425 12:58:02:208][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: e275bc83-6645-4465-bed2-620b121b1d76, Partition: 2, Offset: 4, EventType: ORDER_COMPLETED, Payload: {orderId=e275bc83-6645-4465-bed2-620b121b1d76, ticketIds=[d40cf5ab-0258-4dd7-a839-a01039b5277e], userId=3}
+[20250425 12:58:02:209][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=e275bc83-6645-4465-bed2-620b121b1d76
+[20250425 12:58:02:214][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-2-4
+[20250425 13:00:01:199][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-created-topic, Key: c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, Partition: 1, Offset: 3, EventType: ORDER_CREATED, Payload: {orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, ticketIds=[a8b3188d-5ef7-4974-b803-fa0467db30d9], totalPrice=1000000}
+[20250425 13:00:01:204][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_CREATED 수신 → 결제 시도 시작: orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a
+[20250425 13:00:01:204][INFO ][c.f.p.application.PaymentEventService] 💳 결제 요청 처리 시작: orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, ticketCount=1
+[20250425 13:00:01:237][INFO ][c.f.p.application.PaymentEventService] ✅ PaymentCompleted 이벤트 발행 완료: orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a
+[20250425 13:00:01:246][INFO ][c.f.c.kafka.producer.KafkaProducerHelper] [Kafka] 이벤트 발행 성공. Topic : payment-completed-topic, Key : c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, Partition : 1, Offset : 4, EventType : PAYMENT_COMPLETED, Payload : com.fix.common_service.kafka.dto.PaymentCompletedPayload@64f3ba20
+[20250425 13:00:01:245][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-created-topic-payment-service-order-created-consumer-1-3
+[20250425 13:00:01:270][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 수신 시작. Topic: order-completed-topic, Key: c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, Partition: 1, Offset: 3, EventType: ORDER_COMPLETED, Payload: {orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a, ticketIds=[a8b3188d-5ef7-4974-b803-fa0467db30d9], userId=3}
+[20250425 13:00:01:272][INFO ][c.f.p.i.kafka.PaymentConsumer] [Kafka] ORDER_COMPLETED 수신: orderId=c7bf7e8f-e65c-47b8-afde-f57bcd3ded0a
+[20250425 13:00:01:281][INFO ][c.f.c.k.consumer.AbstractKafkaConsumer] [Kafka] 이벤트 처리 성공. Key: order-completed-topic-payment-service-order-completed-consumer-1-3
+[20250425 13:01:09:098][INFO ][org.apache.kafka.clients.NetworkClient] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Node -1 disconnected.
+[20250425 13:01:09:098][INFO ][org.apache.kafka.clients.NetworkClient] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Node -1 disconnected.
+[20250425 13:01:09:214][INFO ][org.apache.kafka.clients.NetworkClient] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Node -1 disconnected.
+[20250425 13:01:09:333][INFO ][org.apache.kafka.clients.NetworkClient] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Node -1 disconnected.
+[20250425 13:01:31:247][INFO ][org.apache.kafka.clients.NetworkClient] [Producer clientId=producer-1] Node -1 disconnected.
+[20250425 13:02:08:790][INFO ][c.n.d.s.r.aws.ConfigClusterResolver] Resolving eureka endpoints via configuration
+[20250425 13:03:43:338][INFO ][o.s.c.n.e.s.EurekaServiceRegistry] Unregistering application UNKNOWN with eureka with status DOWN
+[20250425 13:03:43:339][INFO ][com.netflix.discovery.DiscoveryClient] Saw local status change event StatusChangeEvent [timestamp=1745553823339, current=DOWN, previous=UP]
+[20250425 13:03:43:343][INFO ][com.netflix.discovery.DiscoveryClient] DiscoveryClient_UNKNOWN/192.168.123.101:19100: registering service...
+[20250425 13:03:43:388][INFO ][com.netflix.discovery.DiscoveryClient] DiscoveryClient_UNKNOWN/192.168.123.101:19100 - registration status: 204
+[20250425 13:03:43:393][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Revoke previously assigned partitions order-created-topic-0, order-created-topic-1, order-created-topic-2
+[20250425 13:03:43:393][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Revoke previously assigned partitions order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2
+[20250425 13:03:43:394][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completion-failed-consumer: partitions revoked: [order-completion-failed-topic-0, order-completion-failed-topic-1, order-completion-failed-topic-2]
+[20250425 13:03:43:395][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Revoke previously assigned partitions order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2
+[20250425 13:03:43:395][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-cancelled-consumer: partitions revoked: [order-cancelled-topic-0, order-cancelled-topic-1, order-cancelled-topic-2]
+[20250425 13:03:43:395][INFO ][o.a.k.c.c.i.ConsumerRebalanceListenerInvoker] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Revoke previously assigned partitions order-completed-topic-0, order-completed-topic-1, order-completed-topic-2
+[20250425 13:03:43:395][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completed-consumer: partitions revoked: [order-completed-topic-0, order-completed-topic-1, order-completed-topic-2]
+[20250425 13:03:43:395][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-created-consumer: partitions revoked: [order-created-topic-0, order-created-topic-1, order-created-topic-2]
+[20250425 13:03:43:397][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Member consumer-payment-service-order-completion-failed-consumer-2-163ba232-06fd-4707-b8ca-5b345e16d327 sending LeaveGroup request to coordinator localhost:9092 (id: 2147482646 rack: null) due to the consumer unsubscribed from all topics
+[20250425 13:03:43:397][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Member consumer-payment-service-order-completed-consumer-1-eef968cf-53be-4035-8bf1-9c36bab55cd7 sending LeaveGroup request to coordinator localhost:9092 (id: 2147482646 rack: null) due to the consumer unsubscribed from all topics
+[20250425 13:03:43:398][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Member consumer-payment-service-order-cancelled-consumer-4-de3fed15-c977-464e-97b1-29541b9daf4b sending LeaveGroup request to coordinator localhost:9092 (id: 2147482646 rack: null) due to the consumer unsubscribed from all topics
+[20250425 13:03:43:397][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Member consumer-payment-service-order-created-consumer-3-7bf61f92-c666-460a-ab41-6a72087da9db sending LeaveGroup request to coordinator localhost:9092 (id: 2147482646 rack: null) due to the consumer unsubscribed from all topics
+[20250425 13:03:43:398][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:398][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:398][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:399][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Unsubscribed all topics or patterns and assigned partitions
+[20250425 13:03:43:399][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:400][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Unsubscribed all topics or patterns and assigned partitions
+[20250425 13:03:43:400][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:400][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:400][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Unsubscribed all topics or patterns and assigned partitions
+[20250425 13:03:43:398][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:400][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:401][INFO ][o.a.k.c.c.internals.LegacyKafkaConsumer] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Unsubscribed all topics or patterns and assigned partitions
+[20250425 13:03:43:417][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:419][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-created-consumer-3, groupId=payment-service-order-created-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:419][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:419][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completion-failed-consumer-2, groupId=payment-service-order-completion-failed-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:420][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:420][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-cancelled-consumer-4, groupId=payment-service-order-cancelled-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:416][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+[20250425 13:03:43:420][INFO ][o.a.k.c.c.internals.ConsumerCoordinator] [Consumer clientId=consumer-payment-service-order-completed-consumer-1, groupId=payment-service-order-completed-consumer] Request joining group due to: consumer pro-actively leaving the group
+[20250425 13:03:43:587][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 13:03:43:587][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 13:03:43:587][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+[20250425 13:03:43:587][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 13:03:43:590][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 13:03:43:591][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 13:03:43:591][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+[20250425 13:03:43:591][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 13:03:43:593][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 13:03:43:594][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 13:03:43:594][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+[20250425 13:03:43:594][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 13:03:43:591][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 13:03:43:595][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 13:03:43:595][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+[20250425 13:03:43:595][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 13:03:43:600][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.consumer for consumer-payment-service-order-completed-consumer-1 unregistered
+[20250425 13:03:43:600][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completed-consumer: Consumer stopped
+[20250425 13:03:43:602][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.consumer for consumer-payment-service-order-completion-failed-consumer-2 unregistered
+[20250425 13:03:43:602][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-completion-failed-consumer: Consumer stopped
+[20250425 13:03:43:602][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.consumer for consumer-payment-service-order-created-consumer-3 unregistered
+[20250425 13:03:43:602][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-created-consumer: Consumer stopped
+[20250425 13:03:43:603][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.consumer for consumer-payment-service-order-cancelled-consumer-4 unregistered
+[20250425 13:03:43:603][INFO ][o.s.k.l.KafkaMessageListenerContainer] payment-service-order-cancelled-consumer: Consumer stopped
+[20250425 13:03:43:603][INFO ][o.s.b.w.embedded.tomcat.GracefulShutdown] Commencing graceful shutdown. Waiting for active requests to complete
+[20250425 13:03:43:607][INFO ][o.s.b.w.embedded.tomcat.GracefulShutdown] Graceful shutdown complete
+[20250425 13:03:43:651][INFO ][o.a.kafka.clients.producer.KafkaProducer] [Producer clientId=producer-1] Closing the Kafka producer with timeoutMillis = 30000 ms.
+[20250425 13:03:43:652][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics scheduler closed
+[20250425 13:03:43:652][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.metrics.JmxReporter
+[20250425 13:03:43:652][INFO ][org.apache.kafka.common.metrics.Metrics] Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+[20250425 13:03:43:652][INFO ][org.apache.kafka.common.metrics.Metrics] Metrics reporters closed
+[20250425 13:03:43:653][INFO ][o.a.kafka.common.utils.AppInfoParser] App info kafka.producer for producer-1 unregistered
+[20250425 13:03:43:664][INFO ][o.s.o.j.LocalContainerEntityManagerFactoryBean] Closing JPA EntityManagerFactory for persistence unit 'default'
+[20250425 13:03:43:670][INFO ][com.zaxxer.hikari.HikariDataSource] HikariPool-1 - Shutdown initiated...
+[20250425 13:03:43:675][INFO ][com.zaxxer.hikari.HikariDataSource] HikariPool-1 - Shutdown completed.
+[20250425 13:03:43:676][INFO ][com.netflix.discovery.DiscoveryClient] Shutting down DiscoveryClient ...
+[20250425 13:03:46:680][INFO ][com.netflix.discovery.DiscoveryClient] Unregistering ...
+[20250425 13:03:46:692][INFO ][c.n.d.s.t.d.RedirectingEurekaHttpClient] Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:19090/eureka/} exception=I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused stacktrace=org.springframework.web.client.ResourceAccessException: I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+	at org.springframework.web.client.RestTemplate.createResourceAccessException(RestTemplate.java:925)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:905)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:840)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:701)
+	at org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient.cancel(RestTemplateEurekaHttpClient.java:100)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.execute(RedirectingEurekaHttpClient.java:91)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:120)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:76)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.DiscoveryClient.unregister(DiscoveryClient.java:919)
+	at com.netflix.discovery.DiscoveryClient.shutdown(DiscoveryClient.java:900)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:457)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:415)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:239)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:202)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.run(DisposableBeanAdapter.java:195)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.destroy(GenericScope.java:389)
+	at org.springframework.cloud.context.scope.GenericScope.destroy(GenericScope.java:136)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:211)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:735)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:692)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1401)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:651)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1394)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1219)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1180)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:179)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: org.apache.hc.client5.http.HttpHostConnectException: Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:672)
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:554)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:216)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174)
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ContentCompressionExec.execute(ContentCompressionExec.java:150)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:174)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55)
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183)
+	at org.springframework.http.client.HttpComponentsClientHttpRequest.executeInternal(HttpComponentsClientHttpRequest.java:99)
+	at org.springframework.http.client.AbstractStreamingClientHttpRequest.executeInternal(AbstractStreamingClientHttpRequest.java:71)
+	at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:81)
+	at org.springframework.http.client.InterceptingClientHttpRequest$InterceptingRequestExecution.execute(InterceptingClientHttpRequest.java:117)
+	at org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory.lambda$restTemplate$3(RestTemplateTransportClientFactory.java:141)
+	at org.springframework.http.client.InterceptingClientHttpRequest$InterceptingRequestExecution.execute(InterceptingClientHttpRequest.java:88)
+	at org.springframework.http.client.InterceptingClientHttpRequest.executeInternal(InterceptingClientHttpRequest.java:72)
+	at org.springframework.http.client.AbstractBufferingClientHttpRequest.executeInternal(AbstractBufferingClientHttpRequest.java:48)
+	at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:81)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:899)
+	... 39 more
+
+[20250425 13:03:46:692][WARN ][c.n.d.s.t.d.RetryableEurekaHttpClient] Request execution failed with message: I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+[20250425 13:03:46:703][INFO ][c.n.d.s.t.d.RedirectingEurekaHttpClient] Request execution error. endpoint=DefaultEndpoint{ serviceUrl='http://localhost:19090/eureka/}, exception=I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused stacktrace=org.springframework.web.client.ResourceAccessException: I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+	at org.springframework.web.client.RestTemplate.createResourceAccessException(RestTemplate.java:925)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:905)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:840)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:701)
+	at org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient.cancel(RestTemplateEurekaHttpClient.java:100)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.executeOnNewServer(RedirectingEurekaHttpClient.java:121)
+	at com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient.execute(RedirectingEurekaHttpClient.java:80)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:120)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:76)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.DiscoveryClient.unregister(DiscoveryClient.java:919)
+	at com.netflix.discovery.DiscoveryClient.shutdown(DiscoveryClient.java:900)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:457)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:415)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:239)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:202)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.run(DisposableBeanAdapter.java:195)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.destroy(GenericScope.java:389)
+	at org.springframework.cloud.context.scope.GenericScope.destroy(GenericScope.java:136)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:211)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:735)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:692)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1401)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:651)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1394)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1219)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1180)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:179)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: org.apache.hc.client5.http.HttpHostConnectException: Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:672)
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:547)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:216)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174)
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ContentCompressionExec.execute(ContentCompressionExec.java:150)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:174)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55)
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183)
+	at org.springframework.http.client.HttpComponentsClientHttpRequest.executeInternal(HttpComponentsClientHttpRequest.java:99)
+	at org.springframework.http.client.AbstractStreamingClientHttpRequest.executeInternal(AbstractStreamingClientHttpRequest.java:71)
+	at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:81)
+	at org.springframework.http.client.InterceptingClientHttpRequest$InterceptingRequestExecution.execute(InterceptingClientHttpRequest.java:117)
+	at org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory.lambda$restTemplate$3(RestTemplateTransportClientFactory.java:141)
+	at org.springframework.http.client.InterceptingClientHttpRequest$InterceptingRequestExecution.execute(InterceptingClientHttpRequest.java:88)
+	at org.springframework.http.client.InterceptingClientHttpRequest.executeInternal(InterceptingClientHttpRequest.java:72)
+	at org.springframework.http.client.AbstractBufferingClientHttpRequest.executeInternal(AbstractBufferingClientHttpRequest.java:48)
+	at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:81)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:899)
+	... 40 more
+
+[20250425 13:03:46:703][WARN ][c.n.d.s.t.d.RetryableEurekaHttpClient] Request execution failed with message: I/O error on DELETE request for "http://localhost:19090/eureka/apps/UNKNOWN/192.168.123.101:19100": Connect to http://localhost:19090 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused
+[20250425 13:03:46:703][ERROR][com.netflix.discovery.DiscoveryClient] DiscoveryClient_UNKNOWN/192.168.123.101:19100 - de-registration failedCannot execute request on any known server
+com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$2.execute(EurekaHttpClientDecorator.java:74)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:76)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.cancel(EurekaHttpClientDecorator.java:71)
+	at com.netflix.discovery.DiscoveryClient.unregister(DiscoveryClient.java:919)
+	at com.netflix.discovery.DiscoveryClient.shutdown(DiscoveryClient.java:900)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:457)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:415)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:239)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:202)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.run(DisposableBeanAdapter.java:195)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.destroy(GenericScope.java:389)
+	at org.springframework.cloud.context.scope.GenericScope.destroy(GenericScope.java:136)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:211)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:735)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:692)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1401)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:651)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1394)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1219)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1180)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:179)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+[20250425 13:03:46:706][INFO ][com.netflix.discovery.DiscoveryClient] Completed shut down of DiscoveryClient

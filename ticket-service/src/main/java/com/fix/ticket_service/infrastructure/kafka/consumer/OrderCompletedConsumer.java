@@ -43,6 +43,12 @@ public class OrderCompletedConsumer extends AbstractKafkaConsumer<OrderCompleted
             // 결제 및 주문이 완료되었는데 롤백을 하는건 뭔가 이상함..
             log.error("[Kafka] 티켓 판매 상태 업데이트 실패: orderId={}, ticketIds={}, error={}",
                 requestDto.getOrderId(), requestDto.getTicketIds(), e.getMessage());
+            throw e;
         }
+    }
+
+    @Override
+    protected String getConsumerGroupId() {
+        return "ticket-service-order-completed-consumer";
     }
 }

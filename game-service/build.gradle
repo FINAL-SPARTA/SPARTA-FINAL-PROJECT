@@ -41,6 +41,9 @@ dependencies {
 	// ✅ PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
+	// ✅ MongoDB
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 	// ✅ Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -50,6 +53,14 @@ dependencies {
 
 	// ✅ JSON
 	implementation 'org.json:json:20230227'
+
+	// ✅ Logging
+	implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'p6spy:p6spy:3.9.1'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
