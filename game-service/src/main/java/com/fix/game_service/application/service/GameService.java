@@ -2,6 +2,10 @@ package com.fix.game_service.application.service;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fix.common_service.kafka.dto.GameChatPayload;
+import com.fix.game_service.domain.model.GameEvent;
+import com.fix.game_service.domain.repository.GameEventRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
@@ -41,15 +45,18 @@ public class GameService {
 	private final CacheManager cacheManager;
 	private final GameRepository gameRepository;
 	private final GameRateRepository gameRateRepository;
+	private final GameEventRepository gameEventRepository;
 	private final StadiumClient stadiumClient;
 	private final ChatClient chatClient;
 	private final GameProducer gameProducer;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * 경기 생성
 	 * @param request : 생성할 경기 내용
 	 * @return : 반환
 	 */
+	@Transactional
 	public GameCreateResponse createGame(GameCreateRequest request) {
 		log.info("경기 생성 시작: {}", request);
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
@@ -67,26 +74,68 @@ public class GameService {
 			savedGame.getGameId(), savedGame.getGameName(), savedGame.getGameDate());
 
 		// 4. 경기 예매 기록 Entity 생성
-		GameRate gameRate = GameRate.builder().gameRateId(savedGame.getGameId()).totalSeats(responseDto.getSeatQuantity()).build();
+		GameRate gameRate = GameRate.builder().totalSeats(responseDto.getSeatQuantity()).build();
 
 		// 5. 생성한 경기 예매 기록 Entity 저장
 		gameRateRepository.save(gameRate);
+		savedGame.updateGameRate(gameRate);
 
-		// 6. 경기 내용 chat으로 전송
-		ChatCreateRequest requestDto = ChatCreateRequest.builder()
+		// 6. 경기 내용 alarm으로 전송
+		GameCreatedInfoPayload alarmPayload = new GameCreatedInfoPayload(
+				savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString());
+		saveGameAlarmEvent(alarmPayload);
+		// gameProducer.sendGameInfoToAlarm(alarmPayload);
+
+		// 7. 경기 내용 chat으로 전송
+		/*ChatCreateRequest requestDto = ChatCreateRequest.builder()
 			.gameId(savedGame.getGameId()).gameName(savedGame.getGameName())
-			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();
-		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", requestDto);
-		chatClient.createChatRoom(requestDto);
+			.gameDate(savedGame.getGameDate()).gameStatus(savedGame.getGameStatus().toString()).build();*/
+		GameChatPayload chatPayload = new GameChatPayload(
+				savedGame.getGameId(), savedGame.getGameName(),
+				savedGame.getGameDate().toString(), savedGame.getGameStatus().toString());
+		log.debug("Chat 서비스 채팅방 생성 요청 전송: {}", chatPayload);
+		// chatClient.createChatRoom(requestDto);
+		// gameProducer.sendGameInfoToChat(chatPayload);
+		saveGameChatEvent(chatPayload);
 		log.info("Chat 서비스 채팅방 생성 요청 완료: gameId={}", savedGame.getGameId());
-
-		// 7. 경기 내용 alarm으로 전송
-		gameProducer.sendGameInfoToAlarm(new GameCreatedInfoPayload(
-			savedGame.getGameId(), savedGame.getGameDate(), savedGame.getGameStatus().toString()));
 
 		// 8. 경기 내용 반환
         log.info("경기 생성 완료: gameId={}, gameName={}", savedGame.getGameId(), savedGame.getGameName());
 		return GameCreateResponse.fromGame(savedGame);
+	}
+
+	private void saveGameChatEvent(GameChatPayload chatPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(chatPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_CHAT_CREATED")
+					.aggregateId(chatPayload.getGameId().toString())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
+	}
+
+	private void saveGameAlarmEvent(GameCreatedInfoPayload alarmPayload) {
+		try {
+			String payload = objectMapper.writeValueAsString(alarmPayload);
+
+			GameEvent gameEvent = GameEvent.builder()
+					.eventType("GAME_ALARM_CREATED")
+					.aggregateId(alarmPayload.getGameId().toString())
+					.payload(payload)
+					.status("PENDING")
+					.build();
+
+			gameEventRepository.save(gameEvent);
+		} catch (Exception e) {
+			throw new GameException(GameException.GameErrorType.GAME_PARSING_ERROR);
+		}
 	}
 
 	/**

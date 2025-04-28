@@ -11,8 +11,8 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 @Configuration
 public class ObjectMapperConfig {
 
-    @Bean
-    public ObjectMapper objectMapper() {
+    @Bean(name = "chatObjectMapper")
+    public ObjectMapper chatObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.registerModule(new AfterburnerModule());

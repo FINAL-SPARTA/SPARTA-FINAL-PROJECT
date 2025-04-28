@@ -37,6 +37,12 @@ public class QueueService {
 	private final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
 	private final String ACTIVE_GAMES_KEY = "active-game";
 
+	/**
+	 * 대기열 입장
+	 * @param gameId : 입장할 경기 ID
+	 * @param userId : 입장 요청한 사용자 ID
+	 * @return : 토큰 반환
+	 */
 	public Map<String, Object> enterQueue(UUID gameId, Long userId) {
 		log.info("대기열 진입 시도: gameId={}, userId={}", gameId, userId);
 		// 1. 해당 경기를 찾아서 예매 가능 시간인지 확인
@@ -54,6 +60,9 @@ public class QueueService {
 		// 3. Map에 저장 (사용자에게 반환할 정보이므로 raw 자체로 반환)
 		Map<String, Object> response = new HashMap<>();
 		response.put("token", rawToken);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("QueueToken", rawToken);
 
 		// 4. 발급한 토큰 Redis에 추가 (대기열)
 		long timestamp = Instant.now().toEpochMilli();
@@ -142,20 +151,24 @@ public class QueueService {
 
 		// 3. 대기 번호 전송 및 헤더에 token 삽입
 		String userToken = token.split("\\|")[0];
-		try {
-			// 이쪽으로 오면 대기번호를 1번으로 만들어줘야 함
-			messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			throw new GameException(GAME_WAITING_ERROR);
-		} finally {
-			long endTime = System.nanoTime();
-			// 토큰(substring 된 상태)을 헤더에 담기
-			HttpHeaders headers = new HttpHeaders();
-			headers.set("QueueToken", userToken);
-			log.info("대기열에서 작업열로 이동 완료: gameId={}, token={}, duration={}",
-				gameId, token, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
-		}
+		messagingTemplate.convertAndSend("/topic/queue/status/" + gameId + "/" + userToken, 1);
+
+		long endTime = System.nanoTime();
+		// 토큰(substring 된 상태)을 헤더에 담기
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("QueueToken", userToken);
+		log.info("대기열에서 작업열로 이동 완료: gameId={}, token={}, duration={}",
+			gameId, token, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
+	}
+
+	/**
+	 * 작업열로 이동한 토큰을 대기열에서 제거
+	 * @param gameId : 경기 ID
+	 * @param tokens : 제거할 토큰들
+	 */
+	public void deleteTokensFromQueue(UUID gameId, Set<String> tokens) {
+		String queueKey = QUEUE_KEY_PREFIX + gameId;
+		redisTemplate.opsForZSet().remove(queueKey, tokens.toArray());
 	}
 
 	/**
@@ -172,9 +185,8 @@ public class QueueService {
 
 	/**
 	 * 해당 사용자가 작업 대기열에 존재하는지 확인
-	 *
 	 * @param gameId : 작업 대기열에 있는지 확인할 경기 ID
-	 * @param userId
+	 * @param userId : 사용자 ID
 	 * @param token  : 확인할 토큰
 	 * @return : 토큰 존재 여부 반환
 	 */

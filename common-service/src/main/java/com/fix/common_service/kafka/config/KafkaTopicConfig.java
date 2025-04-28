@@ -34,6 +34,7 @@ public class KafkaTopicConfig {
 
     // Game 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.game.created}") private String gameCreatedTopic;
+    @Value("${kafka-topics.game.chat}") private String gameChatTopic;
 
     //alarm 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.alarm.game-started}") private String alarmGameStartedTopic;;
@@ -166,6 +167,14 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic alarmGameStartedTopic() {
         return TopicBuilder.name(alarmGameStartedTopic)
+                .partitions(1)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+   @Bean
+    public NewTopic gameChatTopic() {
+        return TopicBuilder.name(gameChatTopic)
                 .partitions(1)
                 .replicas(defaultReplicas)
                 .build();
