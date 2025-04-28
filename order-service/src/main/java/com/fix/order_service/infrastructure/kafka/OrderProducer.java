@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,9 @@ public class OrderProducer {
 
     @Value("${kafka-topics.order.canceled}")
     private String orderCanceledTopic;
+
+    @Value("${kafka-topics.alarm.order-completed}")
+    private String alarmOrderCompletedTopic;
 
     /**
      * 주문 생성 이벤트 발행
@@ -76,6 +80,16 @@ public class OrderProducer {
      */
     public void sendOrderCancelledEvent(String orderId, OrderCancelledPayload payload) {
         send(orderCanceledTopic, orderId, "ORDER_CANCELED", payload);
+    }
+
+    /**
+     * 주문 완료 알람 이벤트 발행
+     */
+    public void sendOrderCompletedAlarm(Long userId, UUID gameId) {
+        AlarmOrderCompletedPayload payload = new AlarmOrderCompletedPayload(userId, gameId);
+        send(alarmOrderCompletedTopic, userId.toString(), "ALARM_ORDER_COMPLETED", payload);
+        log.info("📤 [Kafka] 주문 완료 알람 이벤트 발행: topic={}, userId={}, gameId={}",
+                alarmOrderCompletedTopic, userId, gameId);
     }
 
     /**
