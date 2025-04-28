@@ -3,12 +3,12 @@ package com.fix.alarm_service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @EnableFeignClients
-
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = {"com.fix.common_service", "com.fix.alarm_service"})
-
 public class AlarmServiceApplication {
 
 	public static void main(String[] args) {
