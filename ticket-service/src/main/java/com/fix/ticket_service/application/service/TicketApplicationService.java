@@ -1,5 +1,6 @@
 package com.fix.ticket_service.application.service;
 
+import com.fix.common_service.kafka.dto.*;
 import com.fix.ticket_service.application.dtos.request.TicketInfoRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketReserveRequestDto;
 import com.fix.ticket_service.application.dtos.request.TicketSoldRequestDto;
@@ -16,15 +17,16 @@ import org.redisson.RedissonMultiLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.Duration;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -38,14 +40,20 @@ public class TicketApplicationService {
     private final RedissonClient redissonClient;
     private final TicketProducer ticketProducer;
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private static final long LOCK_WAIT_TIME = 5; // 락 대기 시간 (5초)
     private static final long LOCK_LEASE_TIME = 3; // 락 점유 시간 (3초)
 
     private static final long RESERVED_TTL_SECONDS = 180L; // 예약 상태 TTL (3분)
-    private static final long SOLD_TTL_SECONDS = 86400L; // SOLD 상태 TTL (24시간) , 더 길어야 하나? 예매가 얼마나 오래 진행되지..
+    private static final long SOLD_TTL_SECONDS = 86400L; // SOLD 상태 TTL (24시간)
     private static final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
+    // Redis 키 정의 (결과 집계용)
+    private static final String RESERVATION_AGG_PREFIX = "reservation:agg:";
+    private static final String PROCESSED_COUNT_KEY_SUFFIX = ":count";
+    private static final String SUCCESS_SEATS_KEY_SUFFIX = ":success"; // Set<ReservedTicketInfo>
+    private static final String FAILED_SEATS_KEY_SUFFIX = ":failed";   // Set<FailedSeatInfo>
+    private static final Duration AGGREGATION_TTL = Duration.ofMinutes(10); // 집계 데이터 TTL (넉넉하게)
 
     public List<TicketReserveResponseDto> reserveTicket(TicketReserveRequestDto request, Long userId, String token) {
         log.info("티켓 예약 요청: userId={}, gameId={}, seatCount={}", userId, request.getGameId(), request.getSeatInfoList().size());
@@ -75,7 +83,7 @@ public class TicketApplicationService {
             // 3) 중복 예매 방지 (Redis 캐시 검사)
             for (UUID seatId : seatIds) {
                 String redisKey = getSeatKey(seatId);
-                String status = redisTemplate.opsForValue().get(redisKey);
+                String status = (String) redisTemplate.opsForValue().get(redisKey);
                 if ("RESERVED".equals(status) || "SOLD".equals(status)) {
                     throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
                 }
@@ -125,6 +133,96 @@ public class TicketApplicationService {
         }
 
         return responseDtoList;
+    }
+
+    public TicketReservationResponseDto initiateAsyncReservation(TicketReserveRequestDto request, Long userId, String queueToken) {
+        // 1) 큐 토큰 유효성 검사
+        validateQueueToken(queueToken, userId);
+
+        // 2) 고유한 예약 요청 Id 생성
+        UUID reservationRequestId = UUID.randomUUID();
+
+        // 3) Kafka 예매 요청 이벤트 발행 (좌석별로) : Producer 호출
+        ticketProducer.sendTicketReservationRequestEvent(
+            reservationRequestId, userId, queueToken, request.getGameId(), request.getSeatInfoList());
+        log.info("티켓 예약 요청 이벤트 발행 완료: reservationRequestId={}, userId={}, gameId={}",
+            reservationRequestId, userId, request.getGameId());
+
+        return new TicketReservationResponseDto(reservationRequestId);
+    }
+
+    // Kafka Consumer(Worker)가 호출하는 단일 좌석에 대한 티켓 예매 처리 메서드 (비동기)
+    @Transactional
+    public void processReservation(TicketReservationRequestPayload payload) {
+        // 1) Payload 에서 정보 추출
+        UUID reservationRequestId = payload.getReservationRequestId();
+        Long userId = payload.getUserId();
+        UUID gameId = payload.getGameId();
+        TicketInfoPayload ticketToProcess = payload.getTicketToProcess();
+        UUID seatId = ticketToProcess.getSeatId();
+        List<TicketInfoPayload> originalTicketList = payload.getOriginalTicketList();
+        int totalTicketsInRequest = payload.getTotalTicketsInRequest();
+
+        // 2) Redisson MultiLock 획득 (원본 요청의 모든 좌석 대상)
+        List<RLock> locks = originalTicketList.stream()
+            .map(ticketInfo -> redissonClient.getLock("seat:" + ticketInfo.getSeatId().toString()))
+            .toList();
+        RLock multiLock = new RedissonMultiLock(locks.toArray(new RLock[0]));
+        boolean acquired = false;
+
+        try {
+            // 3) 락 획득 시도
+            acquired = multiLock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            if (!acquired) {
+                log.warn("좌석 락 획득 실패 (Worker): reqId={}, userId={}, seatId={}, originalSeats:{}",
+                    reservationRequestId, userId, seatId, originalTicketList.size());
+                recordFailure(reservationRequestId, userId, gameId, ticketToProcess,
+                    TicketException.TicketErrorType.SEAT_LOCK_ACQUIRE_FAILED.name(), totalTicketsInRequest, originalTicketList);
+                return; // 락 획득 실패 시 빠르게 반환
+            }
+
+            // 4) 중복 예매 방지 (Redis 캐시 검사)
+            String redisKey = getSeatKey(seatId);
+            String status = (String) redisTemplate.opsForValue().get(redisKey);
+            if ("RESERVED".equals(status) || "SOLD".equals(status)) {
+                throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
+            }
+
+            // 5) 중복 예매 방지 (DB 검사) : 이중 방어
+            List<Ticket> existingTickets = ticketRepository.findByGameIdAndSeatIdInAndStatusIn(
+                gameId, List.of(seatId), List.of(TicketStatus.RESERVED, TicketStatus.SOLD));
+            if (!existingTickets.isEmpty()) {
+                throw new TicketException(TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD);
+            }
+
+            // 6) 티켓 예약 처리 (엔티티 생성 및 저장)
+            Ticket ticket = Ticket.create(userId, gameId, seatId, ticketToProcess.getPrice());
+            ticketRepository.save(ticket);
+
+            // 7) Redis 캐시에 예약 상태 저장 (TTL = 3분)
+            redisTemplate.opsForValue().set(redisKey, "RESERVED", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
+            // 예약 만료 전용 키
+            String reservationKey = "reservation:" + ticket.getTicketId();
+            redisTemplate.opsForValue().set(reservationKey, "", RESERVED_TTL_SECONDS, TimeUnit.SECONDS);
+
+            // 8) 티켓 예약 성공 처리 및 집계
+            recordSuccess(reservationRequestId, userId, gameId, ticket, totalTicketsInRequest, originalTicketList);
+        } catch (TicketException e) {
+            log.warn("[TicketException] 중복 예매 방지로 인한 좌석 예약 실패 (Worker): reqId={}, seatId={}, error={}",
+                reservationRequestId, seatId, e.getMessage());
+            recordFailure(reservationRequestId, userId, gameId, ticketToProcess,
+                TicketException.TicketErrorType.SEAT_ALREADY_RESERVED_OR_SOLD.name(), totalTicketsInRequest, originalTicketList);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("락 대기 중 인터럽트 발생 (Worker): reqId={}, seatId={}", reservationRequestId, seatId, e);
+            recordFailure(reservationRequestId, userId, gameId, ticketToProcess,
+                TicketException.TicketErrorType.SEAT_LOCK_INTERRUPTED.name(), totalTicketsInRequest, originalTicketList);
+        } finally {
+            if (acquired) {
+                // 다른 좌석 처리 워커가 아직 락을 사용 중일 수 있음
+                // Redisson MultiLock은 모든 락을 한 번에 해제하므로, 여기서 해제하진 않고 점유 시간 만료를 기다림
+            }
+        }
     }
 
     @Transactional(readOnly = true)
@@ -284,7 +382,6 @@ public class TicketApplicationService {
             if (ticket.getStatus() == TicketStatus.RESERVED) {
                 ticketRepository.delete(ticket); // 예약 만료된 티켓 삭제
                 log.info("키스페이스 알림에 의해 예약 만료 티켓 삭제: ticketId={}", ticketId);
-                // 보상 트랜잭션 처리 (필요 할까?)
             }
         });
 
@@ -306,6 +403,136 @@ public class TicketApplicationService {
             throw new TicketException(TicketException.TicketErrorType.QUEUE_TOKEN_INVALID);
         }
 
-        redisTemplate.delete(redisKey); // 토큰 사용 후 Redis 에서 삭제
+//        redisTemplate.delete(redisKey); // 토큰 사용 후 Redis 에서 삭제
+    }
+
+    private void recordSuccess(UUID reservationRequestId, Long userId, UUID gameId,
+                               Ticket ticket, int totalTicketsInRequest,
+                               List<TicketInfoPayload> originalTicketList) {
+        String countKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + PROCESSED_COUNT_KEY_SUFFIX;
+        String successKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + SUCCESS_SEATS_KEY_SUFFIX;
+        TicketReservationSucceededPayload.ReservedTicketInfo successInfo =
+            new TicketReservationSucceededPayload.ReservedTicketInfo(ticket.getTicketId(), ticket.getSeatId(), ticket.getPrice());
+
+        List<Object> results = redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public <K, V> List<Object> execute(RedisOperations<K, V> operations) throws DataAccessException {
+                operations.multi();
+                RedisOperations<String, Object> ops = (RedisOperations<String, Object>) operations;
+
+                ops.opsForSet().add(successKey, successInfo); // 성공 목록에 추가
+                ops.expire(successKey, AGGREGATION_TTL); // TTL 설정/갱신
+                ops.opsForValue().increment(countKey); // 처리 카운트 증가
+                ops.expire(countKey, AGGREGATION_TTL); // TTL 설정/갱신
+
+                return operations.exec();
+            }
+        });
+
+        long currentCount = ((Number) results.get(2)).longValue();
+        log.info("좌석 예약 성공 기록: reqId={}, seatId={}, totalTicketsInRequest={}, currentCount={}",
+            reservationRequestId, ticket.getSeatId(), totalTicketsInRequest, currentCount);
+        checkAndFinalizeAggregation(reservationRequestId, userId, gameId, currentCount, totalTicketsInRequest, originalTicketList);
+    }
+
+    private void recordFailure(UUID reservationRequestId, Long userId, UUID gameId,
+                               TicketInfoPayload failedTicketInfo, String reason, int totalTicketsInRequest,
+                               List<TicketInfoPayload> originalTicketList) {
+        String countKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + PROCESSED_COUNT_KEY_SUFFIX;
+        String failedKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + FAILED_SEATS_KEY_SUFFIX;
+        TicketReservationFailedPayload.FailedSeatInfo failedInfo =
+            new TicketReservationFailedPayload.FailedSeatInfo(failedTicketInfo.getSeatId(), failedTicketInfo.getPrice(), reason);
+
+        List<Object> results = redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public <K, V> List<Object> execute(RedisOperations<K, V> operations) throws DataAccessException {
+                operations.multi();
+                RedisOperations<String, Object> ops = (RedisOperations<String, Object>) operations;
+
+                ops.opsForSet().add(failedKey, failedInfo); // 실패 목록에 추가
+                ops.expire(failedKey, AGGREGATION_TTL); // TTL 설정/갱신
+                ops.opsForValue().increment(countKey); // 처리 카운트 증가
+                ops.expire(countKey, AGGREGATION_TTL); // TTL 설정/갱신
+
+                return operations.exec();
+            }
+        });
+
+        long currentCount = ((Number) results.get(2)).longValue();
+        log.warn("좌석 예약 실패 기록: reqId={}, seatId={}, reason={}, totalTicketsInRequest={}, currentCount={}",
+            reservationRequestId, failedTicketInfo.getSeatId(), reason, totalTicketsInRequest, currentCount);
+        checkAndFinalizeAggregation(reservationRequestId, userId, gameId, currentCount, totalTicketsInRequest, originalTicketList);
+    }
+
+    private void checkAndFinalizeAggregation(UUID reservationRequestId, Long userId, UUID gameId,
+                                             long currentCount, int totalTicketsInRequest,
+                                             List<TicketInfoPayload> originalTicketList) {
+        if (currentCount == totalTicketsInRequest) {
+            String successKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + SUCCESS_SEATS_KEY_SUFFIX;
+            String failedKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + FAILED_SEATS_KEY_SUFFIX;
+            String countKey = RESERVATION_AGG_PREFIX + reservationRequestId.toString() + PROCESSED_COUNT_KEY_SUFFIX;
+
+            Set<Object> failedSeatsRaw = redisTemplate.opsForSet().members(failedKey);
+            Set<TicketReservationFailedPayload.FailedSeatInfo> failedSeats = failedSeatsRaw.stream()
+                .map(o -> mapObjectToDto(o, TicketReservationFailedPayload.FailedSeatInfo.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+
+            Set<Object> successSeatsRaw = redisTemplate.opsForSet().members(successKey);
+            Set<TicketReservationSucceededPayload.ReservedTicketInfo> succeededSeats = successSeatsRaw.stream()
+                .map(o -> mapObjectToDto(o, TicketReservationSucceededPayload.ReservedTicketInfo.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+            if (!failedSeats.isEmpty()) {
+                // 최종 실패 처리
+                TicketReservationFailedPayload failurePayload = new TicketReservationFailedPayload(
+                    reservationRequestId, userId, gameId, new ArrayList<>(failedSeats));
+                ticketProducer.sendTicketReservationFailedEvent(failurePayload);
+
+                // 실패 시, 성공했던 좌석들도 취소 처리 (보상 트랜잭션)
+                if (!succeededSeats.isEmpty()) {
+//                    compensateSuccessfulReservations(succeededSeats);
+                }
+            } else {
+                // 최종 성공 처리
+                TicketReservationSucceededPayload successPayload = new TicketReservationSucceededPayload(
+                    reservationRequestId, userId, gameId, new ArrayList<>(succeededSeats));
+                ticketProducer.sendTicketReservationSucceededEvent(successPayload);
+
+                List<Ticket> reservedTickets = succeededSeats.stream()
+                    .map(info -> Ticket.create(userId, gameId, info.getSeatId(), info.getPrice()))
+                    .toList();
+                ticketProducer.sendTicketReservedEvent(reservedTickets, userId);
+            }
+
+            // Redis에서 집계 데이터 삭제
+            redisTemplate.delete(List.of(successKey, failedKey, countKey));
+        } else if (currentCount > totalTicketsInRequest) {
+            log.error ("예약 처리 중 카운트 오류: reqId={}, currentCount={}, totalTicketsInRequest={}",
+                reservationRequestId, currentCount, totalTicketsInRequest);
+        }
+    }
+
+    private <T> T mapObjectToDto(Object obj, Class<T> clazz) {
+        if (obj == null) return null;
+        try {
+            // If using GenericJackson2JsonRedisSerializer, it might already be a LinkedHashMap
+            if (obj instanceof Map) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                // Configure mapper if needed (e.g., for UUIDs)
+                mapper.findAndRegisterModules(); // For JavaTime, etc.
+                return mapper.convertValue(obj, clazz);
+            } else if (clazz.isInstance(obj)) {
+                return clazz.cast(obj);
+            } else {
+                log.warn("Cannot map object of type {} to {}", obj.getClass().getName(), clazz.getName());
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("Error converting Redis object to DTO: {}", e.getMessage(), e);
+            return null;
+        }
     }
 }

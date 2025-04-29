@@ -32,6 +32,17 @@ public class TicketController {
         return ResponseEntity.ok(CommonResponse.success(responseDto, "티켓 예약 성공"));
     }
 
+    // ✅ 티켓 예약 요청 API (신규 Kafka 비동기 방식)
+    @ApiLogging
+    @PostMapping("/reserve-async")
+    public ResponseEntity<CommonResponse<TicketReservationResponseDto>> reserveTicketAsync(
+        @RequestBody TicketReserveRequestDto request,
+        @RequestHeader("x-user-id") Long userId,
+        @RequestHeader("QueueToken") String queueToken) {
+        TicketReservationResponseDto responseDto = ticketApplicationService.initiateAsyncReservation(request, userId, queueToken);
+        return ResponseEntity.status(202).body(CommonResponse.success(responseDto, "티켓 예약 요청 성공"));
+    }
+
     // ✅ 티켓 단건 상세 조회 API
     @GetMapping("/{ticketId}")
     public ResponseEntity<CommonResponse<TicketDetailResponseDto>> getTicket(
