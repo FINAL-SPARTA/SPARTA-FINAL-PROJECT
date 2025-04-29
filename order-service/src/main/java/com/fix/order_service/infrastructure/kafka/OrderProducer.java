@@ -4,8 +4,12 @@ import com.fix.common_service.kafka.dto.*;
 import com.fix.common_service.kafka.producer.KafkaProducerHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
+
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -14,6 +18,7 @@ import java.util.UUID;
 public class OrderProducer {
 
     private final KafkaProducerHelper kafkaProducerHelper;
+    private final NewTopic orderSendAlarmUserIds;
 
     @Value("${kafka-topics.order.created}")
     private String orderCreatedTopic;
@@ -30,8 +35,10 @@ public class OrderProducer {
     @Value("${kafka-topics.order.canceled}")
     private String orderCanceledTopic;
 
-    @Value("${kafka-topics.alarm.order-completed}")
-    private String alarmOrderCompletedTopic;
+
+    @Value("${kafka-topics.order.send-alarm-userIds}")
+    private String orderSendAlarmUserIdsTopic;
+
 
     /**
      * 주문 생성 이벤트 발행
@@ -83,14 +90,16 @@ public class OrderProducer {
     }
 
     /**
-     * 주문 완료 알람 이벤트 발행
+     * 알람에게 USERIds 반환
      */
-    public void sendOrderCompletedAlarm(Long userId, UUID gameId) {
-        AlarmOrderCompletedPayload payload = new AlarmOrderCompletedPayload(userId, gameId);
-        send(alarmOrderCompletedTopic, userId.toString(), "ALARM_ORDER_COMPLETED", payload);
-        log.info("📤 [Kafka] 주문 완료 알람 이벤트 발행: topic={}, userId={}, gameId={}",
-                alarmOrderCompletedTopic, userId, gameId);
+    public void orderSendAlarmUserIds(UUID gameId, List<Long> userIds) {
+        OrderSendAlarmUserIdsPayload payload = new OrderSendAlarmUserIdsPayload(gameId,userIds);
+        send(orderSendAlarmUserIdsTopic,gameId.toString(),"ORDER_SEND_ALARM_USER_IDS",payload);
+        log.info("[OrderAlarmProducer] 알람 발행 - topic: {}, gameId: {}, userIds: {}", orderSendAlarmUserIdsTopic, gameId, userIds);
     }
+
+
+
 
     /**
      * Kafka 공통 전송 처리

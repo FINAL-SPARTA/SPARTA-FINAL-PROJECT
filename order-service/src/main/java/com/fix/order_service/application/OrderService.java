@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -32,7 +33,7 @@ public class OrderService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final OrderProducer orderProducer;
 
-//    단건 조회
+    //    단건 조회
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(UUID orderId) {
         String key = "order:detail:" + orderId;
@@ -60,7 +61,7 @@ public class OrderService {
         return response;
     }
 
-//    전체 조회(페이징)
+    //    전체 조회(페이징)
     @Transactional(readOnly = true)
     public Page<OrderResponse> getOrders(Pageable pageable) {
         return orderRepository.findAll(pageable)
@@ -74,13 +75,13 @@ public class OrderService {
                         .build());
     }
 
-//    검색(Query DSL)
+    //    검색(Query DSL)
     @Transactional(readOnly = true)
     public Page<OrderResponse> searchOrders(OrderSearchCondition condition, Pageable pageable) {
         return orderQueryRepository.search(condition, pageable);
     }
 
-//    주문 수정
+    //    주문 수정
     @Transactional
     public void updateOrder(UUID orderId, OrderUpdateRequest request) {
         Order order = orderRepository.findById(orderId)
@@ -124,7 +125,7 @@ public class OrderService {
 //        ticketClient.cancelTicketStatus(orderId);
     }
 
-//    주문 삭제 (soft delete)
+    //    주문 삭제 (soft delete)
     @Transactional
     public void deleteOrder(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
@@ -133,5 +134,20 @@ public class OrderService {
 
         //    캐시 무효화
         redisTemplate.delete("order:detail:" + orderId);
+    }
+
+
+
+    public void findUserIdsByGameId(UUID gameId) {
+        List<Long> userIds = orderRepository.findUserIdsByGameId(gameId);
+
+        if (userIds.isEmpty()) {
+            log.warn("[OrderService] 예약 유저 없음 - gameId={}", gameId);
+            return;
+        }
+
+        orderProducer.orderSendAlarmUserIds(gameId, userIds);
+        log.info("[OrderAlarmService] 알람 발행 요청 완료 - gameId: {}, userIds: {}", gameId, userIds);
+
     }
 }

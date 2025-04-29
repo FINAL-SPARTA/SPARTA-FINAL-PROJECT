@@ -185,7 +185,7 @@ public class EventApplicationService {
         // 당첨자 선정
         List<EventEntry> winners = eventDomainService.selectRandomWinners(event, event.getEntries());
         List<Long> winnerIds = winners.stream().map(EventEntry::getUserId).toList();
-        log.info("Quartz 스케쥴러에 의해 이벤트 종료 및 당첨자 선정 완료: eventId={}", eventId);
+        log.info("Quartz 스케쥴러에 의해 이벤트 종료 및 당첨자 선정 완료: eventId={} winnersIds ={}", eventId,winnerIds.toArray());
         // 알림 발송 요청
         eventProducer.sendEventWinnersNotification(eventId, winnerIds);
     }
