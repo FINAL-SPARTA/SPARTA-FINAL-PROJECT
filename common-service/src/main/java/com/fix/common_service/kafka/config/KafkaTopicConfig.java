@@ -13,6 +13,9 @@ public class KafkaTopicConfig {
     @Value("${kafka-topics.ticket.reserved}") private String ticketReservedTopic;
     @Value("${kafka-topics.ticket.sold}") private String ticketSoldTopic;
     @Value("${kafka-topics.ticket.cancelled}") private String ticketCancelledTopic;
+    @Value("${kafka-topics.ticket.reservation.request}") private String ticketReservationRequestTopic;
+    @Value("${kafka-topics.ticket.reservation.succeeded}") private String ticketReservationSucceededTopic;
+    @Value("${kafka-topics.ticket.reservation.failed}") private String ticketReservationFailedTopic;
 
     // Order 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.order.created}") private String orderCreatedTopic;
@@ -64,6 +67,30 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic ticketCancelled() {
         return TopicBuilder.name(ticketCancelledTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ticketReservationRequest() {
+        return TopicBuilder.name(ticketReservationRequestTopic)
+                .partitions(10) // 티켓 예매 요청의 파티션은 10개로 설정
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ticketReservationSucceeded() {
+        return TopicBuilder.name(ticketReservationSucceededTopic)
+                .partitions(defaultPartitions)
+                .replicas(defaultReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ticketReservationFailed() {
+        return TopicBuilder.name(ticketReservationFailedTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
