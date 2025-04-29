@@ -493,7 +493,7 @@ public class TicketApplicationService {
 
                 // 실패 시, 성공했던 좌석들도 취소 처리 (보상 트랜잭션)
                 if (!succeededSeats.isEmpty()) {
-//                    compensateSuccessfulReservations(succeededSeats);
+                    compensateSuccessfulReservations(succeededSeats);
                 }
             } else {
                 // 최종 성공 처리
@@ -512,6 +512,18 @@ public class TicketApplicationService {
         } else if (currentCount > totalTicketsInRequest) {
             log.error ("예약 처리 중 카운트 오류: reqId={}, currentCount={}, totalTicketsInRequest={}",
                 reservationRequestId, currentCount, totalTicketsInRequest);
+        }
+    }
+
+    // 티켓 예매 요청 처리 실패 시의 보상 트랜잭션 메서드
+    // DB 조회 및 삭제 대신, Redis 캐시에서 예약 상태를 삭제하여,
+    // DB 정리는 Keyspace Notifications 만료 리스너에게 위임
+    public void compensateSuccessfulReservations(Set<TicketReservationSucceededPayload.ReservedTicketInfo> succeededSeats) {
+        List<String> seatStatusKeysToDelete = succeededSeats.stream()
+            .map(info -> getSeatKey(info.getSeatId()))
+            .toList();
+        if (!seatStatusKeysToDelete.isEmpty()) {
+            redisTemplate.delete(seatStatusKeysToDelete);
         }
     }
 
