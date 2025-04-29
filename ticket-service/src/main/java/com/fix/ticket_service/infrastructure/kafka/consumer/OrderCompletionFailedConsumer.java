@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class OrderCompletionFailedConsumer extends AbstractKafkaConsumer<OrderCompletionFailedPayload> {
 
     private final TicketApplicationService ticketApplicationService;
+    private static final String CONSUMER_GROUP_ID = "ticket-service-order-completion-failed-consumer";
 
     public OrderCompletionFailedConsumer(RedisIdempotencyChecker idempotencyChecker,
                                          TicketApplicationService ticketApplicationService) {
@@ -23,7 +24,7 @@ public class OrderCompletionFailedConsumer extends AbstractKafkaConsumer<OrderCo
         this.ticketApplicationService = ticketApplicationService;
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.completion-failed}", groupId = "ticket-service-order-completion-failed-consumer")
+    @KafkaListener(topics = "${kafka-topics.order.completion-failed}", groupId = CONSUMER_GROUP_ID)
     public void listen(ConsumerRecord<String, EventKafkaMessage<OrderCompletionFailedPayload>> record,
                        EventKafkaMessage<OrderCompletionFailedPayload> message,
                        Acknowledgment ack) {
@@ -46,6 +47,6 @@ public class OrderCompletionFailedConsumer extends AbstractKafkaConsumer<OrderCo
 
     @Override
     protected String getConsumerGroupId() {
-        return "ticket-service-order-completion-failed-consumer";
+        return CONSUMER_GROUP_ID;
     }
 }
