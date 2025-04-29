@@ -20,7 +20,6 @@ public class KafkaTopicConfig {
     @Value("${kafka-topics.order.completed}") private String orderCompletedTopic;
     @Value("${kafka-topics.order.completion-failed}") private String orderCompletionFailedTopic; // SAGA
     @Value("${kafka-topics.order.canceled}") private String orderCanceledTopic;
-    @Value("${kafka-topics.order.send-alarm-userIds}") String orderSendAlarmUserIdsTopic;
 
     // payment 에서 발행하는 이벤트 토픽
     @Value("${kafka-topics.payment.completed}") private String paymentCompletedTopic;
@@ -104,14 +103,6 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic orderCanceled() {
         return TopicBuilder.name(orderCanceledTopic)
-                .partitions(defaultPartitions)
-                .replicas(defaultReplicas)
-                .build();
-    }
-
-    @Bean
-    public NewTopic orderSendAlarmUserIds(){
-        return TopicBuilder.name(orderSendAlarmUserIdsTopic)
                 .partitions(defaultPartitions)
                 .replicas(defaultReplicas)
                 .build();
