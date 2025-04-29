@@ -18,6 +18,7 @@ import java.util.UUID;
 public class OrderCanceledConsumer extends AbstractKafkaConsumer<OrderCancelledPayload> {
 
     private final TicketApplicationService ticketApplicationService;
+    private static final String CONSUMER_GROUP_ID = "ticket-service-order-canceled-consumer";
 
     public OrderCanceledConsumer(RedisIdempotencyChecker idempotencyChecker,
                                  TicketApplicationService ticketApplicationService) {
@@ -25,7 +26,7 @@ public class OrderCanceledConsumer extends AbstractKafkaConsumer<OrderCancelledP
         this.ticketApplicationService = ticketApplicationService;
     }
 
-    @KafkaListener(topics = "${kafka-topics.order.canceled}", groupId = "ticket-service-order-canceled-consumer")
+    @KafkaListener(topics = "${kafka-topics.order.canceled}", groupId = CONSUMER_GROUP_ID)
     public void listen(ConsumerRecord<String, EventKafkaMessage<OrderCancelledPayload>> record,
                        EventKafkaMessage<OrderCancelledPayload> message,
                        Acknowledgment ack) {
@@ -48,6 +49,6 @@ public class OrderCanceledConsumer extends AbstractKafkaConsumer<OrderCancelledP
 
     @Override
     protected String getConsumerGroupId() {
-        return "ticket-service-order-canceled-consumer";
+        return CONSUMER_GROUP_ID;
     }
 }
