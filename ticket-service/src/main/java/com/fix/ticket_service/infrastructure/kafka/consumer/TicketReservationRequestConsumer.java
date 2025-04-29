@@ -24,7 +24,7 @@ public class TicketReservationRequestConsumer extends AbstractKafkaConsumer<Tick
         this.ticketApplicationService = ticketApplicationService;
     }
 
-    @KafkaListener(topics = "${kafka-topics.ticket.reservation.request}", groupId = CONSUMER_GROUP_ID)
+    @KafkaListener(topics = "${kafka-topics.ticket.reservation.request}", groupId = CONSUMER_GROUP_ID, concurrency = "10")
     public void listen(ConsumerRecord<String, EventKafkaMessage<TicketReservationRequestPayload>> record,
                        EventKafkaMessage<TicketReservationRequestPayload> message,
                        Acknowledgment ack) {
