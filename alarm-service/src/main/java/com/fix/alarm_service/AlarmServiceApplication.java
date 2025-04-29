@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {"com.fix.common_service", "com.fix.alarm_service"})
-
 public class AlarmServiceApplication {
 
 	public static void main(String[] args) {
