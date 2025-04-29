@@ -530,20 +530,16 @@ public class TicketApplicationService {
     private <T> T mapObjectToDto(Object obj, Class<T> clazz) {
         if (obj == null) return null;
         try {
-            // If using GenericJackson2JsonRedisSerializer, it might already be a LinkedHashMap
             if (obj instanceof Map) {
                 com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                // Configure mapper if needed (e.g., for UUIDs)
-                mapper.findAndRegisterModules(); // For JavaTime, etc.
+                mapper.findAndRegisterModules();
                 return mapper.convertValue(obj, clazz);
             } else if (clazz.isInstance(obj)) {
                 return clazz.cast(obj);
             } else {
-                log.warn("Cannot map object of type {} to {}", obj.getClass().getName(), clazz.getName());
                 return null;
             }
         } catch (Exception e) {
-            log.error("Error converting Redis object to DTO: {}", e.getMessage(), e);
             return null;
         }
     }
