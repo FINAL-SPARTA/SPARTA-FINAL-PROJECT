@@ -101,7 +101,7 @@ public class OrderFeignService {
 
             TicketReservedPayload reservedPayload = new TicketReservedPayload(
                     tickets.stream()
-                            .map(t -> new TicketReservedPayload.TicketDetail(t.getTicketId(), t.getPrice()))
+                            .map(t -> new TicketDetailPayload(t.getTicketId(), t.getPrice()))
                             .toList(),
                     tickets.get(0).getUserId(),
                     tickets.get(0).getGameId()

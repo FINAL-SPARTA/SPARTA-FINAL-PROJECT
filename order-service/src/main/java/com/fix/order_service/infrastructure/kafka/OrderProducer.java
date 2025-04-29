@@ -56,7 +56,7 @@ public class OrderProducer {
     public void sendOrderCreationFailedEvent(TicketReservedPayload payload, String reason) {
         OrderCreationFailedPayload eventPayload = new OrderCreationFailedPayload(
                 payload.getTicketDetails().stream()
-                        .map(TicketReservedPayload.TicketDetail::getTicketId)
+                        .map(TicketDetailPayload::getTicketId)
                         .toList(),
                 payload.getUserId(),
                 payload.getGameId(),
