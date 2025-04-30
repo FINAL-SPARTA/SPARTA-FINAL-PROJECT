@@ -24,9 +24,9 @@ allprojects{
         enabled = false
     }
 
-    // 루트 프로젝트에서 BootJar 비활성화
+    // 루트 프로젝트에서 BootJar 활성화
     tasks.withType(BootJar).configureEach {
-        enabled = false
+        enabled = true
     }
 }
 
@@ -63,11 +63,17 @@ project(':alarm-service') {
     dependencies {
         implementation project(':common-service')
     }
+    jar {
+        enabled = false
+    }
 }
 
 project(':event-service') {
     dependencies {
         implementation project(':common-service')
+    }
+    jar {
+        enabled = false
     }
 }
 
@@ -75,11 +81,17 @@ project(':game-service') {
     dependencies {
         implementation project(':common-service')
     }
+    jar {
+        enabled = false
+    }
 }
 
 project(':order-service') {
     dependencies {
         implementation project(':common-service')
+    }
+    jar {
+        enabled = false
     }
 }
 
@@ -87,11 +99,17 @@ project(':stadium-service') {
     dependencies {
         implementation project(':common-service')
     }
+    jar {
+        enabled = false
+    }
 }
 
 project(':user-service') {
     dependencies {
         implementation project(':common-service')
+    }
+    jar {
+        enabled = false
     }
 }
 
@@ -99,10 +117,16 @@ project(':ticket-service') {
     dependencies {
         implementation project(':common-service')
     }
+    jar {
+        enabled = false
+    }
 }
 
 project(':payments-service') {
     dependencies {
         implementation project(':common-service')
+    }
+    jar {
+        enabled = false
     }
 }
