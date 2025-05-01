@@ -456,6 +456,41 @@
 
 <br>
 
+## 기능 로직
+<details>
+<summary>경기 생성 로직</summary>
+<div markdown="1">
+
+![image (8)](https://github.com/user-attachments/assets/db58ee88-7190-4174-b563-a6ada2752b88)
+
+</div>
+</details>
+
+<details>
+<summary>티켓 예매 로직</summary>
+<div markdown="1">
+
+![image_(6)](https://github.com/user-attachments/assets/0176dc13-0bba-4d32-a224-b0fed2d3b5e8)
+
+</div>
+</details>
+
+
+<details>
+<summary>이벤트 참여 로직</summary>
+<div markdown="1">
+	
+![image_(7)](https://github.com/user-attachments/assets/dc93e99d-6c68-484a-ae39-4cfd6b8e03ef)
+
+</div>
+</details>
+
+### 
+
+
+
+<br>
+
 
 ## 적용 기술과 기술적 의사결정
 
