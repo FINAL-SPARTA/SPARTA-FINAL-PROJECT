@@ -8,7 +8,7 @@
 |정민수|이수연|권길남|이종원|
 |:----:|:----:|:----:|:----:|
 |[@dbp-jack](https://github.com/dbp-jack)|[@azuressu](https://github.com/azuressu)|[@nimpa3201](https://github.com/nimpa3201)|[@zapzookj](https://github.com/zapzookj)|
-|주문, 결제 도메인, 배포|경기, 채팅 도메인|이벤트, 티켓 도메인, 배포|알람, 경기장 도메인|
+|주문, 결제 도메인, 배포|경기, 채팅 도메인|알람, 경기장 도메인|이벤트, 티켓 도메인, 배포|
 
 <details>
 <summary>담당 역할 자세히 보기</summary>
