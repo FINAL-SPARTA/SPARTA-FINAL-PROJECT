@@ -61,7 +61,11 @@ public class GameService {
 		log.info("경기 생성 시작: {}", request);
 		// 1. Stadium 쪽으로 요청을 전송하여, homeTeam의 경기장 정보를 받아옴
 		log.debug("Stadium 정보 조회 요청 전송: homeTeam={}", request.getHomeTeam());
-		StadiumFeignResponse responseDto = getStadiumInfo(request.getHomeTeam().toString());
+		String hometeam = request.getHomeTeam().toString();
+		if (hometeam.length() > 3) {
+			hometeam = hometeam.substring(0, 3);
+		}
+		StadiumFeignResponse responseDto = getStadiumInfo(hometeam);
 		log.info("Stadium 정보 조회 완료: stadiumId={}, stadiumName={}, seatQuantity={}",
 			responseDto.getStadiumId(), responseDto.getStadiumName(), responseDto.getSeatQuantity());
 
