@@ -1,11 +1,13 @@
 package com.fix.game_service.domain.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Builder
@@ -25,13 +27,6 @@ public class GameEvent {
 
     private String status;
 
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
-    public void changeStatus(String status) {
-        this.status = status;
-    }
-
-    public void markAsCompleted() {
-        this.status = "COMPLETED";
-    }
 }

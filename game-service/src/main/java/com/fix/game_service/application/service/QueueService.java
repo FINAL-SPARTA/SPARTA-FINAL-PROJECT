@@ -3,6 +3,7 @@ package com.fix.game_service.application.service;
 import com.fix.game_service.application.exception.GameException;
 import com.fix.game_service.domain.model.Game;
 import com.fix.game_service.domain.repository.GameRepository;
+import com.fix.game_service.infrastructure.kafka.QueueProducer;
 import com.fix.game_service.presentation.scheduler.DeactivateGameScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,8 @@ public class QueueService {
     private final String WORKING_QUEUE_KEY_PREFIX = "queue:working:";
     private final String ACTIVE_GAMES_KEY = "active-game";
 
+    private final QueueProducer queueProducer;
+
     /**
      * 대기열 입장
      *
@@ -48,17 +51,13 @@ public class QueueService {
         confirmActiveGame(gameId);
 
         // 2. 입장한 사용자에게 Token 발급
-        String queueKey = QUEUE_KEY_PREFIX + gameId;
         String rawToken = UUID.randomUUID().toString();
-        String token = rawToken + "|" + userId;
 
         // 3. 발급한 토큰 Redis에 추가 (대기열)
         long timestamp = Instant.now().toEpochMilli();
-        redisTemplate.opsForZSet().add(queueKey, token, timestamp);
-        log.info("Redis 대기열에 추가 완료: key={}, value={}", queueKey, token);
 
-        // 4. Sorted Set에 추가된 후 순위(대기번호)를 조회하여 반환
-        Long rank = redisTemplate.opsForZSet().rank(queueKey, token);
+        // 4. 해당 사용자 내용 Kakfa로 전송
+        queueProducer.sendEnterQueue(gameId, rawToken, userId, timestamp);
 
         // 5. Map에 저장 (사용자에게 반환할 정보이므로 raw 자체로 반환)
         HttpHeaders headers = new HttpHeaders();
@@ -67,9 +66,7 @@ public class QueueService {
         // 6. 대기열에서의 순위 반환
         Map<String, Object> response = new HashMap<>();
         response.put("token", rawToken);
-        response.put("position", rank);
 
-        log.info("대기열 진입 완료: gameId={}, userId={}, token={}, position={}", gameId, userId, rawToken, rank);
         return response;
     }
 
@@ -79,14 +76,18 @@ public class QueueService {
      * @param gameId : 경기 ID
      */
     private void confirmActiveGame(UUID gameId) {
+        // 1. Redis에 데이터가 있는지 확인
         Boolean isActive = redisTemplate.opsForSet().isMember(ACTIVE_GAMES_KEY, gameId.toString());
         LocalDateTime openDate = null;
         LocalDateTime closeDate = null;
+
+        // 2. Redis에 데이터가 없다면
         if (!Boolean.TRUE.equals(isActive)) {
             Game game = findGame(gameId);
             openDate = game.getOpenDate();
             closeDate = game.getCloseDate();
             registerActiveGame(gameId, game.getStadiumId(), game.getOpenDate(), game.getCloseDate());
+            // 3. Redis에 데이터가 있다면
         } else {
             Map<Object, Object> gameInfo = redisTemplate.opsForHash().entries(ACTIVE_GAMES_KEY + gameId);
             if (gameInfo != null && !gameInfo.isEmpty()) {
