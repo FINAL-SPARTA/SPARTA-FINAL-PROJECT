@@ -4,11 +4,13 @@ import com.fix.ticket_service.application.service.KeyExpiredListener;
 import com.fix.ticket_service.application.service.TicketApplicationService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+@Profile("local")
 @Component
 public class KeyspaceNotificationConfig {
 
