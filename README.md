@@ -534,7 +534,7 @@
 
 <br>
 
-## 트러블 슈팅
+## 트러블 슈팅 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki)
 
 #### 주문 상태 전이 및 금액 계산 구조 문제 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%EC%A3%BC%EB%AC%B8-%EC%83%81%ED%83%9C-%EC%A0%84%EC%9D%B4-%EB%B0%8F-%EA%B8%88%EC%95%A1-%EA%B3%84%EC%82%B0-%EA%B5%AC%EC%A1%B0-%EB%AC%B8%EC%A0%9C)
 #### 티켓 예매 동시성 문제 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%ED%8B%B0%EC%BC%93-%EC%98%88%EB%A7%A4-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C)
