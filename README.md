@@ -2,6 +2,9 @@
 ### ⚾ 𝑻𝒆𝒆𝒑𝒊𝒄𝒌 : 티켓 예매, 이벤트, 알림, 채팅까지! 야구 팬을 위한 올인원 서비스 플랫폼 ⚾
 ![](https://velog.velcdn.com/images/azuressu/post/1973361b-56a5-4938-a5dc-9d5c68c8fcec/image.png)
 
+TeePick은 야구 경기 조회, 좌석 예매, 주문, 결제, 알림, 채팅을 MSA 구조로 연결한 티켓팅 플랫폼입니다.
+Kafka 기반 이벤트 흐름으로 서비스 간 결합도를 낮추고, 예매·주문·결제 과정에서 발생하는 상태 전이와 보상 흐름을 도메인별로 분리했습니다.
+
 <br>
 
 ## 𝑭𝑰𝑿 팀원 소개
@@ -9,6 +12,21 @@
 |:----:|:----:|:----:|:----:|
 |[@dbp-jack](https://github.com/dbp-jack)|[@azuressu](https://github.com/azuressu)|[@nimpa3201](https://github.com/nimpa3201)|[@zapzookj](https://github.com/zapzookj)|
 |주문, 결제 도메인, 배포|경기, 채팅 도메인|알람, 경기장 도메인|이벤트, 티켓 도메인, 배포|
+
+## 역할별 주요 작업 요약
+
+| 담당자 | 담당 영역 | 주요 작업 |
+|---|---|---|
+| 정민수 | Order, Payment, 배포 | Kafka 기반 주문·결제 Saga 흐름 설계, 주문 상태 전이와 금액 계산 책임 정리, Toss 미사용 Mock 결제 흐름과 Toss 실결제 승인 흐름 분리, 서비스별 Dockerfile 작성 및 이미지 빌드 기반 구성 |
+| 이수연 | Game, Chat | 경기 CRUD, 경기 생성 이벤트 전파, Redis 대기열, WebSocket 채팅, Kafka 기반 메시지 브로커 연동 |
+| 권길남 | Alarm, Stadium | 경기장·좌석 도메인 설계, 좌석 조회 인덱스 및 캐시 적용, Kafka 기반 알림 이벤트 소비, SNS 발송 흐름 구성 |
+| 이종원 | Event, Ticket, 배포 | 이벤트 라이프사이클 구현, Quartz 기반 이벤트 상태 스케줄링, Redisson MultiLock 티켓 예매 동시성 처리, Kafka 기반 티켓 예매 비동기 처리 |
+
+### 민수 담당 문서
+
+- [민수 담당 작업 모음](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%EB%AF%BC%EC%88%98-%EB%8B%B4%EB%8B%B9-%EC%9E%91%EC%97%85)
+- [주문 상태 전이 및 금액 계산 구조 문제](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EB%AF%BC%EC%88%98%E2%80%90Order-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-%EC%A3%BC%EB%AC%B8-%EC%83%81%ED%83%9C-%EC%A0%84%EC%9D%B4-%EB%B0%8F-%EA%B8%88%EC%95%A1-%EA%B3%84%EC%82%B0-%EA%B5%AC%EC%A1%B0-%EB%AC%B8%EC%A0%9C)
+- [Payment TossPay 연결](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EB%AF%BC%EC%88%98%E2%80%90Payment-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-Payment-TossPay-%EC%97%B0%EA%B2%B0)
 
 <details>
 <summary>담당 역할 자세히 보기</summary>
@@ -41,14 +59,8 @@
       - Kafka 성능 및 부하 테스트용 모킹 구현
 
     - 배포
-      - AWS Cloud 활용해 인프라 배포환경 구축
-      - VPC Network 환경 구성
-      - ECR Repository 구성
-      - ECS(Fargate)기반 클러스터 및 서비스 구축
-      - Dockerfile 작성 및 Image Build
-
-    - CI / CD 파이프라인 구축
-      - GitHub Actions를 사용하여 코드 푸시 및 PR 생성 시 자동으로 빌드, 테스트 수행.
+      - 서비스별 Dockerfile 작성 및 Image Build
+      - 컨테이너 기반 실행 환경 구성
     
   
   
@@ -211,7 +223,7 @@
   - **이벤트 구독 및 처리** : 다른 서비스에서 발행된 이벤트를 구독하여 티켓 상태 업데이트 및 보상 트랜잭션 수행
     - ORDER_COMPLETED : 결제 완료 시 티켓 상태를 SOLD로 변경
     - ORDER_CANCELLED : 주문 취소 시 티켓 상태를 CANCELLED로 변경
-    - ORDER_CREATION_FAILED / ORDER_COMPLETIONFAILED : Saga 패턴 실패 시 티켓 삭제 등 보상 트랜잭션 처리
+    - ORDER_CREATION_FAILED / ORDER_COMPLETION_FAILED : Saga 패턴 실패 시 티켓 삭제 등 보상 트랜잭션 처리
   
 </div>
 </details>
@@ -246,15 +258,15 @@
   - **결제 서비스 연동 (Kafka Saga)**
     - `ORDER_CREATED` 발행 → payment-service가 수신 후 결제 시도.
     - 결제 성공 시 `PAYMENT_COMPLETED` 이벤트 수신 → 주문 상태를 `COMPLETED`로 변경.
-    - 결제 실패 시 `PAYMENT_COMPLETION_FAILED` 수신 → 주문 상태를 `FAILED`로 변경 및 보상 로직 트리거.
+    - 결제 실패·취소 시 실패 이벤트를 수신해 주문 취소 및 보상 흐름을 트리거.
   - **이벤트 기반 동기화 및 상태 반영**
     - 결제 결과에 따라 주문 상태를 실시간으로 반영하고, 알림 연동을 위한 추가 이벤트 발행.
 - 보상 트랜잭션 및 실패 복구
   - **보상 트랜잭션 처리**
     - 결제 실패, 주문 생성 실패 등 다양한 장애 상황 발생 시 Kafka 보상 이벤트(`ORDER_CREATION_FAILED`, `ORDER_COMPLETION_FAILED`) 발행.
     - 티켓 반환, 주문 취소, 잔여 좌석 복구 등 후속 보상 트랜잭션을 자동 수행.
-  - **이벤트 실패 대비 DLT 준비 계획**
-    - 향후 Kafka Dead Letter Topic(DLT) 적용하여 실패 이벤트 이관 및 재처리 체계 구축 예정.
+  - **실패 이벤트 분리**
+    - 주문 생성 실패와 결제 완료 실패를 별도 Kafka 이벤트로 분리해 후속 보상 흐름을 명확히 처리.
 
 </div>
 </details>
@@ -534,21 +546,14 @@
 
 <br>
 
-## 트러블 슈팅 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki)
+## Wiki 및 트러블슈팅
 
-#### 주문 상태 전이 및 금액 계산 구조 문제 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%EC%A3%BC%EB%AC%B8-%EC%83%81%ED%83%9C-%EC%A0%84%EC%9D%B4-%EB%B0%8F-%EA%B8%88%EC%95%A1-%EA%B3%84%EC%82%B0-%EA%B5%AC%EC%A1%B0-%EB%AC%B8%EC%A0%9C)
-#### 티켓 예매 동시성 문제 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%ED%8B%B0%EC%BC%93-%EC%98%88%EB%A7%A4-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C)
-#### Payment TossPay 연결 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-Payment-TossPay-%EC%97%B0%EA%B2%B0)
-#### Kafka 직렬화 / 역직렬화 문제 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-Kafka-%EC%A7%81%EB%A0%AC%ED%99%94---%EC%97%AD%EC%A7%81%EB%A0%AC%ED%99%94-%EB%AC%B8%EC%A0%9C)
-#### 티켓 예매 로직 개선 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%ED%8B%B0%EC%BC%93-%EC%98%88%EB%A7%A4-%EB%A1%9C%EC%A7%81-%EA%B0%9C%EC%84%A0)
-#### Saga Choreography Pattern 구현 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-Saga-Choreography-Pattern-%EA%B5%AC%ED%98%84)
-#### 스케줄러 기반 만료 티켓 정리의 비효율성 개선 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%EC%8A%A4%EC%BC%80%EC%A4%84%EB%9F%AC-%EA%B8%B0%EB%B0%98-%EB%A7%8C%EB%A3%8C-%ED%8B%B0%EC%BC%93-%EC%A0%95%EB%A6%AC%EC%9D%98-%EB%B9%84%ED%9A%A8%EC%9C%A8%EC%84%B1-%EA%B0%9C%EC%84%A0)
-#### 분산 환경에서의 이벤트 상태 변경 스케줄링 정확성 및 안정성 확보 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%EB%B6%84%EC%82%B0-%ED%99%98%EA%B2%BD%EC%97%90%EC%84%9C%EC%9D%98-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%83%81%ED%83%9C-%EB%B3%80%EA%B2%BD-%EC%8A%A4%EC%BC%80%EC%A4%84%EB%A7%81-%EC%A0%95%ED%99%95%EC%84%B1-%EB%B0%8F-%EC%95%88%EC%A0%95%EC%84%B1-%ED%99%95%EB%B3%B4)
-#### WebSocket을 활용한 채팅 기능 개선 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-WebSocket%EC%9D%84-%ED%99%9C%EC%9A%A9%ED%95%9C-%EC%B1%84%ED%8C%85-%EA%B8%B0%EB%8A%A5-%EA%B0%9C%EC%84%A0)
-#### 경기 생성 로직 수정 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%EA%B2%BD%EA%B8%B0-%EC%83%9D%EC%84%B1-%EB%A1%9C%EC%A7%81-%EC%88%98%EC%A0%95)
-#### Kafka 이벤트 요청-응답 설계 고민: Alarm → Order 서비스 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-Kafka-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%9A%94%EC%B2%AD%E2%80%90%EC%9D%91%EB%8B%B5-%EC%84%A4%EA%B3%84-%EA%B3%A0%EB%AF%BC:-Alarm-%E2%86%92-Order-%EC%84%9C%EB%B9%84%EC%8A%A4)
-#### saveAll() 사용 시 타입 소거로 인한 DIP 설계 원칙 충돌 해결 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-saveAll()-%EC%82%AC%EC%9A%A9-%EC%8B%9C-%ED%83%80%EC%9E%85-%EC%86%8C%EA%B1%B0%EB%A1%9C-%EC%9D%B8%ED%95%9C-DIP-%EC%84%A4%EA%B3%84-%EC%9B%90%EC%B9%99-%EC%B6%A9%EB%8F%8C-%ED%95%B4%EA%B2%B0)
-#### 티켓 예매 기능의 처리량 개선 [→ WIKI 보기](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D-%ED%8B%B0%EC%BC%93-%EC%98%88%EB%A7%A4-%EA%B8%B0%EB%8A%A5%EC%9D%98-%EC%B2%98%EB%A6%AC%EB%9F%89-%EA%B0%9C%EC%84%A0)
+- [FIX/TeePick Wiki Home](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki) — 담당 작업, 공통 Saga/Kafka 문서, 도메인별 트러블슈팅 확인
+- [민수 담당 작업 모음](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%EB%AF%BC%EC%88%98-%EB%8B%B4%EB%8B%B9-%EC%9E%91%EC%97%85)
+- [주문 상태 전이 및 금액 계산 구조 문제](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EB%AF%BC%EC%88%98%E2%80%90Order-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-%EC%A3%BC%EB%AC%B8-%EC%83%81%ED%83%9C-%EC%A0%84%EC%9D%B4-%EB%B0%8F-%EA%B8%88%EC%95%A1-%EA%B3%84%EC%82%B0-%EA%B5%AC%EC%A1%B0-%EB%AC%B8%EC%A0%9C)
+- [Payment TossPay 연결](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EB%AF%BC%EC%88%98%E2%80%90Payment-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-Payment-TossPay-%EC%97%B0%EA%B2%B0)
+- [Saga Choreography Pattern 구현](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EC%A0%84%EC%B2%B4%E2%80%90%EC%A0%84%EC%B2%B4-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-Saga-Choreography-Pattern-%EA%B5%AC%ED%98%84)
+- [Kafka 직렬화 역직렬화 문제](https://github.com/FINAL-SPARTA/SPARTA-FINAL-PROJECT/wiki/%5BTrouble-Shooting%5D%5B%EC%A0%84%EC%B2%B4%E2%80%90%EC%A0%84%EC%B2%B4-%EB%8F%84%EB%A9%94%EC%9D%B8%5D-Kafka-%EC%A7%81%EB%A0%AC%ED%99%94-%EC%97%AD%EC%A7%81%EB%A0%AC%ED%99%94-%EB%AC%B8%EC%A0%9C)
 
 
 
